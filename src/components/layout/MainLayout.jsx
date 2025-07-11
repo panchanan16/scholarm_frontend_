@@ -10,7 +10,7 @@ export function MainLayout({ children }) {
       <NavBar />
       <div className="flex flex-1">
         <SideBar />
-        <main className="flex-1 p-6 bg-gray-50 overflow-auto">
+        <main className="flex-1 bg-gray-50 overflow-auto">
           {children}
         </main>
       </div>

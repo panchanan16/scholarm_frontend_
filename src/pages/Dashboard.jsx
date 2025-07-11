@@ -11,7 +11,7 @@ export default function Dashboard() {
         { label: "Editor Invited", count: 23 },
         { label: "Need To Assign Editor", count: 23 },
         { label: "Need To Assign Reviewers", count: 6 },
-      ],
+      ],    
     },
     {
       title: "REVISIONS",

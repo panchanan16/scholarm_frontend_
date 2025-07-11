@@ -3,29 +3,23 @@ import { createRoot } from 'react-dom/client'
 import './index.css'
 import App from './App.jsx'
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
-import { Provider } from 'react-redux'
-
-
-
+import  Dashboard  from './pages/Dashboard.jsx'
 
 const router = createBrowserRouter([
   {
     path: '/',
-    element: <App />, 
+    element: <App />,
     children: [
-      { path: '/', element: <h1>Home Page</h1> },
+      { path: '/', element: <Dashboard /> },
+      { path: '/dashboard', element: <Dashboard /> },
       { path: '/about', element: <h1>About Page</h1> },
       { path: '/contact', element: <h1>Contact Page</h1> },
     ],
   },
 ]);
 
-
-
 createRoot(document.getElementById('root')).render(
-  <StrictMode> 
-    <Provider store={{}}> 
-      <App router={router} />
-    </Provider>
+  <StrictMode>
+    <RouterProvider router={router} />
   </StrictMode>,
 )

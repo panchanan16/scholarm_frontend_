@@ -1,6 +1,7 @@
-import { ChevronDown, Search, User } from "lucide-react";
+import { ChevronDown, Notebook, Search, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Link } from "react-router-dom";
 
 export function NavBar(){
     return (
@@ -18,11 +19,18 @@ export function NavBar(){
               </span>
             </div>
             <div className="flex items-center space-x-4">
+              <Link to="/submission">
+                <Button variant="ghost" className="text-yellow-600 bg-yellow-100 hover:bg-yellow-200">
+                <Notebook className="w-4 h-4 mr-2" />
+                  Add A Article
+                  </Button>
+              </Link>
               <Button variant="ghost" className="text-yellow-600 bg-yellow-100 hover:bg-yellow-200">
                 <User className="w-4 h-4 mr-2" />
                 Iftikhar Ahmed (PhD)
                 <ChevronDown className="w-4 h-4 ml-2" />
               </Button>
+              
             </div>
           </div>
         </header>

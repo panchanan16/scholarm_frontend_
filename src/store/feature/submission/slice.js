@@ -2,7 +2,7 @@ import { createSlice } from "@reduxjs/toolkit";
 
 
 const initialState = {
-    savedSteps: new Set(["channel", "collection"]),
+    savedSteps: new Set(["title"]),
     expandedSections: new Set(["content"])
 }
 

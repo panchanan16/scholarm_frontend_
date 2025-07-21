@@ -18,7 +18,7 @@ export default function SubmissionPage() {
     await new Promise((resolve) => setTimeout(resolve, 800));
 
     // Add current step to saved steps
-    dispatch(addData("article-type"));
+    dispatch(addData("authors"));
 
     setIsLoading(false);
 

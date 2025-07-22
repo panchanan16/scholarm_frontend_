@@ -1,4 +1,5 @@
 import { modifyExpand } from "@/store/feature/submission/slice";
+
 import {
   Tag,
   BookOpen,
@@ -31,7 +32,7 @@ function SubmissionAsidebar() {
       label: "Content",
       items: [
         { id: "title", label: "Title, etc.", icon: FileText },
-        { id: "authors", label: "Authors", icon: Users },
+        { id: "authors", label: "Authors", icon: Users ,link:"/submission/authors" },
         { id: "article", label: "Article", icon: FileText, },
         { id: "reviewers", label: "Reviewers", icon: User },
         { id: "references", label: "References", icon: BookOpen },

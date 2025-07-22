@@ -1,6 +1,9 @@
-import { ChevronRight } from "lucide-react";
+import { Breadcrumb } from "@/components/ui/breadCrumb";
+
 import React, { useState } from "react";
 import { useDispatch } from "react-redux";
+
+
 
 function Mainform() {
   const [selectedEntry, setSelectedEntry] = useState("no");
@@ -27,11 +30,10 @@ function Mainform() {
   return (
     <div className="max-w-4xl mx-auto">
       {/* Breadcrumb */}
-      <div className="flex items-center gap-2 text-sm text-gray-500 mb-8">
-        <span>Getting Started</span>
-        <ChevronRight className="w-4 h-4" />
-        <span className="text-gray-900 font-medium">Competition</span>
-      </div>
+     <Breadcrumb
+       title={"Get Started"}
+       content={"Competition Entry"}
+     />
 
       {/* Main Content Card */}
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">

@@ -1,6 +1,7 @@
 import App from "@/App";
 import Dashboard from "@/pages/Dashboard";
 import SubmissionPage from "@/pages/submission";
+import Author from "@/pages/submission/modules/forms/author";
 import IntroForm from "@/pages/submission/modules/forms/IntroForm";
 import Mainform from "@/pages/submission/modules/forms/mainfrom";
 import { createBrowserRouter } from "react-router-dom";
@@ -17,7 +18,11 @@ const routes = [
       {
         path: "/submission",
         element: <SubmissionPage />,
-        children: [{ index: true, element: <Mainform /> }, { path: "intro-section", element: <IntroForm /> }],
+        children: [{ index: true, element: <Mainform /> }, { path: "intro-section", element: <IntroForm /> },
+
+
+          {path:"authors", element: <Author/>}
+        ],
       },
     ],
   },

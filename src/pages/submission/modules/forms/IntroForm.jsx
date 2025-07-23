@@ -1,9 +1,11 @@
 import { Field, FieldArray, Form, Formik, useFormikContext } from "formik";
 import { useState } from "react";
+import { useDispatch } from "react-redux";
 
 export default function IntroForm() {
   const [type, setType] = useState("");
   const [subClass, setSubClass] = useState("");
+  const dispatch = useDispatch()
 
   // Define subtypes for each type
   const typeSubtypes = {

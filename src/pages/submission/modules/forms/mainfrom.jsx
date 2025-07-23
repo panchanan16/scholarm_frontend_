@@ -1,111 +1,137 @@
-import { Breadcrumb } from "@/components/ui/breadCrumb";
+import { useState } from 'react';
 
-import React, { useState } from "react";
-import { useDispatch } from "react-redux";
+const ArticleMetaForm = () => {
+  const [formData, setFormData] = useState({
+    title: '',
+    abstract: '',
+    keywords: '',
+    pages: '',
+    belong_to: ''
+  });
+  
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
+  // Only belong_to needs dropdown options
+  const belongToOptions = [
+    { value: '', label: 'Select category' },
+    { value: 'regular', label: 'Regular' },
+    { value: 'special', label: 'Special' },
+    { value: 'premium', label: 'Premium' },
+    { value: 'featured', label: 'Featured' },
+  ];
 
-
-function Mainform() {
-  const [selectedEntry, setSelectedEntry] = useState("no");
-  const dispatch = useDispatch();
-
-  const [isLoading, setIsLoading] = useState(false);
-
-  const handleSave = async (continueNext = false) => {
-    setIsLoading(true);
-
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 800));
-
-    // Add current step to saved steps
-    dispatch(addData("authors"));
-
-    setIsLoading(false);
-
-    if (continueNext) {
-      // Simulate navigation to next step
-      console.log("Continuing to next step...");
-    }
+  const SubmitAndContinueHandler = () => {
+    setIsSubmitting(true);
+    console.log('Form submitted:', formData);
+    // Handle form submission here
+    setTimeout(() => {
+      setIsSubmitting(false);
+      alert('Form submitted successfully!');
+    }, 1000);
   };
+
+  const handleFieldChange = (fieldName, value) => {
+    setFormData(prev => ({
+      ...prev,
+      [fieldName]: value
+    }));
+  };
+
   return (
-    <div className="max-w-4xl mx-auto">
-      {/* Breadcrumb */}
-     <Breadcrumb
-       title={"Get Started"}
-       content={"Competition Entry"}
-     />
+    <div className="max-w-4xl mx-auto bg-white rounded-lg shadow-sm border border-gray-200 p-8">
+      <div className="mb-8">
+        <h2 className="text-2xl font-semibold text-gray-900 mb-6">
+          Article Details
+        </h2>
 
-      {/* Main Content Card */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-        <div className="p-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-6">
-            Is this a competition entry?
-          </h1>
-
-          {/* Radio Options */}
-          <div className="space-y-4 mb-8">
-            <label className="flex items-start gap-3 p-4 border border-gray-200 rounded-lg hover:border-gray-300 cursor-pointer transition-colors">
-              <input
-                type="radio"
-                name="competition"
-                value="no"
-                checked={selectedEntry === "no"}
-                onChange={(e) => setSelectedEntry(e.target.value)}
-                className="w-5 h-5 text-blue-600 border-gray-300 focus:ring-blue-500 mt-0.5"
-              />
-              <div>
-                <div className="font-medium text-gray-900">
-                  No, this is not a competition entry.
-                </div>
-              </div>
-            </label>
-
-            <label className="flex items-start gap-3 p-4 border border-gray-200 rounded-lg hover:border-gray-300 cursor-pointer transition-colors">
-              <input
-                type="radio"
-                name="competition"
-                value="yes"
-                checked={selectedEntry === "yes"}
-                onChange={(e) => setSelectedEntry(e.target.value)}
-                className="w-5 h-5 text-blue-600 border-gray-300 focus:ring-blue-500 mt-0.5"
-              />
-              <div>
-                <div className="font-medium text-gray-900">
-                  Yes, this is a competition entry.
-                </div>
-              </div>
-            </label>
-          </div>
-
-          {/* Action Buttons */}
-          <div className="flex items-center gap-4 pt-6 border-t border-gray-100">
-            <button
-              onClick={() => handleSave(false)}
-              disabled={isLoading}
-              className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 bg-gray-50 border border-gray-200 rounded-lg hover:bg-gray-100 transition-colors"
-            >
-              {isLoading ? "Saving..." : "Save"}
-            </button>
-
-            <button
-              onClick={() => handleSave(true)}
-              disabled={isLoading}
-              className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-gray-600 border border-gray-200 rounded-lg hover:bg-gray-800 transition-colors"
-            >
-              {isLoading ? (
-                <>
-                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                  Saving...
-                </>
-              ) : (
-                "Save & Continue"
-              )}
-            </button>
-          </div>
+        {/* Title Field */}
+        <div className="mb-6">
+          <label className="block text-sm font-medium text-gray-700 mb-3">
+            Title
+          </label>
+          <input
+            type="text"
+            value={formData.title}
+            onChange={(e) => handleFieldChange('title', e.target.value)}
+            placeholder="Enter title"
+            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white text-gray-900"
+          />
         </div>
+
+        {/* Abstract Field */}
+        <div className="mb-6">
+          <label className="block text-sm font-medium text-gray-700 mb-3">
+            Abstract
+          </label>
+          <textarea
+            value={formData.abstract}
+            onChange={(e) => handleFieldChange('abstract', e.target.value)}
+            placeholder="Enter abstract"
+            rows={4}
+            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white text-gray-900 resize-vertical"
+          />
+        </div>
+
+        {/* Keywords Field */}
+        <div className="mb-6">
+          <label className="block text-sm font-medium text-gray-700 mb-3">
+            Keywords
+          </label>
+          <input
+            type="text"
+            value={formData.keywords}
+            onChange={(e) => handleFieldChange('keywords', e.target.value)}
+            placeholder="Enter keywords (comma separated)"
+            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white text-gray-900"
+          />
+        </div>
+
+        {/* Pages Field */}
+        <div className="mb-6">
+          <label className="block text-sm font-medium text-gray-700 mb-3">
+            Pages
+          </label>
+          <input
+            type="number"
+            value={formData.pages}
+            onChange={(e) => handleFieldChange('pages', e.target.value)}
+            placeholder="Enter number of pages"
+            min="1"
+            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white text-gray-900"
+          />
+        </div>
+
+        {/* Belong To Field */}
+        <div className="mb-8">
+          <label className="block text-sm font-medium text-gray-700 mb-3">
+            Belong To
+          </label>
+          <select
+            value={formData.belong_to}
+            onChange={(e) => handleFieldChange('belong_to', e.target.value)}
+            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white text-gray-900"
+          >
+            {belongToOptions.map((option) => (
+              <option key={option.value} value={option.value}>
+                {option.label}
+              </option>
+            ))}
+          </select>
+        </div>
+      </div>
+
+      {/* Buttons */}
+      <div className="flex gap-3">
+        <button
+          onClick={SubmitAndContinueHandler}
+          disabled={isSubmitting}
+          className="px-4 py-2 text-white bg-gray-800 rounded-md hover:bg-gray-700 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50"
+        >
+          {isSubmitting ? 'Saving...' : 'Save & Continue'}
+        </button>
       </div>
     </div>
   );
-}
+};
 
-export default Mainform;
+export default ArticleMetaForm;

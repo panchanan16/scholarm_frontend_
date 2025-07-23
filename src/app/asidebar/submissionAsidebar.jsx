@@ -13,9 +13,12 @@ import {
   Eye,
   Send,
 } from "lucide-react";
+import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { Link } from "react-router-dom";
 
 function SubmissionAsidebar() {
+  const [highlight, setHighlight] = useState("");
   const { expandedSections, savedSteps } = useSelector(
     (state) => state["submission"]
   );
@@ -25,17 +28,22 @@ function SubmissionAsidebar() {
     {
       id: "getting-started",
       label: "Getting Started",
-      items: [{ id: "competition", label: "Article Type", icon: Tag }],
+      items: [{ id: "articletype", label: "Article Type", icon: Tag, link: "intro-section" }],
     },
     {
       id: "content",
       label: "Content",
       items: [
-        { id: "title", label: "Title, etc.", icon: FileText },
-        { id: "authors", label: "Authors", icon: Users ,link:"/submission/authors" },
-        { id: "article", label: "Article", icon: FileText, },
+        { id: "intro", label: "Title, etc.", icon: FileText },
+        {
+          id: "authors",
+          label: "Authors",
+          icon: Users,
+          link: "authors",
+        },
+        { id: "article", label: "Article", icon: FileText },
         { id: "reviewers", label: "Reviewers", icon: User },
-        { id: "references", label: "References", icon: BookOpen },
+        { id: "refference", label: "References", icon: BookOpen },
         { id: "summary", label: "Summary", icon: FileText },
         { id: "submit", label: "Submit", icon: Send },
       ],
@@ -74,24 +82,26 @@ function SubmissionAsidebar() {
             {expandedSections.has(section.id) && (
               <div className="ml-4 mt-1 space-y-1">
                 {section.items.map((item) => (
-                  <div
+                  <Link
+                    onClick={() => setHighlight(item.id)}
+                    to={item.link}
                     key={item.id}
                     className="flex items-center gap-2 p-2 hover:bg-gray-50 rounded-lg transition-colors cursor-pointer group"
                   >
                     <item.icon className="w-4 h-4 text-gray-400 group-hover:text-gray-600" />
                     <span
                       className={`text-sm ${
-                        item.id === "competition"
+                        item.id === highlight
                           ? "text-blue-600 font-medium"
                           : "text-gray-600"
                       }`}
                     >
                       {item.label}
                     </span>
-                    {savedSteps.has(item.id) && (
+                    {savedSteps.some((obj) => obj[item.id] === true) && (
                       <CircleCheckBigIcon className="w-4 h-4 text-green-500 ml-auto animate-in slide-in-from-right-2 duration-300" />
                     )}
-                  </div>
+                  </Link>
                 ))}
               </div>
             )}

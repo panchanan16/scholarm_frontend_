@@ -35,20 +35,20 @@ export default function Author() {
         <div className="p-4">
           <h1 className="text-2xl font-bold">Add Co-Author</h1>
           <p className="text-sm text-gray-500 mt-4">
-            This study investigates [insert research topic or objective], addressing key gaps in the existing literature on [relevant field or subject]. Utilizing a [qualitative/quantitative/mixed-methods] approach, we analyze [data sources, experimental methods, or theoretical frameworks] to explore [specific research questions or hypotheses]. Preliminary findings indicate that [summarize key results or trends], suggesting implications for [theory, practice, or policy]. The study contributes to [disciplinary field] by [highlighting novel insights, methodologies, or applications]. Limitations and directions for future research are also discussed.
+            This study investigates [insert research topic or objective], addressing key gaps in the existing literature on [relevant field or subject].
           </p>
 
           <div className="mt-8 flex items-center gap-4">
             <input
               type="text"
               placeholder="Search email of your co-author"
-              className="flex-1 border-4 border-gray-300 rounded-lg p-2 text-sm"
+              className="flex-1 border-4 border-gray-300 rounded-sm p-2 text-sm"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
             <button
               onClick={handleSearch}
-              className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors"
+              className="px-4 py-2 text-white bg-gray-800 rounded-md hover:bg-gray-700 disabled:cursor-not-allowed disabled:opacity-50"
             >
               Search
             </button>
@@ -67,7 +67,7 @@ export default function Author() {
             </div>
           )}
 
-          <button className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors mt-8"
+          <button className="px-4 py-2 mt-5 text-white bg-gray-800 rounded-md hover:bg-gray-700 disabled:cursor-not-allowed disabled:opacity-50"
           
           onClick={() => HandleAddAuthor()}
           

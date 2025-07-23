@@ -66,7 +66,7 @@ export default function AddAuthorModal({ isOpen, onClose, email }) {
                   />
                   <ErrorMessage name="firstName" component="div" className="text-red-500 text-xs" />
                 </div>
-                <div className="col-span-2">
+                {/* <div className="col-span-2">
                   <label className="text-sm font-medium">MI</label>
                   <Field
                     name="middleInitial"
@@ -75,7 +75,7 @@ export default function AddAuthorModal({ isOpen, onClose, email }) {
                     className="w-full border rounded px-3 py-2 mt-1 text-sm"
                   />
                   <ErrorMessage name="middleInitial" component="div" className="text-red-500 text-xs" />
-                </div>
+                </div> */}
                 <div className="col-span-5">
                   <label className="text-sm font-medium">Last Name</label>
                   <Field
@@ -86,7 +86,7 @@ export default function AddAuthorModal({ isOpen, onClose, email }) {
                   <ErrorMessage name="lastName" component="div" className="text-red-500 text-xs" />
                 </div>
               </div>
-
+{/* 
               <div className="mb-4">
                 <label className="text-sm font-medium">Specialty</label>
                 <Field
@@ -104,9 +104,9 @@ export default function AddAuthorModal({ isOpen, onClose, email }) {
                   <option value="other">Other</option>
                 </Field>
                 <ErrorMessage name="specialty" component="div" className="text-red-500 text-xs" />
-              </div>
+              </div> */}
 
-              <div className="mb-4">
+              {/* <div className="mb-4">
                 <label className="text-sm font-medium">Hospital/Institution</label>
                 <Field
                   name="hospitalInstitution"
@@ -114,7 +114,7 @@ export default function AddAuthorModal({ isOpen, onClose, email }) {
                   className="w-full border rounded px-3 py-2 mt-1 text-sm"
                 />
                 <ErrorMessage name="hospitalInstitution" component="div" className="text-red-500 text-xs" />
-              </div>
+              </div> */}
 
               <div className="mb-4">
                 <label className="text-sm font-medium">Department</label>
@@ -162,7 +162,7 @@ export default function AddAuthorModal({ isOpen, onClose, email }) {
                 <button type="button" onClick={onClose} className="px-4 py-2 rounded border text-sm bg-gray-100 hover:bg-gray-200">
                   Cancel
                 </button>
-                <button type="submit" className="px-4 py-2 rounded text-white text-sm bg-blue-600 hover:bg-blue-700">
+                <button type="submit" className="px-4 py-2 text-white bg-gray-800 rounded-md hover:bg-gray-700 disabled:cursor-not-allowed disabled:opacity-50">
                   Add Author
                 </button>
               </div>

@@ -1,8 +1,7 @@
-
 import AddAuthorModal from "@/components/ui/authorModal";
 import { Breadcrumb } from "@/components/ui/breadCrumb";
 import { useState } from "react";
-
+import AddedAuthors from "../AddedAuthors";
 
 export default function Author() {
   const [searchTerm, setSearchTerm] = useState("");
@@ -35,7 +34,9 @@ export default function Author() {
         <div className="p-4">
           <h1 className="text-2xl font-bold">Add Co-Author</h1>
           <p className="text-sm text-gray-500 mt-4">
-            This study investigates [insert research topic or objective], addressing key gaps in the existing literature on [relevant field or subject].
+            This study investigates [insert research topic or objective],
+            addressing key gaps in the existing literature on [relevant field or
+            subject].
           </p>
 
           <div className="mt-8 flex items-center gap-4">
@@ -59,18 +60,24 @@ export default function Author() {
               <h1 className="text-2xl font-bold">Search Results</h1>
               <p className="text-sm text-gray-500 mt-4">
                 {authorExists ? (
-                  <>Author found: <strong>{searchTerm}</strong></>
+                  <>
+                    Author found: <strong>{searchTerm}</strong>
+                  </>
                 ) : (
-                  <>No Co-Author found with email <strong>{searchTerm}</strong>. Add a new co-author to continue.</>
+                  <>
+                    No Co-Author found with email <strong>{searchTerm}</strong>.
+                    Add a new co-author to continue.
+                  </>
                 )}
               </p>
             </div>
           )}
 
-          <button className="px-4 py-2 mt-5 text-white bg-gray-800 rounded-md hover:bg-gray-700 disabled:cursor-not-allowed disabled:opacity-50"
-          
-          onClick={() => HandleAddAuthor()}
-          
+          <AddedAuthors />
+
+          <button
+            className="px-4 py-2 mt-5 text-white bg-gray-800 rounded-md hover:bg-gray-700 disabled:cursor-not-allowed disabled:opacity-50"
+            onClick={() => HandleAddAuthor()}
           >
             Save and Continue
           </button>

@@ -1,4 +1,5 @@
 import React from "react";
+import { Link } from "react-router-dom";
 
 function SubmissionHeader() {
   return (
@@ -12,9 +13,11 @@ function SubmissionHeader() {
         </span>
       </div>
       <div className="flex items-center gap-3">
-        <button className="px-4 font-medium py-2 bg-slate-600 hover:bg-slate-500 rounded-lg transition-colors">
-          Preview
-        </button>
+        <Link to="preview">
+          <button className="px-4 font-medium py-2 bg-slate-600 hover:bg-slate-500 rounded-lg transition-colors">
+            Preview
+          </button>
+        </Link>
         <button className="px-4 font-medium py-2 bg-slate-600 hover:bg-slate-500 rounded-lg transition-colors">
           Exit
         </button>

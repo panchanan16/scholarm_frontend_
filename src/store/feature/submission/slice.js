@@ -20,7 +20,7 @@ export const submissionSlice = createSlice({
             state.savedSteps.push(action.payload)
         },
         modifyExpand: (state, action) => {
-            state.expandedSections = new Set([action.payload])
+            state.expandedSections = action.payload
         }
 
     },

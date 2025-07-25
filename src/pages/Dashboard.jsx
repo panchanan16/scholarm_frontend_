@@ -157,7 +157,7 @@ const Dashboard = () => {
                 <Filter className="w-4 h-4" />
                 Filter
               </button>
-              <Link to={'/submission'}>
+              <Link to={'/submission/intro-section'}>
                 <button className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 bg-gray-50 border border-gray-200 rounded-lg hover:bg-gray-100 transition-colors">
                   <CirclePlus className="w-4 h-4" />
                   Submit New

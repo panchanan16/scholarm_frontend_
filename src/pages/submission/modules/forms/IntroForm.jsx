@@ -6,11 +6,15 @@ import { Field, FieldArray, Form, Formik } from "formik";
 import { useState } from "react";
 import { useDispatch } from "react-redux";
 import { typeSubtypes } from "@/data/submissionType";
+import { useSearchParams } from "react-router-dom";
+import { useNavigate } from 'react-router-dom';
 
 export default function IntroForm() {
   const [type, setType] = useState("");
   const [subClass, setSubClass] = useState([]);
+  const [searchParams, setSearchParams] = useSearchParams();
   const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   const initialValues = {
     articleDetails: {
@@ -35,8 +39,10 @@ export default function IntroForm() {
     setTimeout(() => {
       alert(JSON.stringify(values, null, 2));
       dispatch(updateSaveSteps({ article: true }));
-      dispatch(modifyExpand("content"));
+      dispatch(modifyExpand(new Set(["content"])));
       setSubmitting(false);
+      // setSearchParams({ article: 1 });
+      navigate("/submission?article=1")
     }, 1000);
   }
 

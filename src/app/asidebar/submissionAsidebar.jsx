@@ -1,5 +1,4 @@
 import { modifyExpand } from "@/store/feature/submission/slice";
-
 import {
   Tag,
   BookOpen,
@@ -41,16 +40,17 @@ function SubmissionAsidebar() {
           icon: Users,
           link: "authors",
         },
-        { id: "article", label: "Article", icon: FileText },
-        { id: "reviewers", label: "Reviewers", icon: User },
-        { id: "refference", label: "References", icon: BookOpen },
-        { id: "summary", label: "Summary", icon: FileText },
+        { id: "article", label: "Article", icon: FileText, link: "article-sections" },
+        { id: "reviewers", label: "Reviewers", icon: User, link: "reviewers" },
+        { id: "refference", label: "References", icon: BookOpen, link: "reffrences" },
+        { id: "summary", label: "Summary", icon: FileText, link: "summary" },
         { id: "submit", label: "Submit", icon: Send },
       ],
     },
   ];
 
   const toggleSection = (sectionId) => {
+    console.log(expandedSections)
     const newExpanded = new Set(expandedSections);
     if (newExpanded.has(sectionId)) {
       newExpanded.delete(sectionId);

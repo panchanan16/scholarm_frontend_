@@ -6,15 +6,34 @@ import { Field, FieldArray, Form, Formik } from "formik";
 import { useState } from "react";
 import { useDispatch } from "react-redux";
 import { typeSubtypes } from "@/data/submissionType";
-import { useSearchParams } from "react-router-dom";
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from "react-router-dom";
+import {
+  useLazyGetArticleIntroByIdQuery,
+  useCreateArticleTypeMutation,
+} from "@/services/features/submission/submissionApi";
+import {
+  useToastMutation,
+  useToastQuery,
+  useToastLazyQuery,
+} from "@/hooks/useNotification";
 
 export default function IntroForm() {
   const [type, setType] = useState("");
   const [subClass, setSubClass] = useState([]);
-  const [searchParams, setSearchParams] = useSearchParams();
   const dispatch = useDispatch();
   const navigate = useNavigate();
+
+  const [wrappedTrigger, queryResult] = useToastLazyQuery(
+    useLazyGetArticleIntroByIdQuery(),
+    {
+      showSuccess: true,
+      showLoading: true,
+      loadingMessage: "Signing you in...",
+      successMessage: "Welcome back! Login successful.",
+    }
+  );
+
+  console.log(queryResult);
 
   const initialValues = {
     articleDetails: {
@@ -42,7 +61,7 @@ export default function IntroForm() {
       dispatch(modifyExpand(new Set(["content"])));
       setSubmitting(false);
       // setSearchParams({ article: 1 });
-      navigate("/submission?article=1")
+      navigate("/submission?article=1");
     }, 1000);
   }
 
@@ -119,6 +138,12 @@ export default function IntroForm() {
             </Form>
           )}
         </Formik>
+        <button
+          onClick={()=> wrappedTrigger({ intro_id: 1 })}
+          className="px-4 py-2 text-white bg-gray-800 rounded-md hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:cursor-not-allowed"
+        >
+          Save & Continue
+        </button>
       </div>
     </div>
   );

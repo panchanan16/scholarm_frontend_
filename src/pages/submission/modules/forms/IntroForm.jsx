@@ -1,27 +1,17 @@
-import {
-  modifyExpand,
-  updateSaveSteps,
-} from "@/store/feature/submission/slice";
 import { Field, FieldArray, Form, Formik } from "formik";
 import { useState } from "react";
-import { useDispatch } from "react-redux";
 import { typeSubtypes } from "@/data/submissionType";
-import { useNavigate } from "react-router-dom";
-import {
-  useLazyGetArticleIntroByIdQuery,
-  useCreateArticleTypeMutation,
-} from "@/services/features/submission/submissionApi";
-import {
-  useToastMutation,
-  useToastQuery,
-  useToastLazyQuery,
-} from "@/hooks/useNotification";
+import { useLazyGetArticleIntroByIdQuery } from "@/services/features/submission/submissionApi";
+import { useToastLazyQuery } from "@/hooks/useNotification";
+import useSaveSteps from "@/hooks/useSaveSteps";
 
 export default function IntroForm() {
   const [type, setType] = useState("");
   const [subClass, setSubClass] = useState([]);
-  const dispatch = useDispatch();
-  const navigate = useNavigate();
+  const { updateSaveSteps } = useSaveSteps({
+    saveObject: { articles: true },
+    isExpand: true,
+  });
 
   const [wrappedTrigger, queryResult] = useToastLazyQuery(
     useLazyGetArticleIntroByIdQuery(),
@@ -57,11 +47,7 @@ export default function IntroForm() {
   function SubmitAndContinueHandler(values, setSubmitting) {
     setTimeout(() => {
       alert(JSON.stringify(values, null, 2));
-      dispatch(updateSaveSteps({ article: true }));
-      dispatch(modifyExpand(new Set(["content"])));
-      setSubmitting(false);
-      // setSearchParams({ article: 1 });
-      navigate("/submission?article=1");
+      updateSaveSteps("/submission?article=1");
     }, 1000);
   }
 
@@ -139,7 +125,7 @@ export default function IntroForm() {
           )}
         </Formik>
         <button
-          onClick={()=> wrappedTrigger({ intro_id: 1 })}
+          onClick={() => wrappedTrigger({ intro_id: 1 })}
           className="px-4 py-2 text-white bg-gray-800 rounded-md hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:cursor-not-allowed"
         >
           Save & Continue

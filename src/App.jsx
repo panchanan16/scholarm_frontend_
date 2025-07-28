@@ -25,8 +25,8 @@ function App() {
               className: "",
               duration: 4000,
               style: {
-                background: "#363636",
-                color: "#fff",
+                background: "#fff",
+                color: "#363636",
               },
               // Default options for specific types
               success: {

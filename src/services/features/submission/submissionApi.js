@@ -42,7 +42,7 @@ export const submissionApi = baseApi.injectEndpoints({
                     article_id: params.article_id || 0,
                 },
             }),
-            providesTags: ['IntroArticle'],
+            providesTags: ['ArticleAuthors'],
         }),
 
         // Add Authors to article---
@@ -68,6 +68,27 @@ export const submissionApi = baseApi.injectEndpoints({
             invalidatesTags: ['ArticleAuthors'],
         }),
 
+        // Set the corresponding author---
+        setCorrespondingAuthor: builder.mutation({
+            query: (data) => ({
+                url: '/author/setcorresponding',
+                method: 'PUT',
+                body: data,
+            }),
+            invalidatesTags: ['ArticleAuthors'],
+        }),
+
+
+        //get Reffrences by articleId---
+        getReffencesByArticleId: builder.query({
+            query: (params = {}) => ({
+                url: '/reffrence/readAll',
+                params: {
+                    article_id: params.article_id || 0,
+                },
+            }),
+            providesTags: ['ArticleReffrences'],
+        }),
 
     }),
 })
@@ -78,5 +99,7 @@ export const {
     useLazyGetArticleIntroByIdQuery,
     useAddAuthorsToArticleMutation,
     useGetArticleAuthorsByArticleIdQuery,
-    useDeleteAuthorsFromArticleMutation
+    useDeleteAuthorsFromArticleMutation,
+    useSetCorrespondingAuthorMutation,
+    useGetReffencesByArticleIdQuery
 } = submissionApi

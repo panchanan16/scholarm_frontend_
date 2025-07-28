@@ -1,10 +1,10 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { act } from "react";
 
 
 const initialState = {
-    savedSteps: [{ intro: true }, { authors: true }, { articles: true }, { refference: true }],
-    expandedSections: new Set(["getting-started"])
+    savedSteps: [{ intro: true }, { authors: true }, { articles: true }, { refference: true }, {reviewers: false}],
+    expandedSections: new Set(["getting-started"]),
+    hightLightedItem: ""
 }
 
 
@@ -12,7 +12,7 @@ export const submissionSlice = createSlice({
     name: 'submissionSlice',
     initialState: initialState,
     reducers: {
-        updateSaveSteps: (state, action) => {
+        updateSteps: (state, action) => {
             state.savedSteps = state.savedSteps.filter((obj) => {
                 const key = Object.keys(obj)[0];
                 return key !== Object.keys(action.payload)[0];
@@ -21,10 +21,14 @@ export const submissionSlice = createSlice({
         },
         modifyExpand: (state, action) => {
             state.expandedSections = action.payload
+        },
+
+        modifyHighlight: (state, action) => {
+            state.hightLightedItem = action.payload
         }
 
     },
 })
 
-export const { updateSaveSteps, modifyExpand } = submissionSlice.actions
+export const { updateSteps, modifyExpand, modifyHighlight } = submissionSlice.actions
 export default submissionSlice.reducer

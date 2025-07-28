@@ -2,33 +2,47 @@ import AddAuthorModal from "@/components/ui/authorModal";
 import { Breadcrumb } from "@/components/ui/breadCrumb";
 import { useState } from "react";
 import AddedAuthors from "../AddedAuthors";
+import SubmissionError from "@/components/error/submissionError";
+import { useToastLazyQuery } from "@/hooks/useNotification";
+import { useLazyGetOneAuthorQuery } from "@/services/features/authors/slice";
+import { useGetArticleAuthorsByArticleIdQuery } from "@/services/features/submission/submissionApi";
 
 export default function Author() {
   const [searchTerm, setSearchTerm] = useState("");
   const [hasSearched, setHasSearched] = useState(false);
-  const [authorExists, setAuthorExists] = useState(null);
   const [showModal, setShowModal] = useState(false);
-  const [workDone, setWorkDone] = useState(false);
+  const [isSection, setIsSectionError] = useState(false);
 
-  const handleAddAuthor = () => {
-    setWorkDone(true);
-  };
+  const [getAuthorWithEmail, { data }] = useToastLazyQuery(
+    useLazyGetOneAuthorQuery(),
+    { showLoading: true }
+  );
 
-  const existingAuthors = ["jane@example.com", "john@university.edu"];
+  const addedAuthors = useGetArticleAuthorsByArticleIdQuery({ article_id : 2 });
 
-  const handleSearch = () => {
-    setHasSearched(true);
-    const found = existingAuthors.includes(searchTerm.trim().toLowerCase());
-    setAuthorExists(found);
+  function handleSaveAndContinue() {
+    console.log(addedAuthors);
+    if (addedAuthors && addedAuthors.data.data.length < 3) {
+      setIsSectionError(true);
+    }
+  }
 
-    if (!found) {
+  const handleSearch = async () => {
+    try {
+      console.log(searchTerm);
+      await getAuthorWithEmail({ author_email: searchTerm.trim() });
+      setHasSearched(true);
       setShowModal(true);
+    } catch (error) {
+      setShowModal(true);
+      setHasSearched(false);
     }
   };
 
   return (
     <div className="max-w-4xl mx-auto">
       <Breadcrumb title="Author" content="Add Co-Author" />
+      {isSection && <SubmissionError />}
 
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
         <div className="p-4">
@@ -62,29 +76,11 @@ export default function Author() {
             </div>
           </div>
 
-          {hasSearched && (
-            <div className="mt-8">
-              <h1 className="text-2xl font-bold">Search Results</h1>
-              <p className="text-sm text-gray-500 mt-4">
-                {authorExists ? (
-                  <>
-                    Author found: <strong>{searchTerm}</strong>
-                  </>
-                ) : (
-                  <>
-                    No Co-Author found with email <strong>{searchTerm}</strong>.
-                    Add a new co-author to continue.
-                  </>
-                )}
-              </p>
-            </div>
-          )}
-
           <AddedAuthors />
 
           <button
             className="px-4 py-2 mt-5 text-white bg-gray-800 rounded-md hover:bg-gray-700 disabled:cursor-not-allowed disabled:opacity-50"
-            onClick={() => HandleAddAuthor()}
+            onClick={() => handleSaveAndContinue()}
           >
             Save and Continue
           </button>
@@ -93,7 +89,10 @@ export default function Author() {
       <AddAuthorModal
         isOpen={showModal}
         onClose={() => setShowModal(false)}
+        txt={false}
         email={searchTerm}
+        hasAuthor={hasSearched}
+        author={data ? data : {}}
       />
     </div>
   );

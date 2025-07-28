@@ -16,12 +16,13 @@ export const useToastMutation = (mutation, options = {}) => {
 
     try {
       const result = await mutationFn(data).unwrap();
+      console.log(result)
 
       if (loadingToast) toast.dismiss(loadingToast);
       setIsCustomLoading(false);
 
       if (options.showSuccess !== false) {
-        toast.success(options.successMessage || "Success!");
+        toast.success(result.message || "Successfully done!");
       }
 
       if (options.onSuccess) {
@@ -151,7 +152,7 @@ export const useToastLazyQuery = (lazyQuery, options = {}) => {
         setIsCustomLoading(false);
 
         if (options.showSuccess !== false) {
-          toast.success(options.successMessage || "Data fetched successfully!");
+          toast.success(result.message || "Data fetched successfully!");
         }
 
         if (options.onSuccess) {

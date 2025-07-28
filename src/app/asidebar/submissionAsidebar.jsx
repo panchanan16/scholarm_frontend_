@@ -1,4 +1,4 @@
-import { modifyExpand } from "@/store/feature/submission/slice";
+import { modifyExpand, modifyHighlight } from "@/store/feature/submission/slice";
 import {
   Tag,
   BookOpen,
@@ -17,10 +17,11 @@ import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 
 function SubmissionAsidebar() {
-  const [highlight, setHighlight] = useState("");
-  const { expandedSections, savedSteps } = useSelector(
+  const { expandedSections, savedSteps, hightLightedItem } = useSelector(
     (state) => state["submission"]
   );
+
+  console.log(hightLightedItem)
   const dispatch = useDispatch();
 
   const sidebarItems = [
@@ -50,7 +51,6 @@ function SubmissionAsidebar() {
   ];
 
   const toggleSection = (sectionId) => {
-    console.log(expandedSections)
     const newExpanded = new Set(expandedSections);
     if (newExpanded.has(sectionId)) {
       newExpanded.delete(sectionId);
@@ -83,7 +83,7 @@ function SubmissionAsidebar() {
               <div className="ml-4 mt-1 space-y-1">
                 {section.items.map((item) => (
                   <Link
-                    onClick={() => setHighlight(item.id)}
+                    onClick={() => dispatch(modifyHighlight(item.id))}
                     to={item.link}
                     key={item.id}
                     className="flex items-center gap-2 p-2 hover:bg-gray-50 rounded-lg transition-colors cursor-pointer group"
@@ -91,7 +91,7 @@ function SubmissionAsidebar() {
                     <item.icon className="w-4 h-4 text-gray-400 group-hover:text-gray-600" />
                     <span
                       className={`text-sm ${
-                        item.id === highlight
+                        item.id === hightLightedItem
                           ? "text-blue-600 font-medium"
                           : "text-gray-600"
                       }`}

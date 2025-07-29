@@ -1,32 +1,38 @@
-import React, { useRef, useState } from "react";
+import { useRef, useState } from "react";
 import {
   Edit3,
   Trash2,
-  ChevronDown,
-  FileText,
-  Book,
-  Globe,
-  Users,
   CheckSquare,
   Square,
-  Plug2Icon,
   PlusCircleIcon,
 } from "lucide-react";
 import TextEditor from "@/components/TextEditor";
-import { useGetReffencesByArticleIdQuery } from "@/services/features/submission/submissionApi";
+import {
+  useAddNewReffenceMutation,
+  useDeleteRefferenceFromArticleMutation,
+  useGetReffencesByArticleIdQuery,
+} from "@/services/features/submission/submissionApi";
 import { Field, Form, Formik } from "formik";
+import { useToastMutation } from "@/hooks/useNotification";
+import UpdateReff from "@/components/submission/updateRef";
 
 const ReferenceManager = () => {
-  const [selectedType, setSelectedType] = useState("all");
   const [isConverterOpen, setIsConverterOpen] = useState(false);
   const [isAddref, setIsAddRef] = useState(false);
-  const [converterText, setConverterText] = useState("");
   const [selectedItems, setSelectedItems] = useState(new Set());
+  const [isEdit, setIsEdit] = useState({isOpen: false, initialValues: {}})
   const refContent = useRef();
 
   const { data } = useGetReffencesByArticleIdQuery({ article_id: 2 });
 
-  console.log(data);
+  const [addRefference] = useToastMutation(useAddNewReffenceMutation(), {
+    showLoading: true,
+  });
+
+  const [deleteReffrence] = useToastMutation(
+    useDeleteRefferenceFromArticleMutation(),
+    { showLoading: true }
+  );
 
   const handleSelectItem = (id) => {
     const newSelected = new Set(selectedItems);
@@ -36,32 +42,6 @@ const ReferenceManager = () => {
       newSelected.add(id);
     }
     setSelectedItems(newSelected);
-  };
-
-  const handleSelectAll = () => {
-    if (selectedItems.size === references.length) {
-      setSelectedItems(new Set());
-    } else {
-      setSelectedItems(new Set(references.map((ref) => ref.id)));
-    }
-  };
-
-  const handleRemoveSelected = () => {
-    setReferences(references.filter((ref) => !selectedItems.has(ref.id)));
-    setSelectedItems(new Set());
-  };
-
-  const handleEdit = (id) => {
-    console.log("Edit reference:", id);
-  };
-
-  const handleDelete = (id) => {
-    setReferences(references.filter((ref) => ref.id !== id));
-    setSelectedItems((prev) => {
-      const newSet = new Set(prev);
-      newSet.delete(id);
-      return newSet;
-    });
   };
 
   const handleLaunchConverter = () => {
@@ -74,13 +54,14 @@ const ReferenceManager = () => {
     setIsAddRef(!isAddref);
   };
 
-  const handleConvertReferences = () => {
+  const handleConvertReferences = async () => {
     const content = refContent.current.getContent();
     const parser = new DOMParser();
     const doc = parser.parseFromString(content, "text/html");
     const count = doc.querySelectorAll('a[href^="#ref-"]');
     const reffs = extractListItemsFromOL(content);
     console.log(count[0], reffs);
+    await addRefference({ reffrences: reffs[0].items });
   };
 
   // Function to extract list items from OL tags
@@ -99,9 +80,10 @@ const ReferenceManager = () => {
 
       listItems.forEach((li, liIndex) => {
         items.push({
-          index: liIndex + 1,
-          text: li.textContent.trim(),
-          html: li.innerHTML.trim(),
+          reffrence_html_id: (liIndex + 1).toString(),
+          reffrence: li.textContent.trim(),
+          article_id: 2,
+          // html: li.innerHTML.trim(),
         });
       });
 
@@ -120,8 +102,8 @@ const ReferenceManager = () => {
     reffrence: "",
   };
 
-  function SubmitAndContinueHandler(values, setSubmitting) {
-    alert(JSON.stringify(values));
+  async function SubmitAndContinueHandler(values, setSubmitting) {
+    await addRefference({ reffrences: [values] });
     setSubmitting(false);
   }
 
@@ -236,10 +218,7 @@ const ReferenceManager = () => {
       {/* Actions Bar */}
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center space-x-4">
-          <button
-            onClick={handleSelectAll}
-            className="flex items-center space-x-2 px-4 py-2 text-gray-600 hover:text-gray-800 transition-colors"
-          >
+          <button className="flex items-center space-x-2 px-4 py-2 text-gray-600 hover:text-gray-800 transition-colors">
             {/* {selectedItems.size === references.length ? (
               <CheckSquare className="w-5 h-5" />
             ) : (
@@ -299,13 +278,13 @@ const ReferenceManager = () => {
 
                       <div className="flex space-x-2">
                         <button
-                          onClick={() => handleEdit(ref.id)}
+                          onClick={() => setIsEdit({isOpen: true, initialValues: {ref_id: ref.ref_id, article_id: ref.article_id, reffrence_html_id: ref.reffrence_html_id, reffrence: ref.reffrence}})}
                           className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-50 rounded-lg transition-colors"
                         >
                           <Edit3 className="w-4 h-4" />
                         </button>
                         <button
-                          onClick={() => handleDelete(ref.id)}
+                          onClick={() => deleteReffrence({ref_id: ref.ref_id})}
                           className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
                         >
                           <Trash2 className="w-4 h-4" />
@@ -318,6 +297,7 @@ const ReferenceManager = () => {
             </div>
           ))}
       </div>
+       <UpdateReff isOpen={isEdit.isOpen} initialValues={isEdit.initialValues} onClose={setIsEdit} />
     </div>
   );
 };

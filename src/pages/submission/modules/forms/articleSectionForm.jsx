@@ -1,12 +1,23 @@
 import TextEditor from "@/components/TextEditor";
+import { useGetArticleSectionsQuery } from "@/services/features/submission/submissionApi";
 import { Form, Formik } from "formik";
 
 function ArticleSectionForm() {
-  const initialValues = {
-    introduction: null,
-    result: null,
-    conclusion: null,
-  };
+  const { data: articlePreSections } = useGetArticleSectionsQuery({article_id: 2});
+
+  function convertSectionsInitialObject(sections) {
+    const result = {};
+
+    sections.forEach((section) => {
+      const key = section.section_title.toLowerCase().trim(); 
+      const value = section.Section_description ?? "";
+      result[key] = value;
+    });
+
+    return result;
+  }
+
+  const initialValues = convertSectionsInitialObject(articlePreSections ? articlePreSections.data : []);
 
   function SubmitAndContinueHandler(values, setSubmitting) {
     console.log(values);

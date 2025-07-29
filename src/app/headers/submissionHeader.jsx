@@ -18,9 +18,11 @@ function SubmissionHeader() {
             Preview
           </button>
         </Link>
-        <button className="px-4 font-medium py-2 bg-slate-600 hover:bg-slate-500 rounded-lg transition-colors">
-          Exit
-        </button>
+        <Link to={'/'}>
+          <button className="px-4 font-medium py-2 bg-slate-600 hover:bg-slate-500 rounded-lg transition-colors">
+            Exit
+          </button>
+        </Link>
       </div>
     </div>
   );

@@ -90,6 +90,65 @@ export const submissionApi = baseApi.injectEndpoints({
             providesTags: ['ArticleReffrences'],
         }),
 
+        // Add new reffences to article---
+        addNewReffence: builder.mutation({
+            query: (data) => ({
+                url: '/reffrence/create',
+                method: 'POST',
+                body: data,
+            }),
+            invalidatesTags: ['ArticleReffrences'],
+        }),
+
+
+        // update a reffences to article---
+        updateReffence: builder.mutation({
+            query: (data) => ({
+                url: '/reffrence/update',
+                method: 'PUT',
+                body: data,
+            }),
+            invalidatesTags: ['ArticleReffrences'],
+        }),
+
+        // Delete one refferences from Article---
+        deleteRefferenceFromArticle: builder.mutation({
+            query: (params) => ({
+                url: `/reffrence/remove`,
+                params: {
+                    ref_id: params.ref_id
+                },
+                method: 'DELETE',
+            }),
+            invalidatesTags: ['ArticleReffrences'],
+        }),
+
+
+        //get article sections by articleId---
+        getArticleSections: builder.query({
+            query: (params = {}) => ({
+                url: '/articleSection/readAll',
+                params: {
+                    article_id: params.article_id || 0,
+                },
+            }),
+            providesTags: ['ArticleSections'],
+        }),
+
+
+        //get article reviewers by articleId---
+        getArticleReviewers: builder.query({
+            query: (params = {}) => ({
+                url: '/assignReviewer/readAll',
+                params: {
+                    article_id: params.article_id || 0,
+                },
+            }),
+            providesTags: ['ArticleReviewers'],
+        }),
+
+
+
     }),
 })
 
@@ -101,5 +160,10 @@ export const {
     useGetArticleAuthorsByArticleIdQuery,
     useDeleteAuthorsFromArticleMutation,
     useSetCorrespondingAuthorMutation,
-    useGetReffencesByArticleIdQuery
+    useGetReffencesByArticleIdQuery,
+    useAddNewReffenceMutation,
+    useUpdateReffenceMutation,
+    useDeleteRefferenceFromArticleMutation,
+    useGetArticleSectionsQuery,
+    useGetArticleReviewersQuery
 } = submissionApi

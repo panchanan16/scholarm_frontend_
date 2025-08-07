@@ -34,6 +34,17 @@ export const submissionApi = baseApi.injectEndpoints({
             invalidatesTags: ['IntroArticle'],
         }),
 
+        // Create article section ---
+        createArticleSection: builder.mutation({
+            query: (data) => ({
+                url: '/articleSection/update',
+                method: 'PUT',
+                body: data,
+            }),
+
+            invalidatesTags: ['ArticleSections'],
+        }),
+
         //Get article authors by article_id
         getArticleAuthorsByArticleId: builder.query({
             query: (params = {}) => ({
@@ -148,6 +159,43 @@ export const submissionApi = baseApi.injectEndpoints({
         }),
 
 
+        // Add reviewers to article---
+        addReviewersToArticle: builder.mutation({
+            query: (data) => ({
+                url: '/assignReviewer/create/author',
+                method: 'POST',
+                body: data,
+            }),
+            invalidatesTags: ['ArticleReviewers'],
+        }),
+
+
+        // Delete one refferences from Article---
+        deleteReviewerFromArticle: builder.mutation({
+            query: (params) => ({
+                url: `/assignReviewer/remove`,
+                params: {
+                    reviewer_id: params.reviewer_id,
+                    article_id: params.article_id,
+                },
+                method: 'DELETE',
+            }),
+            invalidatesTags: ['ArticleReviewers'],
+        }),
+
+
+        // GET summary of article---
+        getArticleSummary: builder.query({
+            query: (params = {}) => ({
+                url: '/entireSubmit/readOne',
+                params: {
+                    article_id: params.article_id || 0,
+                },
+            }),
+            providesTags: ['ArticleSummary'],
+        }),
+
+
 
     }),
 })
@@ -165,5 +213,9 @@ export const {
     useUpdateReffenceMutation,
     useDeleteRefferenceFromArticleMutation,
     useGetArticleSectionsQuery,
-    useGetArticleReviewersQuery
+    useGetArticleReviewersQuery,
+    useAddReviewersToArticleMutation,
+    useDeleteReviewerFromArticleMutation,
+    useGetArticleSummaryQuery,
+    useCreateArticleSectionMutation
 } = submissionApi

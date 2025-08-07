@@ -1,7 +1,9 @@
+import { useToastMutation } from "@/hooks/useNotification";
+import { useDeleteReviewerFromArticleMutation } from "@/services/features/submission/submissionApi";
 import { Edit3, Trash2 } from "lucide-react";
 
-const ReviewerCard = ({ reviewer }) => {
-  const reviewerOne = reviewer ? reviewer?.reviewer : {}
+const ReviewerCard = ({ reviewer, deleteReviewer }) => {
+  const reviewerOne = reviewer ? reviewer?.reviewer : {};
   return (
     <div className="flex items-center justify-between p-4 bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition-shadow">
       <div className="flex items-center space-x-4">
@@ -31,7 +33,7 @@ const ReviewerCard = ({ reviewer }) => {
           <Edit3 className="w-4 h-4" />
         </button>
         <button
-          onClick={() => handleDelete(author.id)}
+          onClick={() => deleteReviewer({article_id: reviewer.article_id, reviewer_id: reviewerOne.reviewer_id})}
           className="px-4 py-2 text-red-600 border border-red-300 rounded-md hover:bg-red-50 hover:text-red-700 transition-colors text-sm font-medium"
         >
           <Trash2 className="w-4 h-4" />
@@ -44,6 +46,11 @@ const ReviewerCard = ({ reviewer }) => {
 const AddedReviewers = ({ title, reviewers, bgColor = "bg-gray-50" }) => {
   if (reviewers.length === 0) return null;
 
+  const [deleteReviewer] = useToastMutation(
+    useDeleteReviewerFromArticleMutation(),
+    { showLoading: true }
+  );
+
   return (
     <div className={`${bgColor} rounded-lg p-4 mb-6`}>
       <h3 className="text-lg font-semibold text-gray-800 mb-4 border-b border-gray-200 pb-2">
@@ -51,7 +58,7 @@ const AddedReviewers = ({ title, reviewers, bgColor = "bg-gray-50" }) => {
       </h3>
       <div className="space-y-3">
         {reviewers.map((author, id) => (
-          <ReviewerCard key={id} reviewer={author} />
+          <ReviewerCard key={id} reviewer={author} deleteReviewer={deleteReviewer} />
         ))}
       </div>
     </div>

@@ -1,10 +1,10 @@
 import { useState } from "react";
-import { useGetArticleReviewersQuery } from "@/services/features/submission/submissionApi";
+import { useDeleteReviewerFromArticleMutation, useGetArticleReviewersQuery } from "@/services/features/submission/submissionApi";
 import AddedReviewers from "../AddedReviewers";
-import { useToastLazyQuery } from "@/hooks/useNotification";
-import { useLazyGetOneAuthorQuery } from "@/services/features/authors/slice";
+import { useToastLazyQuery, useToastMutation } from "@/hooks/useNotification";
 import { Breadcrumb } from "@/components/ui/breadCrumb";
-import AddAuthorModal from "@/components/ui/authorModal";
+import { useLazyGetOneReviewerQuery } from "@/services/features/reviewers/slice";
+import AddReviewerModal from "@/components/ui/reviewerModal";
 
 const AddReviewersForm = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -14,10 +14,11 @@ const AddReviewersForm = () => {
 
 
 
-  const [getAuthorWithEmail, { data }] = useToastLazyQuery(
-    useLazyGetOneAuthorQuery(),
+  const [getReviewerWithEmail, { data }] = useToastLazyQuery(
+    useLazyGetOneReviewerQuery(),
     { showLoading: true }
   );
+
 
   const { data: addedReviewers } = useGetArticleReviewersQuery({
     article_id: 2,
@@ -27,16 +28,15 @@ const AddReviewersForm = () => {
   const opposedReviewers = addedReviewers && addedReviewers?.data.filter((rev)=> (rev.reviewer_type == 'oppose'))
 
   function handleSaveAndContinue() {
-    console.log(addedAuthors);
-    if (addedAuthors && addedAuthors.data.data.length < 3) {
+    console.log(addedReviewers);
+    if (addedReviewers && addedReviewers.data.data.length < 3) {
       setIsSectionError(true);
     }
   }
 
   const handleSearch = async () => {
     try {
-      console.log(searchTerm);
-      await getAuthorWithEmail({ author_email: searchTerm.trim() });
+      await getReviewerWithEmail({ reviewer_email: searchTerm.trim() });
       setHasSearched(true);
       setShowModal(true);
     } catch (error) {
@@ -52,7 +52,7 @@ const AddReviewersForm = () => {
 
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
         <div className="p-4">
-          <h1 className="text-2xl font-bold">Add Co-Author</h1>
+          <h1 className="text-2xl font-bold">Add Reviewers</h1>
           <p className="text-sm text-gray-500 mt-4">
             This study investigates [insert research topic or objective],
             addressing key gaps in the existing literature on [relevant field or
@@ -101,13 +101,13 @@ const AddReviewersForm = () => {
         </div>
       </div>
 
-      <AddAuthorModal
+      <AddReviewerModal
         isOpen={showModal}
         onClose={() => setShowModal(false)}
         txt={false}
         email={searchTerm}
         hasAuthor={hasSearched}
-        author={data ? data : {}}
+        reviewer={data ? data : {}}
       />
     </div>
   );

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   CheckCircle,
   User,
@@ -13,6 +13,8 @@ import {
   Edit,
   LucideView,
 } from "lucide-react";
+import { useGetArticleSummaryQuery } from "@/services/features/submission/submissionApi";
+import SubmissionError from "@/components/error/submissionError";
 
 const SummaryForm = ({
   submissionData = {
@@ -96,16 +98,59 @@ const SummaryForm = ({
       "This study was approved by the MIT Institutional Review Board (IRB #2023-456)",
   },
 }) => {
-  const [activeSection, setActiveSection] = useState(null);
+  const { data: articleSummary } = useGetArticleSummaryQuery({ article_id: 2 });
+  console.log(articleSummary);
+  const [isReffrenceError, setIsReferenceError] = useState(false);
+  const [isAuthorsError, setIsAuthorsError] = useState(false);
+  const [isReviewersError, setIsReviewersError] = useState(false);
 
-  const handleEdit = (section) => {
-    console.log(`Edit ${section}`);
-    setActiveSection(section);
-  };
+  function checkReffrenceError() {
+    const reffCount = articleSummary?.data?.Reffences.length || 0;
+    const sectionCount = articleSummary?.data?.ArticleSection.reduce(
+      (total, section) => {
+        if (typeof section.refCount === "number") {
+          return total + section.refCount;
+        }
+        return total;
+      },
+      0
+    );
 
-  const handlePreview = (section) => {
-    console.log(`Preview ${section}`);
-  };
+    // console.log(`ReffCount: ${reffCount}, SectionCount: ${sectionCount}`);
+    if (reffCount !== sectionCount) {
+      setIsReferenceError(true);
+      return true; // Error: Reffrence count does not match section count
+    }
+    setIsReferenceError(false);
+    return false; // No error
+  }
+
+  function checkAuthors() {
+    // check if no of authors is less than 3
+    if (articleSummary?.data?.articleAuthors.length < 3) {
+      setIsAuthorsError(true);
+      return true;
+    } else {
+      setIsAuthorsError(false);
+      return false;
+    }
+  }
+
+  function checkReviewer() {
+    if (articleSummary?.data?.AssignReviewer.length < 3) {
+      setIsReviewersError(true);
+      return true;
+    } else {
+      setIsReviewersError(false);
+      return false;
+    }
+  }
+
+  useEffect(() => {
+    checkReffrenceError();
+    checkAuthors();
+    checkReviewer();
+  }, [articleSummary]);
 
   const InfoCard = ({ title, children, icon: Icon, sectionKey }) => (
     <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
@@ -139,21 +184,21 @@ const SummaryForm = ({
         <div className="flex-1 min-w-0">
           <div className="flex items-center space-x-2">
             <h4 className="font-semibold text-gray-900 text-sm truncate">
-              {author.name}
+              {author.author.author_fname} {author.author.author_lname}
             </h4>
-            {author.role === "Corresponding Author" && (
+            {author.isMain && (
               <span className="bg-green-100 text-green-800 text-xs px-2 py-0.5 rounded-full font-medium whitespace-nowrap">
                 Corresponding
               </span>
             )}
           </div>
           <p className="text-xs text-gray-600 mt-1 truncate">
-            {author.affiliation}
+            {author.author.author_designation}
           </p>
           <div className="mt-1 space-y-0.5">
             <div className="flex items-center space-x-1 text-xs text-gray-500">
               <Mail className="w-3 h-3 flex-shrink-0" />
-              <span className="truncate">{author.email}</span>
+              <span className="truncate">{author.author.author_email}</span>
             </div>
             {author.phone && (
               <div className="flex items-center space-x-1 text-xs text-gray-500">
@@ -189,23 +234,23 @@ const SummaryForm = ({
         </div>
         <div className="flex-1 min-w-0">
           <h4 className="font-semibold text-gray-900 text-sm truncate">
-            {reviewer.name}
+            {reviewer.reviewer_name}
           </h4>
           <p
             className={`text-xs font-medium mt-1 ${
               type === "suggested" ? "text-purple-600" : "text-red-600"
             }`}
           >
-            {reviewer.expertise}
+            {reviewer.reviewer_designation}
           </p>
           <div className="mt-1 space-y-0.5">
             <div className="flex items-center space-x-1 text-xs text-gray-500">
               <MapPin className="w-3 h-3 flex-shrink-0" />
-              <span className="truncate">{reviewer.institution}</span>
+              <span className="truncate">{`xyz institute`}</span>
             </div>
             <div className="flex items-center space-x-1 text-xs text-gray-500">
               <Mail className="w-3 h-3 flex-shrink-0" />
-              <span className="truncate">{reviewer.email}</span>
+              <span className="truncate">{reviewer.reviewer_email}</span>
             </div>
           </div>
         </div>
@@ -232,7 +277,7 @@ const SummaryForm = ({
             Submitted on{" "}
             {new Date(submissionData.submissionDate).toLocaleDateString()}
           </span>
-        </div>        
+        </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -249,7 +294,7 @@ const SummaryForm = ({
                   Article Type
                 </label>
                 <p className="text-gray-900 mt-1 font-medium text-sm">
-                  {submissionData.articleType}
+                  {articleSummary && articleSummary.data.type}
                 </p>
               </div>
               <div>
@@ -331,7 +376,7 @@ const SummaryForm = ({
                 Title
               </label>
               <h2 className="text-lg font-bold text-gray-900 mt-1 leading-tight">
-                {submissionData.title}
+                {articleSummary && articleSummary.data.title}
               </h2>
             </div>
             <div>
@@ -339,14 +384,17 @@ const SummaryForm = ({
                 Keywords
               </label>
               <div className="flex flex-wrap gap-1 mt-2">
-                {submissionData.keywords.map((keyword, index) => (
-                  <span
-                    key={index}
-                    className="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-xs font-medium"
-                  >
-                    {keyword}
-                  </span>
-                ))}
+                {articleSummary &&
+                  articleSummary.data.keywords
+                    .split(",")
+                    .map((keyword, index) => (
+                      <span
+                        key={index}
+                        className="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-xs font-medium"
+                      >
+                        {keyword}
+                      </span>
+                    ))}
               </div>
             </div>
             <div className="prose prose-gray max-w-none">
@@ -354,24 +402,37 @@ const SummaryForm = ({
                 Abstract
               </label>
               <p className="text-gray-900 leading-relaxed text-justify text-sm">
-                {submissionData.abstract}
+                {articleSummary && articleSummary.data.abstract}
               </p>
             </div>
           </div>
         </InfoCard>
       </div>
 
+      {isAuthorsError && (
+        <SubmissionError
+          heading="Authors Error"
+          msg="Numbers of Authors should be more than 3"
+        />
+      )}
       {/* Authors */}
       <div className="mt-6">
         <InfoCard title="Authors" icon={Users} sectionKey="authors">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-            {submissionData.authors.map((author, index) => (
-              <AuthorCard key={index} author={author} index={index} />
-            ))}
+            {articleSummary &&
+              articleSummary.data.articleAuthors.map((author, index) => (
+                <AuthorCard key={index} author={author} index={index} />
+              ))}
           </div>
         </InfoCard>
       </div>
 
+      {isReviewersError && (
+        <SubmissionError
+          heading="Reviewer Error"
+          msg="Number reviewers must be greater than 3"
+        />
+      )}
       {/* Suggested Reviewers */}
       <div className="mt-6">
         <InfoCard
@@ -380,45 +441,43 @@ const SummaryForm = ({
           sectionKey="suggested-reviewers"
         >
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-            {submissionData.suggestedReviewers.map((reviewer, index) => (
-              <ReviewerCard key={index} reviewer={reviewer} type="suggested" />
-            ))}
+            {articleSummary &&
+              articleSummary.data.AssignReviewer.map((reviewer, index) => (
+                <ReviewerCard
+                  key={index}
+                  reviewer={reviewer?.reviewer}
+                  type="suggested"
+                />
+              ))}
           </div>
         </InfoCard>
       </div>
 
-      {/* Opposing Reviewers */}
-      <div className="mt-6">
-        <InfoCard
-          title="Opposing Reviewers"
-          icon={Eye}
-          sectionKey="opposing-reviewers"
-        >
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-            {submissionData.opposingReviewers.map((reviewer, index) => (
-              <ReviewerCard key={index} reviewer={reviewer} type="opposing" />
-            ))}
-          </div>
-        </InfoCard>
-      </div>
+      {isReffrenceError && (
+        <SubmissionError
+          heading="Refference Error"
+          msg="Number of reffrence should be same as reffence added in article sections"
+        />
+      )}
 
       {/* References */}
       <div className="mt-6">
         <InfoCard title="References" icon={BookOpen} sectionKey="references">
           <div className="space-y-2">
-            {submissionData.references.map((reference, index) => (
-              <div
-                key={index}
-                className="flex space-x-2 p-2 bg-gray-50 rounded-lg border border-gray-200"
-              >
-                <div className="bg-blue-100 text-blue-800 rounded-full w-6 h-6 flex items-center justify-center text-xs font-semibold flex-shrink-0">
-                  {index + 1}
+            {articleSummary &&
+              articleSummary.data.Reffences.map((reference, index) => (
+                <div
+                  key={index}
+                  className="flex space-x-2 p-2 bg-gray-50 rounded-lg border border-gray-200"
+                >
+                  <div className="bg-blue-100 text-blue-800 rounded-full w-6 h-6 flex items-center justify-center text-xs font-semibold flex-shrink-0">
+                    {reference.reffrence_html_id}
+                  </div>
+                  <p className="text-gray-700 text-xs leading-relaxed">
+                    {reference.reffrence}
+                  </p>
                 </div>
-                <p className="text-gray-700 text-xs leading-relaxed">
-                  {reference}
-                </p>
-              </div>
-            ))}
+              ))}
           </div>
         </InfoCard>
       </div>

@@ -1,8 +1,8 @@
 import { AlertCircle, X } from 'lucide-react';
 
- const SubmissionError = ({ heading = "Error", onClose }) => {
+ const SubmissionError = ({ heading = "Error", onClose, msg = "Something went wrong. Please check your input and try again." }) => {
   return (
-    <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-4 shadow-sm">
+    <div className="bg-red-50 border border-red-200 mt-6 rounded-lg p-4 mb-4 shadow-sm">
       <div className="flex items-start">
         <div className="flex-shrink-0">
           <AlertCircle className="h-5 w-5 text-red-400" />
@@ -12,7 +12,7 @@ import { AlertCircle, X } from 'lucide-react';
             {heading}
           </h3>
           <div className="mt-2 text-sm text-red-700">
-            <p>Something went wrong. Please check your input and try again.</p>
+            <p>{msg}</p>
           </div>
           <div className="mt-3">
             <button

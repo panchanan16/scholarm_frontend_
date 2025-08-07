@@ -1,15 +1,44 @@
 import TextEditor from "@/components/TextEditor";
-import { useGetArticleSectionsQuery } from "@/services/features/submission/submissionApi";
+import { useToastMutation } from "@/hooks/useNotification";
+import useSaveSteps from "@/hooks/useSaveSteps";
+import {
+  useCreateArticleSectionMutation,
+  useGetArticleSectionsQuery,
+} from "@/services/features/submission/submissionApi";
 import { Form, Formik } from "formik";
+import { useParams } from "react-router-dom";
 
 function ArticleSectionForm() {
-  const { data: articlePreSections } = useGetArticleSectionsQuery({article_id: 2});
+  const { data: articlePreSections } = useGetArticleSectionsQuery({
+    article_id: 2,
+  });
+  const { section_name } = useParams();
+  const [createArticleSection] = useToastMutation(
+    useCreateArticleSectionMutation(),
+    { showLoading: true }
+  );
+
+  const { updateSaveSteps } = useSaveSteps({
+    saveObject: { introduction: true },
+    isExpand: true,
+    nextHighlight: section_name.split("-")[0].toLowerCase().trim(),
+  });
+
+  const section =
+    articlePreSections &&
+    articlePreSections.data.filter(
+      (sec) =>
+        sec.section_title.toLowerCase().trim() ===
+        section_name.split("-")[0].toLowerCase().trim()
+    );
+
+  console.log(section);
 
   function convertSectionsInitialObject(sections) {
     const result = {};
 
     sections.forEach((section) => {
-      const key = section.section_title.toLowerCase().trim(); 
+      const key = section.section_title.toLowerCase().trim();
       const value = section.Section_description ?? "";
       result[key] = value;
     });
@@ -17,10 +46,33 @@ function ArticleSectionForm() {
     return result;
   }
 
-  const initialValues = convertSectionsInitialObject(articlePreSections ? articlePreSections.data : []);
+  const initialValues = convertSectionsInitialObject(
+    articlePreSections ? articlePreSections.data : []
+  );
 
-  function SubmitAndContinueHandler(values, setSubmitting) {
-    console.log(values);
+  async function SubmitAndContinueHandler(values, setSubmitting) {
+    const parser = new DOMParser();
+    const doc = await parser.parseFromString(
+      values[section_name.split("-")[0].toLowerCase().trim()],
+      "text/html"
+    );
+
+    const atag = doc.querySelectorAll('a[href^="#ref-"]');
+    console.log(atag);
+
+    const createResult = await createArticleSection({
+      article_id: 2,
+      section_title: section_name.split("-")[0].toLowerCase().trim(),
+      Section_description:
+        values[section_name.split("-")[0].toLowerCase().trim()],
+      refCount: atag.length,
+    });
+    console.log(createResult);
+    if (createResult && createResult.status) {
+      updateSaveSteps(
+        "/submission/article-sections/conclusions-section?article=1"
+      );
+    }
     setSubmitting(false);
   }
 
@@ -39,18 +91,24 @@ function ArticleSectionForm() {
                 Write Your Research here
               </h2>
 
-              {Object.entries(initialValues).map(([key, value]) => (
-                <div className="mt-10" key={key}>
-                  <h3 className="mb-5 font-bold text-xl underline text-gray-600">
-                    {key.toUpperCase()}
-                  </h3>
-                  <TextEditor
-                    name={key}
-                    setInForm={setFieldValue}
-                    initialContent={""}
-                  />
-                </div>
-              ))}
+              <div className="mt-10">
+                <h3 className="mb-5 font-bold text-xl underline text-gray-600">
+                  {section_name.split("-")[0].toUpperCase()}
+                </h3>
+                <TextEditor
+                  name={section_name.split("-")[0].toLowerCase().trim()}
+                  setInForm={setFieldValue}
+                  initialContent={
+                    section && section.length > 0
+                      ? section[0].Section_description
+                      : ""
+                  }
+                />
+              </div>
+
+              {/* {Object.entries(initialValues).map(([key, value]) => (
+                
+              ))} */}
             </div>
 
             {/* Buttons */}

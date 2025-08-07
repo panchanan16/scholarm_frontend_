@@ -8,7 +8,7 @@ import {
 
 export function SideBar() {
   return (
-    <aside className="w-64 bg-gradient-to-b from-white to-gray-50 border-r border-gray-200 min-h-screen p-6">
+    <aside className="w-64 bg-gradient-to-b from-white to-gray-50 border-r border-gray-200 min-h-screen p-4">
       <div className="space-y-6">
         {/* Quick Actions */}
         <div className="space-y-4">

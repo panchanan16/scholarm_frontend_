@@ -11,7 +11,7 @@ import {
   CirclePlus,
 } from "lucide-react";
 import { AdminLayout } from "@/components/layout/AdminLayout";
-import { Link } from "react-router-dom";
+import { Link, Outlet } from "react-router-dom";
 
 const Dashboard = () => {
   const StatCard = ({ title, value, icon: Icon, trend, color = "gray" }) => (
@@ -46,35 +46,34 @@ const Dashboard = () => {
       <div className="p-6 bg-gradient-to-b from-white to-gray-50/30">
         <div className="space-y-3">
           {items.map((item, index) => (
-            <div
-              key={index}
-              className="flex items-center justify-between p-3 rounded-lg border border-gray-50 hover:bg-gradient-to-r hover:from-gray-50 hover:to-white hover:border-gray-100 transition-all group cursor-pointer"
-            >
-              <div className="flex items-center gap-3">
-                <div
-                  className={`w-2 h-2 rounded-full ${
-                    item.priority === "red"
-                      ? "bg-red-400"
-                      : item.priority === "orange"
-                      ? "bg-orange-400"
-                      : item.priority === "yellow"
-                      ? "bg-yellow-400"
-                      : item.priority === "green"
-                      ? "bg-green-400"
-                      : "bg-blue-400"
-                  } shadow-sm`}
-                ></div>
-                <span className="text-sm font-medium text-gray-700">
-                  {item.label}
-                </span>
-              </div>
-              <div className="flex items-center gap-2">
-                <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-700 border border-gray-200">
-                  {item.count}
-                </span>
-                <Eye className="w-4 h-4 text-gray-400 group-hover:text-gray-600 transition-colors" />
-              </div>
-            </div>
+              <Link to={item.link || "#"} key={index}               
+                className="flex items-center justify-between p-3 rounded-lg border border-gray-50 hover:bg-gradient-to-r hover:from-gray-50 hover:to-white hover:border-gray-100 transition-all group cursor-pointer"
+              >
+                <div className="flex items-center gap-3">
+                  <div
+                    className={`w-2 h-2 rounded-full ${
+                      item.priority === "red"
+                        ? "bg-red-400"
+                        : item.priority === "orange"
+                        ? "bg-orange-400"
+                        : item.priority === "yellow"
+                        ? "bg-yellow-400"
+                        : item.priority === "green"
+                        ? "bg-green-400"
+                        : "bg-blue-400"
+                    } shadow-sm`}
+                  ></div>
+                  <span className="text-sm font-medium text-gray-700">
+                    {item.label}
+                  </span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-700 border border-gray-200">
+                    {item.count}
+                  </span>
+                  <Eye className="w-4 h-4 text-gray-400 group-hover:text-gray-600 transition-colors" />
+                </div>
+              </Link>      
           ))}
         </div>
       </div>
@@ -82,7 +81,7 @@ const Dashboard = () => {
   );
 
   const publisherTodoItems = [
-    { label: "New Submission", count: 0, priority: "green" },
+    { label: "New Submission", count: 0, priority: "green", link: 'dashboard' },
     { label: "Editor Invited", count: 23, priority: "orange" },
     { label: "Need To Assign Editor", count: 23, priority: "red" },
     { label: "Need To Assign Reviewers", count: 6, priority: "yellow" },
@@ -157,7 +156,7 @@ const Dashboard = () => {
                 <Filter className="w-4 h-4" />
                 Filter
               </button>
-              <Link to={'/submission/intro-section'}>
+              <Link to={"/submission/intro-section"}>
                 <button className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 bg-gray-50 border border-gray-200 rounded-lg hover:bg-gray-100 transition-colors">
                   <CirclePlus className="w-4 h-4" />
                   Submit New

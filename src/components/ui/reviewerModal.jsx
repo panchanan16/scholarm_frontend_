@@ -1,76 +1,81 @@
 import React from "react";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
-import {
-  useCreateAuthorMutation,
-  useUpdateAuthorMutation,
-} from "@/services/features/authors/slice";
-import { useAddAuthorsToArticleMutation } from "@/services/features/submission/submissionApi";
+import { useAddReviewersToArticleMutation } from "@/services/features/submission/submissionApi";
 import { useToastMutation } from "@/hooks/useNotification";
+import {
+  useCreateReviewerMutation,
+  useUpdateReviewerMutation,
+} from "@/services/features/reviewers/slice";
 
 const validationSchema = Yup.object().shape({
-  author_fname: Yup.string().required("Required"),
-  author_lname: Yup.string().required("Required"),
-  author_designation: Yup.string().required("Required"),
+  reviewer_name: Yup.string().required("Required"),
+  reviewer_designation: Yup.string().required("Required"),
   country: Yup.string().required("Required"),
-  city: Yup.string().required("Required"),
+  reviewer_type: Yup.string().required("Required"),
 });
 
-export default function AddAuthorModal({
+export default function AddReviewerModal({
   isOpen,
   onClose,
   email,
   hasAuthor,
-  author,
+  reviewer,
 }) {
-  const [createAuthor] = useCreateAuthorMutation();
-  const [updateAuthor, updateData] = useUpdateAuthorMutation();
-  const [addAuthorToArtcle] = useToastMutation(
-    useAddAuthorsToArticleMutation(),
+  const [createReviewer] = useCreateReviewerMutation();
+  const [updateReviewer, updateData] = useUpdateReviewerMutation();
+  const [addReviewerToArtcle] = useToastMutation(
+    useAddReviewersToArticleMutation(),
     { showLoading: true }
   );
 
   if (!isOpen) return null;
 
-  const { data = null } = author || {};
+  const { data = null } = reviewer || {};
 
   const initialValues = {
-    author_id: data ? data.author_id : "",
-    author_fname: data ? data.author_fname : "",
-    author_lname: data ? data.author_lname : "",
-    author_designation: data ? data.author_designation : "",
-    author_email: email,
+    reviewer_id: data ? data.reviewer_id : "",
+    reviewer_name: data ? data.reviewer_name : "",
+    reviewer_type: "",
+    reviewer_designation: data ? data.reviewer_designation : "",
+    reviewer_email: email,
     country: "",
     city: "",
   };
 
   console.log(initialValues);
 
-  const handleAuthorSubmit = async (values, setSubmitting) => {
-    if (data && initialValues.author_id) {
-      await updateAuthor(values);
+  const handleReviewerSubmit = async (values, setSubmitting) => {
+    if (data && initialValues.reviewer_id) {
+      await updateReviewer(values);
       if (updateData && updateData.status) {
-        addAuthorToArtcle({
+        addReviewerToArtcle({
           article_id: 2,
-          author_id: values.author_id,
+          reviewer_id: values.reviewer_id,
+          reviewer_type: values.reviewer_type,
         });
       }
     } else {
-      const createdAuthor = await createAuthor(values);
-      if (createdAuthor && createdAuthor.data.status) {
-        addAuthorToArtcle({
+      const createdReviewer = await createReviewer(values);
+      if (createdReviewer && createdReviewer.data.status) {
+        addReviewerToArtcle({
           article_id: 2,
-          author_id: createdAuthor.data.status ? createdAuthor.data.data.author_id : "",
+          reviewer_id: createdReviewer.data.status
+            ? createdReviewer.data.data.reviewer_id
+            : "",
+          reviewer_type: values.reviewer_type,
         });
       }
     }
+
+    // alert(JSON.stringify(values))
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center">
+    <div className="fixed inset-0 z-50 bg-black/30 flex items-center justify-center">
       <div className="bg-white rounded-lg shadow-lg max-w-2xl w-full p-6 overflow-y-auto max-h-[90vh]">
         <div className="flex justify-between items-center mb-4">
-          <h2 className="text-xl font-semibold">Add an Author</h2>
+          <h2 className="text-xl font-semibold">Add an Reviewer</h2>
           <button onClick={onClose} className="text-gray-500 hover:text-black">
             &times;
           </button>
@@ -98,44 +103,38 @@ export default function AddAuthorModal({
           initialValues={initialValues}
           validationSchema={validationSchema}
           onSubmit={(values, { setSubmitting }) =>
-            handleAuthorSubmit(values, setSubmitting)
+            handleReviewerSubmit(values, setSubmitting)
           }
         >
           {({ isSubmitting }) => (
             <Form>
               <div className="grid grid-cols-12 gap-4 mb-4">
-                <div className="col-span-5">
-                  <label className="text-sm font-medium">First Name</label>
+                <div className="col-span-12">
+                  <label className="text-sm font-medium">Select type</label>
                   <Field
-                    name="author_fname"
-                    type="text"
+                    as="select"
+                    name="reviewer_type"
                     className="w-full border rounded px-3 py-2 mt-1 text-sm"
-                  />
+                  >
+                    <option value="">Select...</option>
+                    <option value="oppose">Opposed</option>
+                    <option value="suggested">Suggested</option>
+                  </Field>
                   <ErrorMessage
-                    name="author_fname"
+                    name="reviewer_type"
                     component="div"
                     className="text-red-500 text-xs"
                   />
                 </div>
-                {/* <div className="col-span-2">
-                  <label className="text-sm font-medium">MI</label>
+                <div className="col-span-12">
+                  <label className="text-sm font-medium">First Name</label>
                   <Field
-                    name="middleInitial"
-                    type="text"
-                    maxLength={1}
-                    className="w-full border rounded px-3 py-2 mt-1 text-sm"
-                  />
-                  <ErrorMessage name="middleInitial" component="div" className="text-red-500 text-xs" />
-                </div> */}
-                <div className="col-span-5">
-                  <label className="text-sm font-medium">Last Name</label>
-                  <Field
-                    name="author_lname"
+                    name="reviewer_name"
                     type="text"
                     className="w-full border rounded px-3 py-2 mt-1 text-sm"
                   />
                   <ErrorMessage
-                    name="author_lname"
+                    name="reviewer_name"
                     component="div"
                     className="text-red-500 text-xs"
                   />
@@ -146,12 +145,12 @@ export default function AddAuthorModal({
                 <label className="text-sm font-medium">Department</label>
                 <Field
                   as="textarea"
-                  name="author_designation"
+                  name="reviewer_designation"
                   rows={3}
                   className="w-full border rounded px-3 py-2 mt-1 text-sm"
                 />
                 <ErrorMessage
-                  name="author_designation"
+                  name="reviewer_designation"
                   component="div"
                   className="text-red-500 text-xs"
                 />
@@ -208,7 +207,7 @@ export default function AddAuthorModal({
                   type="submit"
                   className="px-4 py-2 text-white bg-gray-800 rounded-md hover:bg-gray-700 disabled:cursor-not-allowed disabled:opacity-50"
                 >
-                  Add Author
+                  Add Reviewer
                 </button>
               </div>
             </Form>

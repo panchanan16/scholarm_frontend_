@@ -123,13 +123,7 @@ export default function IntroForm() {
               </div>
             </Form>
           )}
-        </Formik>
-        <button
-          onClick={() => wrappedTrigger({ intro_id: 1 })}
-          className="px-4 py-2 text-white bg-gray-800 rounded-md hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:cursor-not-allowed"
-        >
-          Save & Continue
-        </button>
+        </Formik>        
       </div>
     </div>
   );

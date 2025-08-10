@@ -17,15 +17,15 @@ import {
 } from "lucide-react";
 import { Link, Outlet } from "react-router-dom";
 import { useGetManuscriptByStatusQuery } from "@/services/features/manuscript/slice";
-import JournalDetails from "./JournalDetails";
+import DecisonEditor from "@/components/Decision/DecisonEditor";
+import DecisonReviewer from "@/components/Decision/DecisonReviewer";
 
 const JournalListTable = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [statusFilter, setStatusFilter] = useState("newsubmission");
   const [searchTerm, setSearchTerm] = useState("");
-  const [selectedManuscript, setSelectedManuscript] = useState(null);
-  const [showDetailModal, setShowDetailModal] = useState(false);
-  const [expandedRounds, setExpandedRounds] = useState({});
+  const [isOpenReviewerDecision, setIsOpenReviewerDecision] = useState(false);
+  const [isOpenEditorDecision, setIsOpenEditorDecision] = useState(false);
   const [openDropdown, setOpenDropdown] = useState(null);
   const dropdownRef = useRef(null);
   const itemsPerPage = 5;
@@ -49,6 +49,14 @@ const JournalListTable = () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
+
+  function handleReviewerDescision(params) {
+    setIsOpenReviewerDecision(true);
+  }
+
+  function handleEditorDescision(params) {
+    setIsOpenEditorDecision(true);
+  }
 
   // Sample data with additional details for the modal
   const manuscripts = [
@@ -233,7 +241,7 @@ const JournalListTable = () => {
                   onChange={(e) => setStatusFilter(e.target.value)}
                   className="pl-10 pr-8 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm appearance-none bg-white"
                 >
-                  <option value="Editor Invited">Editor Invited</option>
+                  <option value="editorinvited">Editor Invited</option>
                   <option value="Under Review">Under Review</option>
                   <option value="Accepted">Accepted</option>
                   <option value="Rejected">Rejected</option>
@@ -341,7 +349,7 @@ const JournalListTable = () => {
 
                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                       <div className="flex items-center justify-end gap-2">
-                        <Link to={`${manuscript.case_number}`}>
+                        <Link to={`${manuscript.intro_id}`}>
                           <button
                             className="text-blue-600 hover:text-blue-800 p-1 rounded-md hover:bg-blue-50 transition-colors"
                             title="View Details"
@@ -384,7 +392,22 @@ const JournalListTable = () => {
                                 <Eye className="h-4 w-4" />
                                 View Details
                               </button>
-                              <Link to={`assign-editor?article_id=${manuscript.intro_id}`}>
+                              <Link
+                                to={`assign-editor?article_id=${manuscript.intro_id}`}
+                              >
+                                <button
+                                  onClick={(e) =>
+                                    handleDropdownAction("edit", manuscript, e)
+                                  }
+                                  className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-2"
+                                >
+                                  <Edit className="h-4 w-4" />
+                                  Invite Editor
+                                </button>
+                              </Link>
+                              <Link
+                                to={`assign-editor?article_id=${manuscript.intro_id}`}
+                              >
                                 <button
                                   onClick={(e) =>
                                     handleDropdownAction("edit", manuscript, e)
@@ -395,6 +418,40 @@ const JournalListTable = () => {
                                   Edit Manuscript
                                 </button>
                               </Link>
+
+                              <Link
+                                to={`assign-reviewer?article_id=${manuscript.intro_id}`}
+                              >
+                                <button
+                                  onClick={(e) =>
+                                    handleDropdownAction("edit", manuscript, e)
+                                  }
+                                  className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-2"
+                                >
+                                  <Edit className="h-4 w-4" />
+                                  Invite Reviewer
+                                </button>
+                              </Link>
+
+                              <button
+                                onClick={(e) =>
+                                  handleEditorDescision("edit", manuscript, e)
+                                }
+                                className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-2"
+                              >
+                                <Edit className="h-4 w-4" />
+                                Post Editor Descision
+                              </button>
+
+                              <button
+                                onClick={(e) =>
+                                  handleReviewerDescision("edit", manuscript, e)
+                                }
+                                className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-2"
+                              >
+                                <Edit className="h-4 w-4" />
+                                Reviewer Descision
+                              </button>
 
                               <button
                                 onClick={(e) =>
@@ -496,7 +553,8 @@ const JournalListTable = () => {
           </div>
         </div>
       </div>
-
+      <DecisonEditor isOpen={isOpenEditorDecision} onClose={setIsOpenEditorDecision} />
+      <DecisonReviewer isOpen={isOpenReviewerDecision} onClose={setIsOpenReviewerDecision} />
       {/* Detail Modal */}
       <Outlet />
     </>

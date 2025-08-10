@@ -1,6 +1,7 @@
 import App from "@/App";
 import AssignEditorPage from "@/pages/assignEditorPage";
-import Dashboard from "@/pages/Dashboard";
+import AssignReviewerPage from "@/pages/assignReviewer/index";
+import Dashboard from "@/pages/dashboard/publisher/Dashboard";
 import JournalPage from "@/pages/journalPage";
 import JournalDetails from "@/pages/journalPage/modules/JournalDetails";
 import JournalListTable from "@/pages/journalPage/modules/JournalList";
@@ -27,7 +28,8 @@ const routes = [
         children: [
           { index: true, element: <JournalListTable /> },
           { path: "assign-editor", element: <AssignEditorPage /> },
-          { path: ":article_id", element: <JournalDetails /> }
+          { path: "assign-reviewer", element: <AssignReviewerPage /> },
+          { path: ":article_id", element: <JournalDetails /> },
         ],
       },
       { path: "assign-editor", element: <AssignEditorPage /> },

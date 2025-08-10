@@ -5,8 +5,9 @@ import {
   LayoutDashboardIcon,
   Settings,
 } from "lucide-react";
+import { Link } from "react-router-dom";
 
-export function SideBar() {
+export default function DashboardSideBar() {
   return (
     <aside className="w-64 bg-gradient-to-b from-white to-gray-50 border-r border-gray-200 min-h-screen p-4">
       <div className="space-y-6">
@@ -16,10 +17,10 @@ export function SideBar() {
             Quick Actions
           </h2>
           <div className="space-y-2">
-            <button className="w-full flex items-center gap-3 p-3 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-700 rounded-lg transition-colors">
+            <Link to={'/'} className="w-full flex items-center gap-3 p-3 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-700 rounded-lg transition-colors">
               <LayoutDashboardIcon className="w-4 h-4" />
               Dashboard
-            </button>
+            </Link>
             <button className="w-full flex items-center gap-3 p-3 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-700 rounded-lg transition-colors">
               <Search className="w-4 h-4" />
               Search People

@@ -8,10 +8,21 @@ export const manuscriptApi = baseApi.injectEndpoints({
             query: (params = {}) => ({
                 url: '/manuscript/findAllByStatus',
                 params: {
-                   status: params.status,
+                    status: params.status,
                 },
             }),
             providesTags: ['ManuscriptList'],
+        }),
+
+        // Get manuscript entire review details ---
+        getManuscriptReviewDetails: builder.query({
+            query: (article_id) => ({
+                url: `/manuscript/review/readOne`,
+                method: 'GET',
+                params: {
+                    article_id: article_id,
+                },
+            }),
         }),
 
 
@@ -23,6 +34,30 @@ export const manuscriptApi = baseApi.injectEndpoints({
                 body: data,
             }),
             // invalidatesTags: ['ManuscriptList'],
+        }),
+
+
+
+        // Assign Reviewer to Manuscript ---
+        assignReviewerToManuscript: builder.mutation({
+            query: (data) => ({
+                url: '/assignReviewer/create',
+                method: 'POST',
+                body: data,
+            }),
+            // invalidatesTags: ['ManuscriptList'],
+        }),
+
+
+        // get all assigned reviewers for a manuscript ---
+        getAssignedReviewers: builder.query({
+            query: (article_id) => ({
+                url: `/assignReviewer/readAll`,
+                method: 'GET',
+                params: {
+                    article_id: article_id,
+                },
+            }),
         })
 
 
@@ -31,6 +66,9 @@ export const manuscriptApi = baseApi.injectEndpoints({
 
 
 export const {
-    useGetManuscriptByStatusQuery, 
-    useAssignEditorToManuscriptMutation
+    useGetManuscriptByStatusQuery,
+    useAssignEditorToManuscriptMutation,
+    useAssignReviewerToManuscriptMutation,
+    useGetAssignedReviewersQuery,
+    useGetManuscriptReviewDetailsQuery
 } = manuscriptApi

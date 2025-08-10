@@ -1,3 +1,4 @@
+import { useGetManuscriptReviewDetailsQuery } from "@/services/features/manuscript/slice";
 import {
   ChevronDown,
   ChevronLeft,
@@ -7,9 +8,8 @@ import {
   User,
   X,
 } from "lucide-react";
-import React, { use } from "react";
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 
 function JournalDetails({}) {
   const [expandedRounds, setExpandedRounds] = useState({});
@@ -68,6 +68,11 @@ function JournalDetails({}) {
     ],
   };
 
+  const { article_id } = useParams();
+
+  const { data: manuscriptDetails } =
+    useGetManuscriptReviewDetailsQuery(article_id);
+
   const navigate = useNavigate();
 
   const toggleRound = (roundIndex) => {
@@ -113,10 +118,14 @@ function JournalDetails({}) {
               Reviewer Reports
             </h2>
             <p className="text-sm text-gray-600 mt-1">
-              Case Number: {selectedManuscript.id}
+              Case Number:{" "}
+              {manuscriptDetails && manuscriptDetails.data.case_number}
             </p>
           </div>
-          <button onClick={()=> navigate(-1)} className="text-gray-400 hover:text-gray-600 p-1 rounded-md hover:bg-gray-100 transition-colors">
+          <button
+            onClick={() => navigate(-1)}
+            className="text-gray-400 hover:text-gray-600 p-1 rounded-md hover:bg-gray-100 transition-colors"
+          >
             <X className="h-5 w-5" />
           </button>
         </div>
@@ -137,7 +146,7 @@ function JournalDetails({}) {
                     Case Number
                   </label>
                   <p className="text-sm text-gray-900 font-mono bg-white px-3 py-2 rounded border">
-                    {selectedManuscript.id}
+                    {manuscriptDetails && manuscriptDetails.data.case_number}
                   </p>
                 </div>
 
@@ -146,7 +155,7 @@ function JournalDetails({}) {
                     Title
                   </label>
                   <p className="text-sm text-gray-900 bg-white px-3 py-2 rounded border">
-                    {selectedManuscript.title}
+                    {manuscriptDetails && manuscriptDetails.data.title}
                   </p>
                 </div>
 
@@ -167,10 +176,12 @@ function JournalDetails({}) {
                   <div className="mt-1">
                     <span
                       className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium border ${getStatusColor(
-                        selectedManuscript.status
+                        manuscriptDetails &&
+                          manuscriptDetails.data.article_status
                       )}`}
                     >
-                      {selectedManuscript.status}
+                      {manuscriptDetails &&
+                        manuscriptDetails.data.article_status}
                     </span>
                   </div>
                 </div>
@@ -182,18 +193,24 @@ function JournalDetails({}) {
                     Authors
                   </label>
                   <div className="space-y-2 mt-1">
-                    {selectedManuscript.authors.map((author, index) => (
-                      <div
-                        key={index}
-                        className="bg-white px-3 py-2 rounded border flex items-center gap-2"
-                      >
-                        <User className="h-4 w-4 text-gray-400" />
-                        <span className="text-sm text-gray-900">{author}</span>
-                        <span className="bg-yellow-100 text-yellow-800 px-2 py-0.5 rounded text-xs font-medium">
-                          Proxy
-                        </span>
-                      </div>
-                    ))}
+                    {manuscriptDetails &&
+                      manuscriptDetails.data.articleAuthors.map(
+                        (author, index) => (
+                          <div
+                            key={index}
+                            className="bg-white px-3 py-2 rounded border flex items-center gap-2"
+                          >
+                            <User className="h-4 w-4 text-gray-400" />
+                            <span className="text-sm text-gray-900">
+                              {author?.author?.author_fname}{" "}
+                              {author?.author?.author_lname}
+                            </span>
+                            <span className="bg-yellow-100 text-yellow-800 px-2 py-0.5 rounded text-xs font-medium">
+                              Proxy
+                            </span>
+                          </div>
+                        )
+                      )}
                   </div>
                 </div>
               </div>
@@ -204,349 +221,369 @@ function JournalDetails({}) {
                 Abstract
               </label>
               <div className="mt-2 bg-white p-4 rounded border text-sm text-gray-700 leading-relaxed max-h-32 overflow-y-auto">
-                {selectedManuscript.abstract}
+                {manuscriptDetails && manuscriptDetails.data.abstract}
               </div>
             </div>
           </div>
 
           {/* Assigned editor */}
-           <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
-                  <div         
-                    className="w-full flex items-center justify-between p-4 bg-gradient-to-r from-violet-50 to-indigo-50 transition-colors"
-                  >
-                    <h3 className="text-lg font-semibold text-violet-600 flex items-center gap-2">
-                      Editor 
-                    </h3>
-                    <p className="text-gray-600 font-medium">Panchanan Deka</p>
-                    <div className="flex items-center gap-4">
-                      <div className="flex items-center gap-4 text-sm text-gray-600">
-                        <span>
-                          Status:{" "}
-                          <span className="font-medium">{'acceepted'}</span>
+          <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
+            {manuscriptDetails &&
+              manuscriptDetails.data.AssignEditor.map((editor, index) => (
+                <div className="w-full flex items-center justify-between p-4 bg-gradient-to-r from-violet-50 to-indigo-50 transition-colors">
+                  <h3 className="text-lg font-semibold text-violet-600 flex items-center gap-2">
+                    Editor
+                  </h3>
+                  <p className="text-gray-600 font-medium">
+                    {editor?.editor.editor_name}
+                  </p>
+                  <div className="flex items-center gap-4">
+                    <div className="flex items-center gap-4 text-sm text-gray-600">
+                      <span>
+                        Status:{" "}
+                        <span className="font-medium">
+                          {editor?.is_accepted}
                         </span>
-                        <span>
-                          Date:{" "}
-                          <span className="font-medium">{'22/02/2001'}</span>
-                        </span>
-                        <span>
-                          Date:{" "}
-                          <span className="font-medium">{'22/02/2001'}</span>
-                        </span>
-                        <span>
-                          Date:{" "}
-                          <span className="font-medium">{'22/02/2001'}</span>
-                        </span>
-                      </div>                      
+                      </span>
+                      <span>
+                        Date:{" "}
+                        <span className="font-medium">{"22/02/2001"}</span>
+                      </span>
+                      <span>
+                        Date:{" "}
+                        <span className="font-medium">{"22/02/2001"}</span>
+                      </span>
+                      <span>
+                        Date:{" "}
+                        <span className="font-medium">{"22/02/2001"}</span>
+                      </span>
                     </div>
-                  </div>                  
+                  </div>
                 </div>
+              ))}
+          </div>
 
           {/* Review Rounds */}
-          {selectedManuscript.reviewRounds &&
-            selectedManuscript.reviewRounds?.map((round, roundIndex) => (
-              <div key={roundIndex} className="space-y-4">
-                {/* Round Header - Collapsible */}
-                <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
-                  <button
-                    onClick={() => toggleRound(roundIndex)}
-                    className="w-full flex items-center justify-between p-4 bg-gradient-to-r from-blue-50 to-indigo-50 hover:from-blue-100 hover:to-indigo-100 transition-colors"
-                  >
-                    <h3 className="text-lg font-semibold text-blue-600 flex items-center gap-2">
-                      Round {round.round}
-                    </h3>
-                    <div className="flex items-center gap-4">
-                      <div className="flex items-center gap-4 text-sm text-gray-600">
-                        <span>
-                          Status:{" "}
-                          <span className="font-medium">{round.status}</span>
-                        </span>
-                        <span>
-                          Date:{" "}
-                          <span className="font-medium">{round.date}</span>
-                        </span>
+          {[1, 2, 3, 4, 5].map((round, roundIndex) => {
+            return (
+              manuscriptDetails &&
+              manuscriptDetails.data.AssignReviewer.filter((revRound)=> revRound.round == round).map((round, roundIndex) => (
+                <div key={roundIndex} className="space-y-4">
+                  {/* Round Header - Collapsible */}
+                  <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
+                    <button
+                      onClick={() => toggleRound(roundIndex)}
+                      className="w-full flex items-center justify-between p-4 bg-gradient-to-r from-blue-50 to-indigo-50 hover:from-blue-100 hover:to-indigo-100 transition-colors"
+                    >
+                      <h3 className="text-lg font-semibold text-blue-600 flex items-center gap-2">
+                        Round {round.round}
+                      </h3>
+                      <div className="flex items-center gap-4">
+                        <div className="flex items-center gap-4 text-sm text-gray-600">
+                          <span>
+                            Status:{" "}
+                            <span className="font-medium">{round.status}</span>
+                          </span>
+                          <span>
+                            Date:{" "}
+                            <span className="font-medium">{round.date}</span>
+                          </span>
+                        </div>
+                        <ChevronDown
+                          className={`h-5 w-5 text-gray-500 transition-transform duration-200 ${
+                            expandedRounds[roundIndex] ? "rotate-180" : ""
+                          }`}
+                        />
                       </div>
-                      <ChevronDown
-                        className={`h-5 w-5 text-gray-500 transition-transform duration-200 ${
-                          expandedRounds[roundIndex] ? "rotate-180" : ""
-                        }`}
-                      />
-                    </div>
-                  </button>
+                    </button>
 
-                  {/* Round Content - Collapsible */}
-                  {expandedRounds[roundIndex] && (
-                    <div className="p-6 border-t border-gray-200">
-                      {/* Publisher Comments */}
-                      <div className="mb-6">
-                        <div className="bg-blue-50 border border-blue-200 rounded p-3">
-                          <h4 className="text-sm font-semibold text-blue-700 mb-2">
-                            Publisher Comments
-                          </h4>
-                          <div className="flex gap-6 text-sm">
-                            <div>
-                              <span className="font-medium text-gray-600">
-                                Status:
-                              </span>
-                              <span className="ml-2 text-gray-900">
-                                {round.status}
-                              </span>
-                            </div>
-                            <div>
-                              <span className="font-medium text-gray-600">
-                                Date:
-                              </span>
-                              <span className="ml-2 text-gray-900">
-                                {round.date}
-                              </span>
+                    {/* Round Content - Collapsible */}
+                    {expandedRounds[roundIndex] && (
+                      <div className="p-6 border-t border-gray-200">
+                        {/* Publisher Comments */}
+                        <div className="mb-6">
+                          <div className="bg-blue-50 border border-blue-200 rounded p-3">
+                            <h4 className="text-sm font-semibold text-blue-700 mb-2">
+                              Publisher Comments
+                            </h4>
+                            <div className="flex gap-6 text-sm">
+                              <div>
+                                <span className="font-medium text-gray-600">
+                                  Status:
+                                </span>
+                                <span className="ml-2 text-gray-900">
+                                  {round.status}
+                                </span>
+                              </div>
+                              <div>
+                                <span className="font-medium text-gray-600">
+                                  Date:
+                                </span>
+                                <span className="ml-2 text-gray-900">
+                                  {round.date}
+                                </span>
+                              </div>
                             </div>
                           </div>
                         </div>
-                      </div>
 
-                      {/* Reviewers Summary Table */}
-                      <div className="mb-6 overflow-x-auto">
-                        <table className="w-full border border-gray-300">
-                          <thead>
-                            <tr className="bg-gray-100">
-                              <th className="border border-gray-300 px-3 py-2 text-left text-xs font-semibold text-gray-700">
-                                Name
-                              </th>
-                              <th className="border border-gray-300 px-3 py-2 text-left text-xs font-semibold text-gray-700">
-                                Status
-                              </th>
-                              <th className="border border-gray-300 px-3 py-2 text-left text-xs font-semibold text-gray-700">
-                                Decision
-                              </th>
-                              <th className="border border-gray-300 px-3 py-2 text-left text-xs font-semibold text-gray-700">
-                                Assigned Date
-                              </th>
-                              <th className="border border-gray-300 px-3 py-2 text-left text-xs font-semibold text-gray-700">
-                                Agreed Date
-                              </th>
-                              <th className="border border-gray-300 px-3 py-2 text-left text-xs font-semibold text-gray-700">
-                                Due Date
-                              </th>
-                              <th className="border border-gray-300 px-3 py-2 text-left text-xs font-semibold text-gray-700">
-                                Completed Date
-                              </th>
-                              <th className="border border-gray-300 px-3 py-2 text-left text-xs font-semibold text-gray-700">
-                                Action
-                              </th>
-                            </tr>
-                          </thead>
-                          <tbody>
-                            {round.reviewers.map((reviewer, reviewerIndex) => (
-                              <tr
+                        {/* Reviewers Summary Table */}
+                        <div className="mb-6 overflow-x-auto">
+                          <table className="w-full border border-gray-300">
+                            <thead>
+                              <tr className="bg-gray-100">
+                                <th className="border border-gray-300 px-3 py-2 text-left text-xs font-semibold text-gray-700">
+                                  Name
+                                </th>
+                                <th className="border border-gray-300 px-3 py-2 text-left text-xs font-semibold text-gray-700">
+                                  Status
+                                </th>
+                                <th className="border border-gray-300 px-3 py-2 text-left text-xs font-semibold text-gray-700">
+                                  Decision
+                                </th>
+                                <th className="border border-gray-300 px-3 py-2 text-left text-xs font-semibold text-gray-700">
+                                  Assigned Date
+                                </th>
+                                <th className="border border-gray-300 px-3 py-2 text-left text-xs font-semibold text-gray-700">
+                                  Agreed Date
+                                </th>
+                                <th className="border border-gray-300 px-3 py-2 text-left text-xs font-semibold text-gray-700">
+                                  Due Date
+                                </th>
+                                <th className="border border-gray-300 px-3 py-2 text-left text-xs font-semibold text-gray-700">
+                                  Completed Date
+                                </th>
+                                <th className="border border-gray-300 px-3 py-2 text-left text-xs font-semibold text-gray-700">
+                                  Action
+                                </th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {round.reviewers.map(
+                                (reviewer, reviewerIndex) => (
+                                  <tr
+                                    key={reviewerIndex}
+                                    className={
+                                      reviewerIndex % 2 === 0
+                                        ? "bg-gray-50"
+                                        : "bg-white"
+                                    }
+                                  >
+                                    <td className="border border-gray-300 px-3 py-2">
+                                      <div className="flex items-center gap-2">
+                                        <span className="text-sm text-blue-600 font-medium">
+                                          {reviewer.name}
+                                        </span>
+                                        <span className="bg-yellow-200 text-yellow-800 px-1 py-0.5 rounded text-xs">
+                                          Proxy
+                                        </span>
+                                      </div>
+                                    </td>
+                                    <td className="border border-gray-300 px-3 py-2 text-sm">
+                                      {reviewer.status}
+                                    </td>
+                                    <td className="border border-gray-300 px-3 py-2 text-sm">
+                                      {reviewer.decision}
+                                    </td>
+                                    <td className="border border-gray-300 px-3 py-2 text-sm">
+                                      {reviewer.assignedDate}
+                                    </td>
+                                    <td className="border border-gray-300 px-3 py-2 text-sm">
+                                      {reviewer.agreedDate}
+                                    </td>
+                                    <td className="border border-gray-300 px-3 py-2 text-sm">
+                                      {reviewer.dueDate}
+                                    </td>
+                                    <td className="border border-gray-300 px-3 py-2 text-sm">
+                                      {reviewer.completedDate}
+                                    </td>
+                                    <td className="border border-gray-300 px-3 py-2">
+                                      <button className="text-blue-600 hover:text-blue-800 text-sm">
+                                        Edit | View Reviewer Status
+                                      </button>
+                                    </td>
+                                  </tr>
+                                )
+                              )}
+                            </tbody>
+                          </table>
+                        </div>
+
+                        {/* Individual Reviewer Comments Sections - Collapsible */}
+                        <div className="space-y-4">
+                          {round.reviewers.map((reviewer, reviewerIndex) => {
+                            const reviewerKey = `${roundIndex}-${reviewerIndex}`;
+                            return (
+                              <div
                                 key={reviewerIndex}
-                                className={
-                                  reviewerIndex % 2 === 0
-                                    ? "bg-gray-50"
-                                    : "bg-white"
-                                }
+                                className="border border-gray-200 rounded-lg overflow-hidden"
                               >
-                                <td className="border border-gray-300 px-3 py-2">
-                                  <div className="flex items-center gap-2">
-                                    <span className="text-sm text-blue-600 font-medium">
+                                {/* Reviewer Header - Collapsible */}
+                                <button
+                                  onClick={() =>
+                                    toggleReviewer(roundIndex, reviewerIndex)
+                                  }
+                                  className="w-full flex items-center justify-between p-4 bg-gray-50 hover:bg-gray-100 transition-colors"
+                                >
+                                  <h4 className="text-base font-semibold text-blue-600 flex items-center gap-2">
+                                    <MessageSquare className="h-4 w-4" />
+                                    Reviewer {reviewerIndex + 1} Comments
+                                  </h4>
+                                  <div className="flex items-center gap-3">
+                                    <span className="text-sm text-gray-600">
                                       {reviewer.name}
                                     </span>
-                                    <span className="bg-yellow-200 text-yellow-800 px-1 py-0.5 rounded text-xs">
+                                    <span className="bg-yellow-200 text-yellow-800 px-2 py-1 rounded text-xs">
                                       Proxy
                                     </span>
+                                    <ChevronDown
+                                      className={`h-4 w-4 text-gray-500 transition-transform duration-200 ${
+                                        expandedReviewers[reviewerKey]
+                                          ? "rotate-180"
+                                          : ""
+                                      }`}
+                                    />
                                   </div>
-                                </td>
-                                <td className="border border-gray-300 px-3 py-2 text-sm">
-                                  {reviewer.status}
-                                </td>
-                                <td className="border border-gray-300 px-3 py-2 text-sm">
-                                  {reviewer.decision}
-                                </td>
-                                <td className="border border-gray-300 px-3 py-2 text-sm">
-                                  {reviewer.assignedDate}
-                                </td>
-                                <td className="border border-gray-300 px-3 py-2 text-sm">
-                                  {reviewer.agreedDate}
-                                </td>
-                                <td className="border border-gray-300 px-3 py-2 text-sm">
-                                  {reviewer.dueDate}
-                                </td>
-                                <td className="border border-gray-300 px-3 py-2 text-sm">
-                                  {reviewer.completedDate}
-                                </td>
-                                <td className="border border-gray-300 px-3 py-2">
-                                  <button className="text-blue-600 hover:text-blue-800 text-sm">
-                                    Edit | View Reviewer Status
-                                  </button>
-                                </td>
-                              </tr>
-                            ))}
-                          </tbody>
-                        </table>
+                                </button>
+
+                                {/* Reviewer Content - Collapsible */}
+                                {expandedReviewers[reviewerKey] && (
+                                  <div className="p-4 border-t border-gray-200 bg-white">
+                                    {/* Reviewer Info Table */}
+                                    <div className="mb-4 overflow-x-auto">
+                                      <table className="w-full border border-gray-300 text-sm">
+                                        <thead>
+                                          <tr className="bg-gray-100">
+                                            <th className="border border-gray-300 px-3 py-2 text-left font-semibold text-gray-700">
+                                              Name
+                                            </th>
+                                            <th className="border border-gray-300 px-3 py-2 text-left font-semibold text-gray-700">
+                                              Status
+                                            </th>
+                                            <th className="border border-gray-300 px-3 py-2 text-left font-semibold text-gray-700">
+                                              Decision
+                                            </th>
+                                            <th className="border border-gray-300 px-3 py-2 text-left font-semibold text-gray-700">
+                                              Assigned Date
+                                            </th>
+                                            <th className="border border-gray-300 px-3 py-2 text-left font-semibold text-gray-700">
+                                              Agreed Date
+                                            </th>
+                                            <th className="border border-gray-300 px-3 py-2 text-left font-semibold text-gray-700">
+                                              Due Date
+                                            </th>
+                                            <th className="border border-gray-300 px-3 py-2 text-left font-semibold text-gray-700">
+                                              Completed Date
+                                            </th>
+                                            <th className="border border-gray-300 px-3 py-2 text-left font-semibold text-gray-700">
+                                              Action
+                                            </th>
+                                          </tr>
+                                        </thead>
+                                        <tbody>
+                                          <tr className="bg-gray-50">
+                                            <td className="border border-gray-300 px-3 py-2">
+                                              <div className="flex items-center gap-2">
+                                                <span className="text-blue-600 font-medium">
+                                                  {reviewer.name}
+                                                </span>
+                                                <span className="bg-yellow-200 text-yellow-800 px-1 py-0.5 rounded text-xs">
+                                                  Proxy
+                                                </span>
+                                              </div>
+                                            </td>
+                                            <td className="border border-gray-300 px-3 py-2">
+                                              {reviewer.status}
+                                            </td>
+                                            <td className="border border-gray-300 px-3 py-2">
+                                              {reviewer.decision}
+                                            </td>
+                                            <td className="border border-gray-300 px-3 py-2">
+                                              {reviewer.assignedDate}
+                                            </td>
+                                            <td className="border border-gray-300 px-3 py-2">
+                                              {reviewer.agreedDate}
+                                            </td>
+                                            <td className="border border-gray-300 px-3 py-2">
+                                              {reviewer.dueDate}
+                                            </td>
+                                            <td className="border border-gray-300 px-3 py-2">
+                                              {reviewer.completedDate}
+                                            </td>
+                                            <td className="border border-gray-300 px-3 py-2">
+                                              <button className="text-blue-600 hover:text-blue-800">
+                                                View
+                                              </button>
+                                            </td>
+                                          </tr>
+                                        </tbody>
+                                      </table>
+                                    </div>
+
+                                    {/* Comments For Editor */}
+                                    <div className="mb-4">
+                                      <h5 className="text-sm font-semibold text-gray-700 mb-2">
+                                        Comments For Editor
+                                      </h5>
+                                      <div className="border border-gray-300 rounded p-3 bg-gray-50 text-sm text-gray-700 min-h-[60px]">
+                                        {reviewer.comments ||
+                                          "No comments provided"}
+                                      </div>
+                                    </div>
+
+                                    {/* General Comments */}
+                                    <div className="mb-4">
+                                      <h5 className="text-sm font-semibold text-gray-700 mb-2">
+                                        Comments
+                                      </h5>
+                                      <div className="border border-gray-300 rounded p-3 bg-gray-50 text-sm text-gray-700 min-h-[60px]">
+                                        {reviewer.editorComments ||
+                                          "No additional comments"}
+                                      </div>
+                                    </div>
+
+                                    {/* Files Section */}
+                                    <div>
+                                      <h5 className="text-sm font-semibold text-gray-700 mb-2">
+                                        Files
+                                      </h5>
+                                      <div className="border border-gray-300 rounded p-3 bg-gray-50 text-sm text-gray-600 min-h-[60px]">
+                                        No files attached
+                                      </div>
+                                    </div>
+                                  </div>
+                                )}
+                              </div>
+                            );
+                          })}
+                        </div>
                       </div>
-
-                      {/* Individual Reviewer Comments Sections - Collapsible */}
-                      <div className="space-y-4">
-                        {round.reviewers.map((reviewer, reviewerIndex) => {
-                          const reviewerKey = `${roundIndex}-${reviewerIndex}`;
-                          return (
-                            <div
-                              key={reviewerIndex}
-                              className="border border-gray-200 rounded-lg overflow-hidden"
-                            >
-                              {/* Reviewer Header - Collapsible */}
-                              <button
-                                onClick={() =>
-                                  toggleReviewer(roundIndex, reviewerIndex)
-                                }
-                                className="w-full flex items-center justify-between p-4 bg-gray-50 hover:bg-gray-100 transition-colors"
-                              >
-                                <h4 className="text-base font-semibold text-blue-600 flex items-center gap-2">
-                                  <MessageSquare className="h-4 w-4" />
-                                  Reviewer {reviewerIndex + 1} Comments
-                                </h4>
-                                <div className="flex items-center gap-3">
-                                  <span className="text-sm text-gray-600">
-                                    {reviewer.name}
-                                  </span>
-                                  <span className="bg-yellow-200 text-yellow-800 px-2 py-1 rounded text-xs">
-                                    Proxy
-                                  </span>
-                                  <ChevronDown
-                                    className={`h-4 w-4 text-gray-500 transition-transform duration-200 ${
-                                      expandedReviewers[reviewerKey]
-                                        ? "rotate-180"
-                                        : ""
-                                    }`}
-                                  />
-                                </div>
-                              </button>
-
-                              {/* Reviewer Content - Collapsible */}
-                              {expandedReviewers[reviewerKey] && (
-                                <div className="p-4 border-t border-gray-200 bg-white">
-                                  {/* Reviewer Info Table */}
-                                  <div className="mb-4 overflow-x-auto">
-                                    <table className="w-full border border-gray-300 text-sm">
-                                      <thead>
-                                        <tr className="bg-gray-100">
-                                          <th className="border border-gray-300 px-3 py-2 text-left font-semibold text-gray-700">
-                                            Name
-                                          </th>
-                                          <th className="border border-gray-300 px-3 py-2 text-left font-semibold text-gray-700">
-                                            Status
-                                          </th>
-                                          <th className="border border-gray-300 px-3 py-2 text-left font-semibold text-gray-700">
-                                            Decision
-                                          </th>
-                                          <th className="border border-gray-300 px-3 py-2 text-left font-semibold text-gray-700">
-                                            Assigned Date
-                                          </th>
-                                          <th className="border border-gray-300 px-3 py-2 text-left font-semibold text-gray-700">
-                                            Agreed Date
-                                          </th>
-                                          <th className="border border-gray-300 px-3 py-2 text-left font-semibold text-gray-700">
-                                            Due Date
-                                          </th>
-                                          <th className="border border-gray-300 px-3 py-2 text-left font-semibold text-gray-700">
-                                            Completed Date
-                                          </th>
-                                          <th className="border border-gray-300 px-3 py-2 text-left font-semibold text-gray-700">
-                                            Action
-                                          </th>
-                                        </tr>
-                                      </thead>
-                                      <tbody>
-                                        <tr className="bg-gray-50">
-                                          <td className="border border-gray-300 px-3 py-2">
-                                            <div className="flex items-center gap-2">
-                                              <span className="text-blue-600 font-medium">
-                                                {reviewer.name}
-                                              </span>
-                                              <span className="bg-yellow-200 text-yellow-800 px-1 py-0.5 rounded text-xs">
-                                                Proxy
-                                              </span>
-                                            </div>
-                                          </td>
-                                          <td className="border border-gray-300 px-3 py-2">
-                                            {reviewer.status}
-                                          </td>
-                                          <td className="border border-gray-300 px-3 py-2">
-                                            {reviewer.decision}
-                                          </td>
-                                          <td className="border border-gray-300 px-3 py-2">
-                                            {reviewer.assignedDate}
-                                          </td>
-                                          <td className="border border-gray-300 px-3 py-2">
-                                            {reviewer.agreedDate}
-                                          </td>
-                                          <td className="border border-gray-300 px-3 py-2">
-                                            {reviewer.dueDate}
-                                          </td>
-                                          <td className="border border-gray-300 px-3 py-2">
-                                            {reviewer.completedDate}
-                                          </td>
-                                          <td className="border border-gray-300 px-3 py-2">
-                                            <button className="text-blue-600 hover:text-blue-800">
-                                              View
-                                            </button>
-                                          </td>
-                                        </tr>
-                                      </tbody>
-                                    </table>
-                                  </div>
-
-                                  {/* Comments For Editor */}
-                                  <div className="mb-4">
-                                    <h5 className="text-sm font-semibold text-gray-700 mb-2">
-                                      Comments For Editor
-                                    </h5>
-                                    <div className="border border-gray-300 rounded p-3 bg-gray-50 text-sm text-gray-700 min-h-[60px]">
-                                      {reviewer.comments ||
-                                        "No comments provided"}
-                                    </div>
-                                  </div>
-
-                                  {/* General Comments */}
-                                  <div className="mb-4">
-                                    <h5 className="text-sm font-semibold text-gray-700 mb-2">
-                                      Comments
-                                    </h5>
-                                    <div className="border border-gray-300 rounded p-3 bg-gray-50 text-sm text-gray-700 min-h-[60px]">
-                                      {reviewer.editorComments ||
-                                        "No additional comments"}
-                                    </div>
-                                  </div>
-
-                                  {/* Files Section */}
-                                  <div>
-                                    <h5 className="text-sm font-semibold text-gray-700 mb-2">
-                                      Files
-                                    </h5>
-                                    <div className="border border-gray-300 rounded p-3 bg-gray-50 text-sm text-gray-600 min-h-[60px]">
-                                      No files attached
-                                    </div>
-                                  </div>
-                                </div>
-                              )}
-                            </div>
-                          );
-                        })}
-                      </div>
-                    </div>
-                  )}
+                    )}
+                  </div>
                 </div>
-              </div>
-            ))}
+              ))
+            );
+          })}
 
           {/* Back Button */}
           <div className="flex justify-end gap-5 pt-4 border-t border-gray-200">
-            <button onClick={()=> navigate(-1)} className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-medium transition-colors flex items-center gap-2">
+            <button
+              onClick={() => navigate(-1)}
+              className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-medium transition-colors flex items-center gap-2"
+            >
               <ChevronLeft className="h-4 w-4" />
               Back
             </button>
-            <button onClick={()=> navigate(-1)} className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-medium transition-colors flex items-center gap-2">
+            <button
+              onClick={() => navigate(-1)}
+              className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-medium transition-colors flex items-center gap-2"
+            >
               Post Decision
             </button>
-            <button onClick={()=> navigate(-1)} className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-medium transition-colors flex items-center gap-2">
+            <button
+              onClick={() => navigate(-1)}
+              className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-medium transition-colors flex items-center gap-2"
+            >
               Assign Reviewer
             </button>
           </div>

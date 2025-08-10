@@ -15,6 +15,17 @@ export const reviewerApi = baseApi.injectEndpoints({
             providesTags: ['Reviewers'],
         }),
 
+
+        // get all reviewers ---
+        getAllReviewers: builder.query({
+            query: (params = {}) => ({
+                url: '/reviewer/readAll',
+                params: {
+                },
+            }),
+            providesTags: ['Reviewers'],
+        }),
+
         //Create New Reviewer ---
         createReviewer: builder.mutation({
             query: (data) => ({
@@ -44,5 +55,6 @@ export const reviewerApi = baseApi.injectEndpoints({
 export const {
     useLazyGetOneReviewerQuery,
     useCreateReviewerMutation,
+    useGetAllReviewersQuery,
     useUpdateReviewerMutation
 } = reviewerApi

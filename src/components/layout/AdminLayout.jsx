@@ -1,5 +1,5 @@
 import { AdminHeader } from "@/app/headers/adminHeader";
-import { SideBar } from "./sidebar";
+import DashboardSideBar from "@/app/asidebar/dashboardAsidebar";
 
 export function AdminLayout({ children }) {
   return (
@@ -7,7 +7,7 @@ export function AdminLayout({ children }) {
       {/* Navbar at the top */}
       <AdminHeader />
       <div className="flex flex-1">
-        <SideBar />
+        <DashboardSideBar />
         <main className="flex-1 bg-gray-50 overflow-auto">{children}</main>
       </div>
     </div>

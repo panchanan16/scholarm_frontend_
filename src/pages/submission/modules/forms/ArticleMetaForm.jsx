@@ -1,33 +1,54 @@
+import { useToastMutation } from "@/hooks/useNotification";
 import useSaveSteps from "@/hooks/useSaveSteps";
+import { useAddArticleMetaDataMutation } from "@/services/features/manuscript/slice";
+import { useLazyGetArticleIntroByIdQuery } from "@/services/features/submission/submissionApi";
 import { Formik, Form, Field } from "formik";
-import { useState } from "react";
+import { useEffect, useLayoutEffect } from "react";
+import { useSearchParams } from "react-router-dom";
+
 
 const ArticleMetaForm = () => {
+  const [queryparams] = useSearchParams()
+
+  const [getArticleIntro, IntroData] = useLazyGetArticleIntroByIdQuery()
+
+  useEffect(()=> {
+     queryparams.get('mode') === 'edit' && getArticleIntro(queryparams.get('article_id'))
+    
+  }, [queryparams.get('article_id')])
+
+  
+  const IntroDataObject = IntroData.status === 'fulfilled' ? IntroData.data?.data : null
+  console.log(IntroDataObject)
+
   const intitialValues = {
-    title: "",
-    abstract: "",
-    keywords: "",
-    pages: "",
-    belong_to: "",
+    intro_id: Number(queryparams.get('article_id')) || null,
+    title: IntroDataObject ? IntroDataObject.title : "",
+    abstract: IntroDataObject ? IntroDataObject.abstract : "",
+    keywords: IntroDataObject ? IntroDataObject.keywords : "",
+    pages: IntroDataObject ? IntroDataObject.pages : "",
+    belong_to: IntroDataObject ? IntroDataObject.belong_to : "",
   };
 
   const { updateSaveSteps } = useSaveSteps({
     saveObject: { reviewers: true },
-    nextHighlight: "authors",
+    nextHighlight: "articleDetails",
   });
 
-  const SubmitAndContinueHandler = (values, setSubmitting) => {
-    setTimeout(() => {
-      setSubmitting(false);
-      alert(JSON.stringify(values, null, 2));
-      updateSaveSteps("authors");
-    }, 2000);
+
+  const [addMetaData] = useToastMutation(useAddArticleMetaDataMutation(), {showLoading: true})
+
+  const SubmitAndContinueHandler = async (values, setSubmitting) => {
+     await addMetaData(values)
+     updateSaveSteps(`article-details?article_id=${queryparams.get('article_id')}`);
+     setSubmitting(false)
   };
 
   return (
     <div className="max-w-4xl mx-auto bg-white rounded-lg shadow-sm border border-gray-200 p-8">
       <Formik
         initialValues={intitialValues}
+        enableReinitialize={true}
         onSubmit={(values, { setSubmitting }) =>
           SubmitAndContinueHandler(values, setSubmitting)
         }
@@ -36,7 +57,7 @@ const ArticleMetaForm = () => {
           <Form>
             <div className="mb-8">
               <h2 className="text-2xl font-semibold text-gray-900 mb-6">
-                Article Details
+                Article Introduction
               </h2>
 
               {/* Title Field */}
@@ -129,7 +150,7 @@ const ArticleMetaForm = () => {
                 disabled={isSubmitting}
                 className="px-4 py-2 text-white bg-gray-800 rounded-md hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:cursor-not-allowed"
               >
-                Save & Continue
+                {isSubmitting ? 'Submitting...' : 'Save & Continue'}
               </button>
             </div>
           </Form>

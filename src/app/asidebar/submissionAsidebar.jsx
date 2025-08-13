@@ -166,18 +166,21 @@ import {
   Users,
   User,
   Send,
+  TypeOutline,
 } from "lucide-react";
 import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 
 function SubmissionAsidebar() {
   const { expandedSections, savedSteps, hightLightedItem } = useSelector(
     (state) => state["submission"]
   );
 
+  const [queryParams] = useSearchParams()
+
   const { data: articlePreSections } = useGetArticleSectionsQuery({
-    article_id: 2,
+    article_id: queryParams.get('article_id') || 0,
   });
 
   const articleSection =
@@ -213,6 +216,7 @@ function SubmissionAsidebar() {
       label: "Content",
       items: [
         { id: "intro", label: "Title, etc.", icon: FileText },
+        { id: "articleDetails", label: "Article Details", icon: TypeOutline, link: "article-details" },
         {
           id: "authors",
           label: "Authors",

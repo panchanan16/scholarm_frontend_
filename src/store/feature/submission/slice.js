@@ -2,7 +2,7 @@ import { createSlice } from "@reduxjs/toolkit";
 
 
 const initialState = {
-    savedSteps: [{ intro: true }, { authors: true }, { articles: true }, { refference: true }, {reviewers: false}],
+    savedSteps: [{ intro: true }, {articleDetails: false}, { authors: true }, { articles: true }, { refference: true }, {reviewers: false}],
     expandedSections: new Set(["getting-started"]),
     hightLightedItem: ""
 }

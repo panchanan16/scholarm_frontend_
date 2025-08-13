@@ -22,6 +22,7 @@ export default function AddAuthorModal({
   email,
   hasAuthor,
   author,
+  articleId
 }) {
   const [createAuthor] = useCreateAuthorMutation();
   const [updateAuthor, updateData] = useUpdateAuthorMutation();
@@ -51,7 +52,7 @@ export default function AddAuthorModal({
       await updateAuthor(values);
       if (updateData && updateData.status) {
         addAuthorToArtcle({
-          article_id: 2,
+          article_id: articleId,
           author_id: values.author_id,
         });
       }
@@ -59,7 +60,7 @@ export default function AddAuthorModal({
       const createdAuthor = await createAuthor(values);
       if (createdAuthor && createdAuthor.data.status) {
         addAuthorToArtcle({
-          article_id: 2,
+          article_id: articleId,
           author_id: createdAuthor.data.status ? createdAuthor.data.data.author_id : "",
         });
       }

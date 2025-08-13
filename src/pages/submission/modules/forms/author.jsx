@@ -6,6 +6,7 @@ import SubmissionError from "@/components/error/submissionError";
 import { useToastLazyQuery } from "@/hooks/useNotification";
 import { useLazyGetOneAuthorQuery } from "@/services/features/authors/slice";
 import { useGetArticleAuthorsByArticleIdQuery } from "@/services/features/submission/submissionApi";
+import { useSearchParams } from "react-router-dom";
 
 export default function Author() {
   const [searchTerm, setSearchTerm] = useState("");
@@ -13,12 +14,14 @@ export default function Author() {
   const [showModal, setShowModal] = useState(false);
   const [isSection, setIsSectionError] = useState(false);
 
+  const [queryParams] = useSearchParams()
+
   const [getAuthorWithEmail, { data }] = useToastLazyQuery(
     useLazyGetOneAuthorQuery(),
     { showLoading: true }
   );
 
-  const addedAuthors = useGetArticleAuthorsByArticleIdQuery({ article_id : 2 });
+  const addedAuthors = useGetArticleAuthorsByArticleIdQuery({ article_id : queryParams.get('article_id') });
 
   function handleSaveAndContinue() {
     console.log(addedAuthors);
@@ -93,6 +96,7 @@ export default function Author() {
         email={searchTerm}
         hasAuthor={hasSearched}
         author={data ? data : {}}
+        articleId={Number(queryParams.get('article_id'))}
       />
     </div>
   );

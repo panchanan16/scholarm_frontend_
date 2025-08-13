@@ -5,10 +5,10 @@ export const submissionApi = baseApi.injectEndpoints({
     endpoints: (builder) => ({
         // Get article Intro ---
         getArticleIntroById: builder.query({
-            query: (params = {}) => ({
+            query: (intro_id) => ({
                 url: '/introarticle/readOne',
                 params: {
-                    intro_id: params.intro_id || 6,
+                    intro_id: intro_id || 0,
                 },
             }),
             providesTags: ['IntroArticle'],
@@ -32,6 +32,15 @@ export const submissionApi = baseApi.injectEndpoints({
                 body: data,
             }),
             invalidatesTags: ['IntroArticle'],
+        }),
+
+        // Create article main details
+        createArticleMainDetails: builder.mutation({
+            query: (data) => ({
+                url: '/articleDetail/create',
+                method: 'POST',
+                body: data,
+            }),
         }),
 
         // Create article section ---
@@ -217,5 +226,6 @@ export const {
     useAddReviewersToArticleMutation,
     useDeleteReviewerFromArticleMutation,
     useGetArticleSummaryQuery,
-    useCreateArticleSectionMutation
+    useCreateArticleSectionMutation,
+    useCreateArticleMainDetailsMutation
 } = submissionApi

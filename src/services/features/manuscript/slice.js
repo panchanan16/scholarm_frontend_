@@ -3,6 +3,24 @@ import { baseApi } from "@/services/baseApi"
 
 export const manuscriptApi = baseApi.injectEndpoints({
     endpoints: (builder) => ({
+        // Get started creating a manuscript ---
+        getStartedArticle: builder.mutation({
+            query: (data) => ({
+                url: '/getStart/create',
+                method: 'POST',
+                body: data,
+            }),
+        }),
+
+        // Add Article meta data ---
+        addArticleMetaData: builder.mutation({
+            query: (data) => ({
+                url: '/introarticle/create',
+                method: 'POST',
+                body: data,
+            }),
+        }),
+
         // Get manuscript API by status ---
         getManuscriptByStatus: builder.query({
             query: (params = {}) => ({
@@ -58,7 +76,16 @@ export const manuscriptApi = baseApi.injectEndpoints({
                     article_id: article_id,
                 },
             }),
-        })
+        }),
+
+        // update reviewer response ----
+        updateReviewerRecommendation: builder.mutation({
+            query: (data) => ({
+                url: '/reviewer/recommendation',
+                method: 'PUT',
+                body: data,
+            }),
+        }),
 
 
     }),
@@ -70,5 +97,8 @@ export const {
     useAssignEditorToManuscriptMutation,
     useAssignReviewerToManuscriptMutation,
     useGetAssignedReviewersQuery,
-    useGetManuscriptReviewDetailsQuery
+    useGetManuscriptReviewDetailsQuery,
+    useUpdateReviewerRecommendationMutation,
+    useGetStartedArticleMutation,
+    useAddArticleMetaDataMutation
 } = manuscriptApi

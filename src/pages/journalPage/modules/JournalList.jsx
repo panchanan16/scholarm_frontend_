@@ -10,31 +10,37 @@ import {
   Calendar,
   User,
   FileText,
-  Trash2,
-  Share,
-  Archive,
-  Flag,
 } from "lucide-react";
-import { Link, Outlet } from "react-router-dom";
+import { Link, Outlet, useSearchParams } from "react-router-dom";
 import { useGetManuscriptByStatusQuery } from "@/services/features/manuscript/slice";
 import DecisonEditor from "@/components/Decision/DecisonEditor";
 import DecisonReviewer from "@/components/Decision/DecisonReviewer";
+import JournalReviewDropDown from "@/components/JournalReviewDropdown/JournalReviewDropdown";
+import { AdminLayout } from "@/components/layout/AdminLayout";
 
 const JournalListTable = () => {
   const [currentPage, setCurrentPage] = useState(1);
-  const [statusFilter, setStatusFilter] = useState("newsubmission");
+  const [queryParams] = useSearchParams()
+  console.log(queryParams.get('status'))
+  const [statusFilter, setStatusFilter] = useState(queryParams.get('status') || "submissionneedadditionalreviewers");
   const [searchTerm, setSearchTerm] = useState("");
   const [isOpenReviewerDecision, setIsOpenReviewerDecision] = useState(false);
   const [isOpenEditorDecision, setIsOpenEditorDecision] = useState(false);
   const [openDropdown, setOpenDropdown] = useState(null);
+
+  const [articleId, setArticleId] = useState(null);
   const dropdownRef = useRef(null);
   const itemsPerPage = 5;
+
+  // Page meta data ---
+  const user = { role: "editor", userId: 1 };
 
   // Call data ---
   const { data: manuscriptsData } = useGetManuscriptByStatusQuery({
     status: statusFilter,
+    role: user.role,
+    userId: user.userId,
   });
-  console.log(manuscriptsData);
 
   // Handle outside click for dropdown
   useEffect(() => {
@@ -50,13 +56,66 @@ const JournalListTable = () => {
     };
   }, []);
 
-  function handleReviewerDescision(params) {
+  function handleReviewerDescision(article_id) {
     setIsOpenReviewerDecision(true);
+    setArticleId(article_id);
   }
 
-  function handleEditorDescision(params) {
+  function handleEditorDescision() {
     setIsOpenEditorDecision(true);
   }
+
+  // handle actions ---
+  const handleDropdownAction = (action, manuscript) => {
+    switch (action) {
+      case "handleViewDetails":
+        // Handle view details
+        console.log("Viewing details for:", manuscript.intro_id);
+        break;
+
+      case "handleEditorDecision":
+        // Handle editor decision
+        handleEditorDescision(params);
+        console.log("Editor decision for:", manuscript.intro_id);
+        break;
+
+      case "handleReviewerDecision":
+        // Handle reviewer decision
+        handleReviewerDescision(manuscript.intro_id);
+        console.log("Reviewer decision for:", manuscript.intro_id);
+        break;
+
+      case "handleShare":
+        // Handle share
+        console.log("Sharing manuscript:", manuscript.intro_id);
+        break;
+
+      case "handleArchive":
+        // Handle archive
+        console.log("Archiving manuscript:", manuscript.intro_id);
+        break;
+
+      case "handleFlag":
+        // Handle flag for review
+        console.log("Flagging manuscript:", manuscript.intro_id);
+        break;
+
+      case "handleDelete":
+        // Handle delete with confirmation
+        if (
+          window.confirm("Are you sure you want to delete this manuscript?")
+        ) {
+          console.log("Deleting manuscript:", manuscript.intro_id);
+        }
+        break;
+
+      default:
+        console.warn("Unknown action:", action);
+    }
+
+    // Close dropdown after action
+    setOpenDropdown(null);
+  };
 
   // Sample data with additional details for the modal
   const manuscripts = [
@@ -167,8 +226,8 @@ const JournalListTable = () => {
   };
 
   const truncateText = (text, maxLength) => {
-    if (text.length <= maxLength) return text;
-    return text.substring(0, maxLength) + "...";
+    if (text?.length <= maxLength) return text;
+    return text?.substring(0, maxLength) + "...";
   };
 
   const toggleDropdown = (manuscriptId, event) => {
@@ -176,36 +235,8 @@ const JournalListTable = () => {
     setOpenDropdown(openDropdown === manuscriptId ? null : manuscriptId);
   };
 
-  const handleDropdownAction = (action, manuscript, event) => {
-    event.stopPropagation();
-    setOpenDropdown(null);
-
-    switch (action) {
-      case "view":
-        handleViewClick(manuscript);
-        break;
-      case "edit":
-        console.log("Edit manuscript:", manuscript.id);
-        break;
-      case "delete":
-        console.log("Delete manuscript:", manuscript.id);
-        break;
-      case "share":
-        console.log("Share manuscript:", manuscript.id);
-        break;
-      case "archive":
-        console.log("Archive manuscript:", manuscript.id);
-        break;
-      case "flag":
-        console.log("Flag manuscript:", manuscript.id);
-        break;
-      default:
-        break;
-    }
-  };
-
   return (
-    <>
+    <AdminLayout>
       <div className="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden">
         {/* Header */}
         <div className="px-6 py-4 border-b border-gray-200 bg-gradient-to-r from-blue-50 to-indigo-50">
@@ -252,7 +283,7 @@ const JournalListTable = () => {
         </div>
 
         {/* Table */}
-        <div className="overflow-x-auto min-h-80">
+        <div className="overflow-x-auto min-h-112">
           <table className="w-full">
             <thead className="bg-gray-50 border-b border-gray-200">
               <tr>
@@ -369,11 +400,11 @@ const JournalListTable = () => {
                         <div
                           className="relative"
                           ref={
-                            openDropdown === manuscript.id ? dropdownRef : null
+                            openDropdown === manuscript.intro_id ? dropdownRef : null
                           }
                         >
                           <button
-                            onClick={(e) => toggleDropdown(manuscript.id, e)}
+                            onClick={(e) => toggleDropdown(manuscript.intro_id, e)}
                             className="text-gray-600 hover:text-gray-800 p-1 rounded-md hover:bg-gray-50 transition-colors"
                             title="More Options"
                           >
@@ -381,119 +412,12 @@ const JournalListTable = () => {
                           </button>
 
                           {/* Dropdown Menu */}
-                          {openDropdown === manuscript.id && (
-                            <div className="absolute right-0 top-8 mt-1 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-100">
-                              <button
-                                onClick={(e) =>
-                                  handleDropdownAction("view", manuscript, e)
-                                }
-                                className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-2"
-                              >
-                                <Eye className="h-4 w-4" />
-                                View Details
-                              </button>
-                              <Link
-                                to={`assign-editor?article_id=${manuscript.intro_id}`}
-                              >
-                                <button
-                                  onClick={(e) =>
-                                    handleDropdownAction("edit", manuscript, e)
-                                  }
-                                  className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-2"
-                                >
-                                  <Edit className="h-4 w-4" />
-                                  Invite Editor
-                                </button>
-                              </Link>
-                              <Link
-                                to={`assign-editor?article_id=${manuscript.intro_id}`}
-                              >
-                                <button
-                                  onClick={(e) =>
-                                    handleDropdownAction("edit", manuscript, e)
-                                  }
-                                  className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-2"
-                                >
-                                  <Edit className="h-4 w-4" />
-                                  Edit Manuscript
-                                </button>
-                              </Link>
-
-                              <Link
-                                to={`assign-reviewer?article_id=${manuscript.intro_id}`}
-                              >
-                                <button
-                                  onClick={(e) =>
-                                    handleDropdownAction("edit", manuscript, e)
-                                  }
-                                  className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-2"
-                                >
-                                  <Edit className="h-4 w-4" />
-                                  Invite Reviewer
-                                </button>
-                              </Link>
-
-                              <button
-                                onClick={(e) =>
-                                  handleEditorDescision("edit", manuscript, e)
-                                }
-                                className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-2"
-                              >
-                                <Edit className="h-4 w-4" />
-                                Post Editor Descision
-                              </button>
-
-                              <button
-                                onClick={(e) =>
-                                  handleReviewerDescision("edit", manuscript, e)
-                                }
-                                className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-2"
-                              >
-                                <Edit className="h-4 w-4" />
-                                Reviewer Descision
-                              </button>
-
-                              <button
-                                onClick={(e) =>
-                                  handleDropdownAction("share", manuscript, e)
-                                }
-                                className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-2"
-                              >
-                                <Share className="h-4 w-4" />
-                                Share
-                              </button>
-                              <button
-                                onClick={(e) =>
-                                  handleDropdownAction("archive", manuscript, e)
-                                }
-                                className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-2"
-                              >
-                                <Archive className="h-4 w-4" />
-                                Archive
-                              </button>
-                              <button
-                                onClick={(e) =>
-                                  handleDropdownAction("flag", manuscript, e)
-                                }
-                                className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-2"
-                              >
-                                <Flag className="h-4 w-4" />
-                                Flag for Review
-                              </button>
-
-                              {/* Separator */}
-                              <div className="border-t border-gray-100 my-1"></div>
-
-                              <button
-                                onClick={(e) =>
-                                  handleDropdownAction("delete", manuscript, e)
-                                }
-                                className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 flex items-center gap-2"
-                              >
-                                <Trash2 className="h-4 w-4" />
-                                Delete
-                              </button>
-                            </div>
+                          {openDropdown === manuscript.intro_id && (
+                            <JournalReviewDropDown
+                              manuscript={manuscript}
+                              userRole="admin"
+                              onAction={handleDropdownAction}
+                            />
                           )}
                         </div>
                       </div>
@@ -553,11 +477,18 @@ const JournalListTable = () => {
           </div>
         </div>
       </div>
-      <DecisonEditor isOpen={isOpenEditorDecision} onClose={setIsOpenEditorDecision} />
-      <DecisonReviewer isOpen={isOpenReviewerDecision} onClose={setIsOpenReviewerDecision} />
-      {/* Detail Modal */}
+      <DecisonEditor
+        isOpen={isOpenEditorDecision}
+        onClose={setIsOpenEditorDecision}
+        article_id={articleId}
+      />
+      <DecisonReviewer
+        isOpen={isOpenReviewerDecision}
+        onClose={setIsOpenReviewerDecision}
+        article_id={articleId}
+      />
       <Outlet />
-    </>
+    </AdminLayout>
   );
 };
 

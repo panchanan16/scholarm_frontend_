@@ -13,7 +13,7 @@ import {
 import { AdminLayout } from "@/components/layout/AdminLayout";
 import { Link, Outlet } from "react-router-dom";
 
-const Dashboard = () => {
+const ReviewerDashBoard = () => {
   const StatCard = ({ title, value, icon: Icon, trend, color = "gray" }) => (
     <div className="bg-gradient-to-br from-white to-gray-50/70 rounded-lg border border-gray-100 p-4 hover:shadow-md hover:border-gray-200 transition-all duration-300 group">
       <div className="flex items-center justify-between">
@@ -32,7 +32,7 @@ const Dashboard = () => {
   );
 
   const ActionCard = ({ title, items, icon: Icon, color = "blue" }) => (
-    <div className="bg-gradient-to-br from-white to-gray-50/50 rounded-xl border border-gray-100 overflow-hidden hover:shadow-lg hover:border-gray-200 transition-all duration-300">
+    <div className="bg-gradient-to-br from-white to-gray-50/50 rounded-sm border border-gray-100 overflow-hidden hover:shadow-lg hover:border-gray-200 transition-all duration-300">
       <div
         className={`bg-gradient-to-r from-${color}-50 via-${color}-50 to-${color}-100 px-6 py-4 border-b border-${color}-100`}
       >
@@ -81,61 +81,15 @@ const Dashboard = () => {
   );
 
   const publisherTodoItems = [
-    { label: "New Submission", count: 0, priority: "green", link: 'manuscript?role=admin&id=1' },
-    { label: "Editor Invited", count: 23, priority: "orange" },
-    { label: "Need To Assign Editor", count: 23, priority: "red" },
-    { label: "Need To Assign Reviewers", count: 6, priority: "yellow" },
+    { label: "New Invitaion", count: 0, priority: "green", link: 'editor-invitation' },
+    { label: "New Assignment", count: 23, priority: "orange" },
+    { label: "Submissions with required Review Completed", count: 23, priority: "red" },
+    { label: "Submissions requiring additional Reviewers", count: 6, priority: "yellow" },
+    { label: "Submissions with one or more late Reviews", count: 6, priority: "blue" },
+    { label: "Reviewers invited No Response", count: 6, priority: "red" },
+    { label: "Under Review", count: 6, priority: "green" }
   ];
 
-  const revisionItems = [
-    { label: "New Revision Received", count: 26, priority: "blue" },
-    { label: "Editor Invited", count: 0, priority: "gray" },
-    { label: "Need To Assign Editor", count: 0, priority: "gray" },
-    { label: "Need To Assign Reviewers", count: 0, priority: "gray" },
-  ];
-
-  const reviewProgressItems = [
-    { label: "Reviewers Invited", count: 54, priority: "blue" },
-    {
-      label: "Submission Require Additional Reviews",
-      count: 51,
-      priority: "orange",
-    },
-    {
-      label: "Submission With Required Reviews Completed",
-      count: 3,
-      priority: "green",
-    },
-    { label: "Under Review", count: 25, priority: "yellow" },
-  ];
-
-  const revisionProgressItems = [
-    { label: "Reviewers Invited", count: 0, priority: "gray" },
-    {
-      label: "Submission Require Additional Reviews",
-      count: 0,
-      priority: "gray",
-    },
-    {
-      label: "Submission With Required Reviews Completed",
-      count: 0,
-      priority: "gray",
-    },
-    { label: "Under Review", count: 0, priority: "gray" },
-  ];
-
-  const completedItems = [
-    { label: "Decision In Process", count: 0, priority: "blue" },
-    { label: "In Press", count: 0, priority: "green" },
-    { label: "Publish", count: 0, priority: "green" },
-    { label: "Accept", count: 78, priority: "green" },
-  ];
-
-  const incompleteItems = [
-    { label: "Incompleted Submissions", count: 56, priority: "red", link: 'manuscript?role=admin&id=1&status=incomplete' },
-    { label: "Revisions Due", count: 34, priority: "orange" },
-    { label: "Submissions Sent Back to Author", count: 0, priority: "gray" },
-  ];
 
   return (
     <AdminLayout>
@@ -145,7 +99,7 @@ const Dashboard = () => {
           <div className="flex items-center justify-between mb-6">
             <div>
               <h1 className="text-2xl font-bold text-gray-900">
-                Publisher Dashboard
+                Editor Dashboard
               </h1>
               <p className="text-gray-600">
                 Manage submissions and track progress
@@ -211,54 +165,15 @@ const Dashboard = () => {
           </div>
 
           {/* Main Grid */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-1 gap-6">
             {/* Publisher To Do */}
             <ActionCard
-              title="Publisher To Do List"
+              title="My Assignments"
               items={publisherTodoItems}
               icon={AlertCircle}
               color="blue"
             />
 
-            {/* Revisions */}
-            <ActionCard
-              title="Revisions"
-              items={revisionItems}
-              icon={FileText}
-              color="blue"
-            />
-
-            {/* Review in Progress */}
-            <ActionCard
-              title="Review in Progress"
-              items={reviewProgressItems}
-              icon={Clock}
-              color="blue"
-            />
-
-            {/* Revisions Review in Progress */}
-            <ActionCard
-              title="Revisions Review in Progress"
-              items={revisionProgressItems}
-              icon={Clock}
-              color="gray"
-            />
-
-            {/* Completed Assignments */}
-            <ActionCard
-              title="Completed Assignments"
-              items={completedItems}
-              icon={CheckCircle}
-              color="blue"
-            />
-
-            {/* Incomplete Assignments */}
-            <ActionCard
-              title="Incomplete Assignments"
-              items={incompleteItems}
-              icon={AlertCircle}
-              color="gray"
-            />
           </div>
         </div>
       </main>
@@ -266,4 +181,4 @@ const Dashboard = () => {
   );
 };
 
-export default Dashboard;
+export default ReviewerDashBoard;

@@ -1,9 +1,10 @@
-import { Field, FieldArray, Form, Formik } from "formik";
+import { Field, Form, Formik } from "formik";
 import { useState } from "react";
 import { typeSubtypes } from "@/data/submissionType";
 import { useLazyGetArticleIntroByIdQuery } from "@/services/features/submission/submissionApi";
-import { useToastLazyQuery } from "@/hooks/useNotification";
+import { useToastLazyQuery, useToastMutation } from "@/hooks/useNotification";
 import useSaveSteps from "@/hooks/useSaveSteps";
+import { useGetStartedArticleMutation } from "@/services/features/manuscript/slice";
 
 export default function IntroForm() {
   const [type, setType] = useState("");
@@ -13,23 +14,13 @@ export default function IntroForm() {
     isExpand: true,
   });
 
-  const [wrappedTrigger, queryResult] = useToastLazyQuery(
-    useLazyGetArticleIntroByIdQuery(),
-    {
-      showSuccess: true,
-      showLoading: true,
-      loadingMessage: "Signing you in...",
-      successMessage: "Welcome back! Login successful.",
-    }
-  );
-
-  console.log(queryResult);
+  const [getArticleStart] = useToastMutation(useGetStartedArticleMutation());
 
   const initialValues = {
     articleDetails: {
       type: "",
       sub_class: "",
-      main_author: "",
+      main_author: 1,
     },
     sections: [],
   };
@@ -44,11 +35,14 @@ export default function IntroForm() {
     setFieldValue("sections", typeSubtypes[selectedType].section);
   };
 
-  function SubmitAndContinueHandler(values, setSubmitting) {
-    setTimeout(() => {
-      alert(JSON.stringify(values, null, 2));
-      updateSaveSteps("/submission?article=1");
-    }, 1000);
+  async function SubmitAndContinueHandler(values, setSubmitting) {
+    // setTimeout(() => {
+    //   alert(JSON.stringify(values, null, 2));
+    //   updateSaveSteps("/submission?article=1");
+    // }, 1000);
+    const article = await getArticleStart(values);
+    const article_id = article.data[0]?.intro_id;
+    article && updateSaveSteps(`/submission?article_id=${article_id}`);
   }
 
   return (
@@ -64,7 +58,7 @@ export default function IntroForm() {
             <Form>
               <div className="mb-8">
                 <h2 className="text-2xl font-semibold text-gray-900 mb-6">
-                  Classification Details
+                  Getting Started
                 </h2>
 
                 {/* Type Field */}
@@ -118,12 +112,12 @@ export default function IntroForm() {
                   disabled={isSubmitting}
                   className="px-4 py-2 text-white bg-gray-800 rounded-md hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:cursor-not-allowed"
                 >
-                  Save & Continue
+                  {isSubmitting ? "Submitting..." : "Save & Continue"}
                 </button>
               </div>
             </Form>
           )}
-        </Formik>        
+        </Formik>
       </div>
     </div>
   );

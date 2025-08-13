@@ -4,11 +4,13 @@ import {
   useGetArticleAuthorsByArticleIdQuery,
   useSetCorrespondingAuthorMutation,
 } from "@/services/features/submission/submissionApi";
+import { useSearchParams } from "react-router-dom";
 
 
 export default function AddedAuthors() {
+  const [queryParams] = useSearchParams()
   const { data: authorsList } = useGetArticleAuthorsByArticleIdQuery({
-    article_id: 2,
+    article_id: queryParams.get('article_id') ,
   });
 
   console.log(authorsList)

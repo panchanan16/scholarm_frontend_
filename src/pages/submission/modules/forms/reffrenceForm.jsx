@@ -15,15 +15,19 @@ import {
 import { Field, Form, Formik } from "formik";
 import { useToastMutation } from "@/hooks/useNotification";
 import UpdateReff from "@/components/submission/updateRef";
+import { useSearchParams } from "react-router-dom";
 
 const ReferenceManager = () => {
+  const [queryParams] = useSearchParams();
   const [isConverterOpen, setIsConverterOpen] = useState(false);
   const [isAddref, setIsAddRef] = useState(false);
   const [selectedItems, setSelectedItems] = useState(new Set());
-  const [isEdit, setIsEdit] = useState({isOpen: false, initialValues: {}})
+  const [isEdit, setIsEdit] = useState({ isOpen: false, initialValues: {} });
   const refContent = useRef();
 
-  const { data } = useGetReffencesByArticleIdQuery({ article_id: 2 });
+  const articleId = Number(queryParams.get("article_id"));
+
+  const { data } = useGetReffencesByArticleIdQuery({ article_id: articleId });
 
   const [addRefference] = useToastMutation(useAddNewReffenceMutation(), {
     showLoading: true,
@@ -82,7 +86,7 @@ const ReferenceManager = () => {
         items.push({
           reffrence_html_id: (liIndex + 1).toString(),
           reffrence: li.textContent.trim(),
-          article_id: 2,
+          article_id: articleId,
           // html: li.innerHTML.trim(),
         });
       });
@@ -98,7 +102,7 @@ const ReferenceManager = () => {
 
   const initialValues = {
     reffrence_html_id: "",
-    article_id: 2,
+    article_id: articleId,
     reffrence: "",
   };
 
@@ -140,6 +144,7 @@ const ReferenceManager = () => {
         {isAddref && (
           <div className="mt-6 pt-6 border-t border-gray-200">
             <Formik
+              enableReinitialize={true}
               initialValues={initialValues}
               onSubmit={(values, { setSubmitting }) =>
                 SubmitAndContinueHandler(values, setSubmitting)
@@ -278,13 +283,25 @@ const ReferenceManager = () => {
 
                       <div className="flex space-x-2">
                         <button
-                          onClick={() => setIsEdit({isOpen: true, initialValues: {ref_id: ref.ref_id, article_id: ref.article_id, reffrence_html_id: ref.reffrence_html_id, reffrence: ref.reffrence}})}
+                          onClick={() =>
+                            setIsEdit({
+                              isOpen: true,
+                              initialValues: {
+                                ref_id: ref.ref_id,
+                                article_id: ref.article_id,
+                                reffrence_html_id: ref.reffrence_html_id,
+                                reffrence: ref.reffrence,
+                              },
+                            })
+                          }
                           className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-50 rounded-lg transition-colors"
                         >
                           <Edit3 className="w-4 h-4" />
                         </button>
                         <button
-                          onClick={() => deleteReffrence({ref_id: ref.ref_id})}
+                          onClick={() =>
+                            deleteReffrence({ ref_id: ref.ref_id })
+                          }
                           className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
                         >
                           <Trash2 className="w-4 h-4" />
@@ -297,7 +314,11 @@ const ReferenceManager = () => {
             </div>
           ))}
       </div>
-       <UpdateReff isOpen={isEdit.isOpen} initialValues={isEdit.initialValues} onClose={setIsEdit} />
+      <UpdateReff
+        isOpen={isEdit.isOpen}
+        initialValues={isEdit.initialValues}
+        onClose={setIsEdit}
+      />
     </div>
   );
 };

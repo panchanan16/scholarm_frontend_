@@ -20,9 +20,10 @@ import { AdminLayout } from "@/components/layout/AdminLayout";
 
 const JournalListTable = () => {
   const [currentPage, setCurrentPage] = useState(1);
-  const [queryParams] = useSearchParams()
-  console.log(queryParams.get('status'))
-  const [statusFilter, setStatusFilter] = useState(queryParams.get('status') || "submissionneedadditionalreviewers");
+  const [queryParams] = useSearchParams();
+  const [statusFilter, setStatusFilter] = useState(
+    queryParams.get("status") || "submissionneedadditionalreviewers"
+  );
   const [searchTerm, setSearchTerm] = useState("");
   const [isOpenReviewerDecision, setIsOpenReviewerDecision] = useState(false);
   const [isOpenEditorDecision, setIsOpenEditorDecision] = useState(false);
@@ -61,8 +62,9 @@ const JournalListTable = () => {
     setArticleId(article_id);
   }
 
-  function handleEditorDescision() {
+  function handleEditorDescision(article_id) {
     setIsOpenEditorDecision(true);
+    setArticleId(article_id);
   }
 
   // handle actions ---
@@ -75,14 +77,12 @@ const JournalListTable = () => {
 
       case "handleEditorDecision":
         // Handle editor decision
-        handleEditorDescision(params);
-        console.log("Editor decision for:", manuscript.intro_id);
+        handleEditorDescision(manuscript.intro_id);
         break;
 
       case "handleReviewerDecision":
         // Handle reviewer decision
         handleReviewerDescision(manuscript.intro_id);
-        console.log("Reviewer decision for:", manuscript.intro_id);
         break;
 
       case "handleShare":
@@ -400,11 +400,15 @@ const JournalListTable = () => {
                         <div
                           className="relative"
                           ref={
-                            openDropdown === manuscript.intro_id ? dropdownRef : null
+                            openDropdown === manuscript.intro_id
+                              ? dropdownRef
+                              : null
                           }
                         >
                           <button
-                            onClick={(e) => toggleDropdown(manuscript.intro_id, e)}
+                            onClick={(e) =>
+                              toggleDropdown(manuscript.intro_id, e)
+                            }
                             className="text-gray-600 hover:text-gray-800 p-1 rounded-md hover:bg-gray-50 transition-colors"
                             title="More Options"
                           >
@@ -481,6 +485,7 @@ const JournalListTable = () => {
         isOpen={isOpenEditorDecision}
         onClose={setIsOpenEditorDecision}
         article_id={articleId}
+        editor_id={1}
       />
       <DecisonReviewer
         isOpen={isOpenReviewerDecision}

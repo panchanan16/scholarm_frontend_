@@ -1,29 +1,48 @@
+import useInitialObject from "@/hooks/useInitialObject";
 import { useToastMutation } from "@/hooks/useNotification";
 import useSaveSteps from "@/hooks/useSaveSteps";
-import { useCreateArticleMainDetailsMutation } from "@/services/features/submission/submissionApi";
+import {
+  useCreateArticleMainDetailsMutation,
+  useLazyGetArticleDetailsByIdQuery,
+} from "@/services/features/submission/submissionApi";
 import { Formik, Form, Field } from "formik";
 import { useSearchParams } from "react-router-dom";
 
 const ArticleDetailsForm = () => {
   const [queryparams] = useSearchParams();
 
+  const [IntialObject] = useInitialObject({
+    article_id: queryparams.get("article_id"),
+    useLazyQueryHook: useLazyGetArticleDetailsByIdQuery,
+  });
+  const IntroDataObject =
+    IntialObject.status === "fulfilled" ? IntialObject.data?.data : null;
+
+  console.log(IntroDataObject);
+
   const initialValues = {
     article_id: Number(queryparams.get("article_id")) || null,
-    cover_letter: "",
+    cover_letter: IntroDataObject ? IntroDataObject.cover_letter : "",
     cover_letter_file: "",
-    isFunding: "",
-    isMaterial: null,
+    cover_letter_file_link: IntroDataObject ? IntroDataObject.cover_letter_file : "",
+    isFunding: IntroDataObject ? IntroDataObject.isFunding : "",
+    isMaterial: IntroDataObject ? IntroDataObject.isMaterial ? "true" : "" : "",
     materialFile: "",
-    isCoding: "",
+    material_file_link: IntroDataObject ? IntroDataObject.materialFile : "",
+    isCoding: IntroDataObject ? IntroDataObject.isCoding ? "true" : "" : "",
     codeFile: "",
-    isData: null,
+    code_file_link: IntroDataObject ? IntroDataObject.codeFile : "",
+    isData: IntroDataObject ? IntroDataObject.isData ? "true" : "" : "",
     dataFile: "",
-    isHuman: "",
-    isBoradApproval: "",
-    approvalDetails: "",
-    manuscript_file: null,
-    manuscript_file_link: "",
-    istick: true,
+    data_file_link: IntroDataObject ? IntroDataObject.dataFile : "",
+    isHuman: IntroDataObject ? IntroDataObject.isHuman : "",
+    isBoradApproval: IntroDataObject ? IntroDataObject.isBoradApproval : "",
+    approvalDetails: IntroDataObject ? IntroDataObject.approvalDetails : "",
+    manuscript_file: "",
+    manuscript_file_link: IntroDataObject
+      ? IntroDataObject.manuscript_file_link
+      : "",
+    istick: IntroDataObject ? IntroDataObject.istick : true,
   };
 
   const { updateSaveSteps } = useSaveSteps({
@@ -31,18 +50,17 @@ const ArticleDetailsForm = () => {
     nextHighlight: "authors",
   });
 
-  const [createArticleMainDetails] = useToastMutation(useCreateArticleMainDetailsMutation(), {showLoading: true})
+  const [createArticleMainDetails] = useToastMutation(
+    useCreateArticleMainDetailsMutation(),
+    { showLoading: true }
+  );
 
   const SubmitAndContinueHandler = async (values, setSubmitting) => {
-    // setTimeout(() => {
-    //   setSubmitting(false);
-    //   alert(JSON.stringify(values, null, 2));
-    // //   updateSaveSteps(`/submission/authors?article_id=${queryparams.get("article_id")}`);
-    // }, 2000);
-    await createArticleMainDetails(values)
-    setSubmitting(false)
-    updateSaveSteps(`/submission/authors?article_id=${queryparams.get("article_id")}`);
-
+    await createArticleMainDetails(values);
+    setSubmitting(false);
+    updateSaveSteps(
+      `/submission/authors?article_id=${queryparams.get("article_id")}`
+    );
   };
 
   const handleFileChange = (event, setFieldValue, fieldName) => {
@@ -58,6 +76,7 @@ const ArticleDetailsForm = () => {
     <div className="max-w-4xl mx-auto bg-white rounded-lg shadow-sm border border-gray-200 p-8">
       <Formik
         initialValues={initialValues}
+        enableReinitialize={true}
         onSubmit={(values, { setSubmitting }) =>
           SubmitAndContinueHandler(values, setSubmitting)
         }
@@ -96,9 +115,9 @@ const ArticleDetailsForm = () => {
                   }
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white text-gray-900 file:mr-4 file:py-1 file:px-4 file:rounded-md file:border-0 file:text-sm file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
                 />
-                {values.cover_letter_file && (
+                {values.cover_letter_file_link && (
                   <p className="mt-1 text-sm text-gray-600">
-                    Selected: {values.cover_letter_file}
+                    Selected: {values.cover_letter_file_link}
                   </p>
                 )}
               </div>
@@ -121,6 +140,8 @@ const ArticleDetailsForm = () => {
                     Selected: {values.manuscript_file}
                   </p>
                 )}
+
+                <span className="text-xs">Old File: {values.manuscript_file}</span>
               </div>
 
               {/* Funding Information */}
@@ -191,11 +212,11 @@ const ArticleDetailsForm = () => {
                     }
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white text-gray-900 file:mr-4 file:py-1 file:px-4 file:rounded-md file:border-0 file:text-sm file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
                   />
-                  {values.materialFile && (
+                  {values.material_file_link && (
                     <p className="mt-1 text-sm text-gray-600">
-                      Selected: {values.materialFile}
+                      Selected: {values.material_file_link}
                     </p>
-                  )}
+                  )}                 
                 </div>
               )}
 
@@ -240,9 +261,9 @@ const ArticleDetailsForm = () => {
                     }
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white text-gray-900 file:mr-4 file:py-1 file:px-4 file:rounded-md file:border-0 file:text-sm file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
                   />
-                  {values.codeFile && (
+                  {values.code_file_link && (
                     <p className="mt-1 text-sm text-gray-600">
-                      Selected: {values.codeFile}
+                      Selected: {values.code_file_link}
                     </p>
                   )}
                 </div>
@@ -289,9 +310,9 @@ const ArticleDetailsForm = () => {
                     }
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white text-gray-900 file:mr-4 file:py-1 file:px-4 file:rounded-md file:border-0 file:text-sm file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
                   />
-                  {values.dataFile && (
+                  {values.data_file_link && (
                     <p className="mt-1 text-sm text-gray-600">
-                      Selected: {values.dataFile}
+                      Selected: {values.data_file_link}
                     </p>
                   )}
                 </div>

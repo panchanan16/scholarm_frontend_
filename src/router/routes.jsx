@@ -4,7 +4,6 @@ import AssignReviewerPage from "@/pages/assignReviewer/index";
 import Dashboard from "@/pages/dashboard/publisher/Dashboard";
 import JournalPage from "@/pages/journalPage";
 import JournalDetails from "@/pages/journalPage/modules/JournalDetails";
-import JournalListTable from "@/pages/journalPage/modules/JournalList";
 import SubmissionPage from "@/pages/submission";
 import AddReviewersForm from "@/pages/submission/modules/forms/addReviewersForm";
 import ArticleDetailsForm from "@/pages/submission/modules/forms/ArticleDetailsForm";
@@ -20,20 +19,22 @@ import EditorDashBoard from "@/pages/dashboard/editor/EditorDashboard";
 import ReviewerDashBoard from "@/pages/dashboard/reviewer/ReviewerDashboard";
 import { ValidatedJournalListTable } from "./validateRoute";
 import AuthorDashboard from "@/pages/dashboard/author/AuthorDashboard";
+import AdminLoginPage from "@/pages/loginPages/adminLogin/AdminLoginPage";
 
 const routes = [
   {
     path: "/",
     element: <App />,
     children: [
+      { index: true, element: <AdminLoginPage /> },
       { path: "/dashboard", element: <Dashboard /> },
       {
-        path: "/dashboard",
+        path: "dashboard",
         element: <JournalPage />,
         children: [
-          { path: "assign-editor", element: <AssignEditorPage /> },
+          { path: "manuscript/assign-editor", element: <AssignEditorPage /> },
           { path: "manuscript/assign-reviewer", element: <AssignReviewerPage /> },
-          { path: ":article_id(\d+)", element: <JournalDetails /> },
+          { path: "manuscript/:article_id", element: <JournalDetails /> },
         ],
       },
       { path: "/:role/manuscript", element: <ValidatedJournalListTable /> },
@@ -41,7 +42,9 @@ const routes = [
       {
         path: "editor-dashboard",
         element: <EditorDashBoard />,
-        children: [],
+        children: [
+          { path: "manuscript/:article_id", element: <JournalDetails /> }
+        ],
       },
       // Author Dashboard
        {

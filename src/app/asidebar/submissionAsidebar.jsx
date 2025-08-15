@@ -178,9 +178,11 @@ function SubmissionAsidebar() {
   );
 
   const [queryParams] = useSearchParams()
+  const article_id = queryParams.get('article_id') || 0
+  const mode = queryParams.get('mode')
 
   const { data: articlePreSections } = useGetArticleSectionsQuery({
-    article_id: queryParams.get('article_id') || 0,
+    article_id: article_id,
   });
 
   const articleSection =
@@ -189,7 +191,7 @@ function SubmissionAsidebar() {
       return {
         id: sec.section_title,
         label: sec.section_title.toUpperCase(),
-        link: `${sec.section_title}-section`,
+        link: `${sec.section_title}-section?article_id=${article_id}`,
       };
     });
 
@@ -207,7 +209,7 @@ function SubmissionAsidebar() {
           id: "articletype",
           label: "Article Type",
           icon: Tag,
-          link: "intro-section",
+          link: `intro-section?article_id=${article_id}`,
         },
       ],
     },
@@ -216,28 +218,28 @@ function SubmissionAsidebar() {
       label: "Content",
       items: [
         { id: "intro", label: "Title, etc.", icon: FileText },
-        { id: "articleDetails", label: "Article Details", icon: TypeOutline, link: "article-details" },
+        { id: "articleDetails", label: "Article Details", icon: TypeOutline, link: `article-details?article_id=${article_id}` },
         {
           id: "authors",
           label: "Authors",
           icon: Users,
-          link: "authors",
+          link: `authors?article_id=${article_id}`,
         },
         {
           id: "article",
           label: "Article",
           icon: FileText,
-          link: "article-sections",
+          link: articlePreSections && `article-sections/${articlePreSections?.data[0].section_title}-section?article_id=${article_id}`,
           sub: articleSection,
         },
-        { id: "reviewers", label: "Reviewers", icon: User, link: "reviewers" },
+        { id: "reviewers", label: "Reviewers", icon: User, link: `reviewers?article_id=${article_id}` },
         {
           id: "refference",
           label: "References",
           icon: BookOpen,
-          link: "reffrences",
+          link: `reffrences?article_id=${article_id}`,
         },
-        { id: "summary", label: "Summary", icon: FileText, link: "summary" },
+        { id: "summary", label: "Summary", icon: FileText, link: `summary?article_id=${article_id}` },
         { id: "submit", label: "Submit", icon: Send },
       ],
     },

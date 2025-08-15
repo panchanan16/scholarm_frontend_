@@ -4,7 +4,7 @@ import { useParams, Navigate } from "react-router-dom";
 
 export function ValidatedJournalListTable() {
   const { role } = useParams();
-  const allowedRoutes = ["editor-dashboard", "dashboard", "200"]; 
+  const allowedRoutes = ["editor-dashboard", "dashboard"]; 
 
   // Check if ID exists in the array
   if (!allowedRoutes.includes(role)) {

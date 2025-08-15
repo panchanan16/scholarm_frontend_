@@ -44,6 +44,18 @@ export const manuscriptApi = baseApi.injectEndpoints({
         }),
 
 
+        // GET reviews and authors for editor ---
+        getReviewsAuthors: builder.query({
+            query: (article_id) => ({
+                url: `/review/authors/readAll`,
+                method: 'GET',
+                params: {
+                    article_id: article_id,
+                },
+            }),
+        }),
+
+
         // Assign Editor to Manuscript ---
         assignEditorToManuscript: builder.mutation({
             query: (data) => ({
@@ -54,7 +66,23 @@ export const manuscriptApi = baseApi.injectEndpoints({
             // invalidatesTags: ['ManuscriptList'],
         }),
 
+        // Acept or reject assignment by Editor ---
+        updateAssignMentStatusEditor: builder.mutation({
+            query: (data) => ({
+                url: '/assignEditor/status',
+                method: 'PUT',
+                body: data,
+            }),
+        }),
 
+        // Update Editor's Descision on Manuscript ---
+        updateEditorDescision: builder.mutation({
+            query: (data) => ({
+                url: '/editor/recommendation',
+                method: 'POST',
+                body: data,
+            }),          
+        }),
 
         // Assign Reviewer to Manuscript ---
         assignReviewerToManuscript: builder.mutation({
@@ -100,5 +128,8 @@ export const {
     useGetManuscriptReviewDetailsQuery,
     useUpdateReviewerRecommendationMutation,
     useGetStartedArticleMutation,
-    useAddArticleMetaDataMutation
+    useAddArticleMetaDataMutation,
+    useGetReviewsAuthorsQuery, 
+    useUpdateEditorDescisionMutation,
+    useUpdateAssignMentStatusEditorMutation
 } = manuscriptApi

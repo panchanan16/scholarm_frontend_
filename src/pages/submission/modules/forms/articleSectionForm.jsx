@@ -6,11 +6,12 @@ import {
   useGetArticleSectionsQuery,
 } from "@/services/features/submission/submissionApi";
 import { Form, Formik } from "formik";
-import { useParams } from "react-router-dom";
+import { useParams, useSearchParams } from "react-router-dom";
 
 function ArticleSectionForm() {
+  const [queryParams] = useSearchParams()
   const { data: articlePreSections } = useGetArticleSectionsQuery({
-    article_id: 2,
+    article_id: Number(queryParams.get('article_id')),
   });
   const { section_name } = useParams();
   const [createArticleSection] = useToastMutation(
@@ -61,7 +62,7 @@ function ArticleSectionForm() {
     console.log(atag);
 
     const createResult = await createArticleSection({
-      article_id: 2,
+      article_id: Number(queryParams.get('article_id')),
       section_title: section_name.split("-")[0].toLowerCase().trim(),
       Section_description:
         values[section_name.split("-")[0].toLowerCase().trim()],
@@ -70,7 +71,7 @@ function ArticleSectionForm() {
     console.log(createResult);
     if (createResult && createResult.status) {
       updateSaveSteps(
-        "/submission/article-sections/conclusions-section?article=1"
+        `/submission/article-sections/conclusions-section?article_id=${queryParams.get('article_id')}`
       );
     }
     setSubmitting(false);
@@ -80,6 +81,7 @@ function ArticleSectionForm() {
     <div className="max-w-6xl mx-auto bg-white rounded-lg shadow-sm border border-gray-200 p-8">
       <Formik
         initialValues={initialValues}
+        enableReinitialize={true}
         onSubmit={(values, { setSubmitting }) =>
           SubmitAndContinueHandler(values, setSubmitting)
         }

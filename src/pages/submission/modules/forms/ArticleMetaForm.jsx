@@ -13,13 +13,13 @@ const ArticleMetaForm = () => {
   const [getArticleIntro, IntroData] = useLazyGetArticleIntroByIdQuery()
 
   useEffect(()=> {
-     queryparams.get('mode') === 'edit' && getArticleIntro(queryparams.get('article_id'))
+     getArticleIntro(queryparams.get('article_id'))
     
   }, [queryparams.get('article_id')])
 
   
   const IntroDataObject = IntroData.status === 'fulfilled' ? IntroData.data?.data : null
-  console.log(IntroDataObject)
+
 
   const intitialValues = {
     intro_id: Number(queryparams.get('article_id')) || null,

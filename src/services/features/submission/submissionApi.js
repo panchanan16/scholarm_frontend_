@@ -3,6 +3,16 @@ import { baseApi } from "@/services/baseApi"
 
 export const submissionApi = baseApi.injectEndpoints({
     endpoints: (builder) => ({
+        //Create article typor meta data ---
+        createArticleType: builder.mutation({
+            query: (data) => ({
+                url: '/getStart/create',
+                method: 'POST',
+                body: data,
+            }),
+            invalidatesTags: ['IntroArticle'],
+        }),
+
         // Get article Intro ---
         getArticleIntroById: builder.query({
             query: (intro_id) => ({
@@ -14,15 +24,6 @@ export const submissionApi = baseApi.injectEndpoints({
             providesTags: ['IntroArticle'],
         }),
 
-        //Create article typor meta data ---
-        createArticleType: builder.mutation({
-            query: (data) => ({
-                url: '/getStart/create',
-                method: 'POST',
-                body: data,
-            }),
-            invalidatesTags: ['IntroArticle'],
-        }),
 
         //Create article detail Title, abstract etc. ---
         createArticleDetail: builder.mutation({
@@ -32,6 +33,17 @@ export const submissionApi = baseApi.injectEndpoints({
                 body: data,
             }),
             invalidatesTags: ['IntroArticle'],
+        }),
+
+
+        // Get article details by Id
+        getArticleDetailsById: builder.query({
+            query: (article_id) => ({
+                url: '/articleDetail/readOne',
+                params: {
+                    article_id: article_id || 0,
+                },
+            }),
         }),
 
         // Create article main details
@@ -204,8 +216,14 @@ export const submissionApi = baseApi.injectEndpoints({
             providesTags: ['ArticleSummary'],
         }),
 
-
-
+        // Confirm and Submit manuscript
+        confirmAndSubmitManuscript: builder.mutation({
+            query: (data) => ({
+                url: `/entireSubmit/create`,
+                method: 'POST',
+                body: data,
+            })
+        }),
     }),
 })
 
@@ -227,5 +245,7 @@ export const {
     useDeleteReviewerFromArticleMutation,
     useGetArticleSummaryQuery,
     useCreateArticleSectionMutation,
-    useCreateArticleMainDetailsMutation
+    useCreateArticleMainDetailsMutation,
+    useLazyGetArticleDetailsByIdQuery,
+    useConfirmAndSubmitManuscriptMutation
 } = submissionApi

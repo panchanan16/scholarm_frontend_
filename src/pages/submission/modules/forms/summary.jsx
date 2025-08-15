@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import {
   CheckCircle,
   User,
@@ -11,10 +11,14 @@ import {
   Phone,
   MapPin,
   Edit,
-  LucideView,
 } from "lucide-react";
-import { useGetArticleSummaryQuery } from "@/services/features/submission/submissionApi";
+import {
+  useConfirmAndSubmitManuscriptMutation,
+  useGetArticleSummaryQuery,
+} from "@/services/features/submission/submissionApi";
 import SubmissionError from "@/components/error/submissionError";
+import { Link, useSearchParams } from "react-router-dom";
+import { useToastMutation } from "@/hooks/useNotification";
 
 const SummaryForm = ({
   submissionData = {
@@ -98,8 +102,16 @@ const SummaryForm = ({
       "This study was approved by the MIT Institutional Review Board (IRB #2023-456)",
   },
 }) => {
-  const { data: articleSummary } = useGetArticleSummaryQuery({ article_id: 2 });
-  console.log(articleSummary);
+  const [queryParams] = useSearchParams();
+  const articleId = Number(queryParams.get("article_id"));
+  const { data: articleSummary } = useGetArticleSummaryQuery({
+    article_id: articleId,
+  });
+  const [finalSubmission] = useToastMutation(
+    useConfirmAndSubmitManuscriptMutation(),
+    { showLoading: true }
+  );
+
   const [isReffrenceError, setIsReferenceError] = useState(false);
   const [isAuthorsError, setIsAuthorsError] = useState(false);
   const [isReviewersError, setIsReviewersError] = useState(false);
@@ -152,7 +164,17 @@ const SummaryForm = ({
     checkReviewer();
   }, [articleSummary]);
 
-  const InfoCard = ({ title, children, icon: Icon, sectionKey }) => (
+  async function confirmAndSubmit() {
+    const isSubmit = confirm("Are you sure to Submit ?");
+    if (!isAuthorsError && !isReffrenceError && !isReviewersError) {
+      isSubmit && (await finalSubmission({ article_id: articleId }));
+    } else {
+      isSubmit && alert("Make sure to correct all the errors!");
+    }
+    return;
+  }
+
+  const InfoCard = ({ title, children, icon: Icon, sectionKey, url = '/' }) => (
     <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
       <div className="bg-gray-600 px-4 py-3">
         <div className="flex items-center justify-between">
@@ -161,13 +183,12 @@ const SummaryForm = ({
             <h3 className="text-base font-medium text-white">{title}</h3>
           </div>
           <div className="flex items-center space-x-2">
-            <button
-              onClick={() => handleEdit(sectionKey)}
-              className="flex items-center space-x-1 px-3 py-1 bg-gray-500 bg-opacity-20 hover:bg-opacity-30 text-white rounded text-sm transition-colors"
-            >
-              <Edit className="w-3 h-3" />
-              <span>EDIT</span>
-            </button>
+            <Link to={url}>
+              <button className="flex items-center space-x-1 px-3 py-1 bg-gray-500 bg-opacity-20 hover:bg-opacity-30 text-white rounded text-sm transition-colors">
+                <Edit className="w-3 h-3" />
+                <span>EDIT</span>
+              </button>
+            </Link>
           </div>
         </div>
       </div>
@@ -369,7 +390,7 @@ const SummaryForm = ({
 
       {/* Abstract */}
       <div className="mt-6">
-        <InfoCard title="Abstract" icon={FileText} sectionKey="abstract">
+        <InfoCard title="Abstract" icon={FileText} sectionKey="abstract" url={`submission?article_id=${articleId}`}>
           <div className="space-y-4">
             <div>
               <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">
@@ -417,7 +438,7 @@ const SummaryForm = ({
       )}
       {/* Authors */}
       <div className="mt-6">
-        <InfoCard title="Authors" icon={Users} sectionKey="authors">
+        <InfoCard title="Authors" icon={Users} sectionKey="authors" url={`/submission/authors?article_id=${articleId}`}>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             {articleSummary &&
               articleSummary.data.articleAuthors.map((author, index) => (
@@ -439,6 +460,7 @@ const SummaryForm = ({
           title="Suggested Reviewers"
           icon={Eye}
           sectionKey="suggested-reviewers"
+          url={`/submission/reviewers?article_id=${articleId}`}
         >
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             {articleSummary &&
@@ -462,7 +484,7 @@ const SummaryForm = ({
 
       {/* References */}
       <div className="mt-6">
-        <InfoCard title="References" icon={BookOpen} sectionKey="references">
+        <InfoCard title="References" icon={BookOpen} sectionKey="references" url={`/submission/reffrences?article_id=${articleId}`}>
           <div className="space-y-2">
             {articleSummary &&
               articleSummary.data.Reffences.map((reference, index) => (
@@ -533,7 +555,10 @@ const SummaryForm = ({
         <button className="px-6 py-2 text-gray-600 hover:text-gray-800 transition-colors font-medium">
           Back
         </button>
-        <button className="px-8 py-2.5 bg-gray-800 hover:bg-gray-900 text-white font-medium rounded-lg transition-colors flex items-center space-x-2">
+        <button
+          onClick={confirmAndSubmit}
+          className="px-8 py-2.5 bg-gray-800 hover:bg-gray-900 text-white font-medium rounded-lg transition-colors flex items-center space-x-2"
+        >
           <CheckCircle className="w-4 h-4" />
           <span>Confirm & Submit</span>
         </button>

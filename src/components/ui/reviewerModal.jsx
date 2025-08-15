@@ -21,6 +21,7 @@ export default function AddReviewerModal({
   email,
   hasAuthor,
   reviewer,
+  articleId
 }) {
   const [createReviewer] = useCreateReviewerMutation();
   const [updateReviewer, updateData] = useUpdateReviewerMutation();
@@ -50,25 +51,25 @@ export default function AddReviewerModal({
       await updateReviewer(values);
       if (updateData && updateData.status) {
         addReviewerToArtcle({
-          article_id: 2,
+          article_id: articleId,
           reviewer_id: values.reviewer_id,
           reviewer_type: values.reviewer_type,
         });
       }
+      setSubmitting(false)
     } else {
       const createdReviewer = await createReviewer(values);
       if (createdReviewer && createdReviewer.data.status) {
         addReviewerToArtcle({
-          article_id: 2,
+          article_id: articleId,
           reviewer_id: createdReviewer.data.status
             ? createdReviewer.data.data.reviewer_id
             : "",
           reviewer_type: values.reviewer_type,
         });
+        setSubmitting(false)
       }
     }
-
-    // alert(JSON.stringify(values))
   };
 
   return (

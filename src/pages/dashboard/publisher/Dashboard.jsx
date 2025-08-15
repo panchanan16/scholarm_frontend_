@@ -81,17 +81,17 @@ const Dashboard = () => {
   );
 
   const publisherTodoItems = [
-    { label: "New Submission", count: 0, priority: "green", link: 'manuscript?role=admin&id=1' },
-    { label: "Editor Invited", count: 23, priority: "orange" },
-    { label: "Need To Assign Editor", count: 23, priority: "red" },
-    { label: "Need To Assign Reviewers", count: 6, priority: "yellow" },
+    { label: "New Submission", count: 0, priority: "green", link: 'manuscript?role=admin&id=1&status=newsubmission' },
+    { label: "Editor Invited", count: 23, priority: "orange" , link: 'manuscript?role=admin&id=1&status=newsubmission'},
+    { label: "Need To Assign Editor", count: 23, priority: "red", link: 'manuscript?role=admin&id=1&status=newsubmission' },
+    { label: "Need To Assign Reviewers", count: 6, priority: "yellow", link: 'manuscript?role=admin&id=1&status=needtoassignreviewer' },
   ];
 
   const revisionItems = [
     { label: "New Revision Received", count: 26, priority: "blue" },
     { label: "Editor Invited", count: 0, priority: "gray" },
     { label: "Need To Assign Editor", count: 0, priority: "gray" },
-    { label: "Need To Assign Reviewers", count: 0, priority: "gray" },
+    { label: "Need To Assign Reviewers", count: 0, priority: "gray", link: 'manuscript?role=admin&id=1&status=needtoassignreviewer' },
   ];
 
   const reviewProgressItems = [
@@ -100,6 +100,7 @@ const Dashboard = () => {
       label: "Submission Require Additional Reviews",
       count: 51,
       priority: "orange",
+      link: 'manuscript?role=admin&id=1&status=submissionneedadditionalreviewers'
     },
     {
       label: "Submission With Required Reviews Completed",

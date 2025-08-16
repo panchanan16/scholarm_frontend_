@@ -9,6 +9,7 @@ import { Breadcrumb } from "@/components/ui/breadCrumb";
 import { useLazyGetOneReviewerQuery } from "@/services/features/reviewers/slice";
 import AddReviewerModal from "@/components/ui/reviewerModal";
 import { useSearchParams } from "react-router-dom";
+import useSaveSteps from "@/hooks/useSaveSteps";
 
 const AddReviewersForm = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -18,6 +19,10 @@ const AddReviewersForm = () => {
 
   const [queryParams] = useSearchParams();
   const articleId = Number(queryParams.get("article_id"));
+  const { updateSaveSteps } = useSaveSteps({
+    saveObject: { reviewers: true },
+    isExpand: true,
+  });
 
   const [getReviewerWithEmail, { data }] = useToastLazyQuery(
     useLazyGetOneReviewerQuery(),
@@ -26,7 +31,7 @@ const AddReviewersForm = () => {
 
   const { data: addedReviewers } = useGetArticleReviewersQuery({
     article_id: articleId,
-  });
+  })
 
   const suggestedReviewers =
     addedReviewers &&
@@ -36,9 +41,10 @@ const AddReviewersForm = () => {
     addedReviewers?.data.filter((rev) => rev.reviewer_type == "oppose");
 
   function handleSaveAndContinue() {
-    // console.log(addedReviewers);
-    if (addedReviewers && addedReviewers.data.data.length < 3) {
+    if (addedReviewers && addedReviewers.data.length < 3) {
       setIsSectionError(true);
+    } else {
+      updateSaveSteps(`/submission/reffrences?article_id=${queryParams.get('article_id')}`)
     }
   }
 

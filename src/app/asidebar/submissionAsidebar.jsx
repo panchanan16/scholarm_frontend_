@@ -186,8 +186,8 @@ function SubmissionAsidebar() {
   });
 
   const articleSection =
-    articlePreSections &&
-    articlePreSections.data.map((sec, ind) => {
+    article_id && articlePreSections &&
+    articlePreSections?.data?.map((sec, ind) => {
       return {
         id: sec.section_title,
         label: sec.section_title.toUpperCase(),
@@ -217,7 +217,7 @@ function SubmissionAsidebar() {
       id: "content",
       label: "Content",
       items: [
-        { id: "intro", label: "Title, etc.", icon: FileText },
+        { id: "intro", label: "Title, etc.", icon: FileText, link: `article-title?article_id=${article_id}` },
         { id: "articleDetails", label: "Article Details", icon: TypeOutline, link: `article-details?article_id=${article_id}` },
         {
           id: "authors",
@@ -229,7 +229,7 @@ function SubmissionAsidebar() {
           id: "article",
           label: "Article",
           icon: FileText,
-          link: articlePreSections && `article-sections/${articlePreSections?.data[0].section_title}-section?article_id=${article_id}`,
+          link: article_id && articlePreSections && `article-sections/${articlePreSections?.data[0].section_title}-section?article_id=${article_id}`,
           sub: articleSection,
         },
         { id: "reviewers", label: "Reviewers", icon: User, link: `reviewers?article_id=${article_id}` },

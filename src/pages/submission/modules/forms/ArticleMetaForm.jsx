@@ -40,7 +40,7 @@ const ArticleMetaForm = () => {
 
   const SubmitAndContinueHandler = async (values, setSubmitting) => {
      await addMetaData(values)
-     updateSaveSteps(`article-details?article_id=${queryparams.get('article_id')}`);
+     updateSaveSteps(`/submission/article-details?article_id=${queryparams.get('article_id')}`);
      setSubmitting(false)
   };
 

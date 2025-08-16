@@ -1,7 +1,5 @@
 import { useState, useEffect, useRef } from "react";
 import {
-  ChevronLeft,
-  ChevronRight,
   Search,
   Filter,
   Eye,
@@ -12,18 +10,15 @@ import {
   FileText,
 } from "lucide-react";
 import { Link, Outlet, useSearchParams } from "react-router-dom";
-import { useGetManuscriptByStatusQuery } from "@/services/features/manuscript/slice";
 import DecisonEditor from "@/components/Decision/DecisonEditor";
 import DecisonReviewer from "@/components/Decision/DecisonReviewer";
 import JournalReviewDropDown from "@/components/JournalReviewDropdown/JournalReviewDropdown";
 import { AdminLayout } from "@/components/layout/AdminLayout";
+import useRenderManuscript from "@/hooks/useRenderManuscript";
 
 const JournalListTable = () => {
-  const [currentPage, setCurrentPage] = useState(1);
   const [queryParams] = useSearchParams();
-  const [statusFilter, setStatusFilter] = useState(
-    queryParams.get("status") || "submissionneedadditionalreviewers"
-  );
+  const [statusFilter, setStatusFilter] = useState(queryParams.get("status"));
   const [searchTerm, setSearchTerm] = useState("");
   const [isOpenReviewerDecision, setIsOpenReviewerDecision] = useState(false);
   const [isOpenEditorDecision, setIsOpenEditorDecision] = useState(false);
@@ -31,17 +26,21 @@ const JournalListTable = () => {
 
   const [articleId, setArticleId] = useState(null);
   const dropdownRef = useRef(null);
-  const itemsPerPage = 5;
 
   // Page meta data ---
-  const user = { role: "editor", userId: 1 };
+  const user = { role: "reviewer", userId: 1 };
 
   // Call data ---
-  const { data: manuscriptsData } = useGetManuscriptByStatusQuery({
-    status: statusFilter,
+  const { manuscriptsData } = useRenderManuscript({
     role: user.role,
+    status: statusFilter,
+    editorStatus: queryParams.get("editorStatus"),
     userId: user.userId,
+    completed: queryParams.get("completed"),
+    reviewerStatus: queryParams.get("reviewerStatus")
   });
+
+  console.log(queryParams.get("completed"));
 
   // Handle outside click for dropdown
   useEffect(() => {
@@ -116,97 +115,6 @@ const JournalListTable = () => {
     // Close dropdown after action
     setOpenDropdown(null);
   };
-
-  // Sample data with additional details for the modal
-  const manuscripts = [
-    {
-      id: "JPMS752574",
-      articleType: "Research Article",
-      issueType: "Regular Issue",
-      title:
-        "Comparative Effects of Pram Walking Combined with Aerobic Exercise Versus Pram Walking Alone on Postpartum Depression: A Randomized Controlled Trial",
-      authors: ["Dr. Jeslin G N", "Dr. Pavithra Sakthivel"],
-      submissionDate: "06/07/2025",
-      statusDate: "06/07/2025",
-      status: "Accepted",
-      editor: "M.E: Editor:",
-      abstract:
-        "Background: Postpartum depression (PPD) is a prevalent mental health challenge affecting many women after childbirth, characterized by mood swings, sadness, and irritability. These symptoms can impair both maternal and infant well-being. Among various intervention strategies, physical exercise has emerged as a promising remedy, offering significant psychological and physiological benefits. Aim: This randomized controlled trial aims to evaluate the effects of a 12-week structured exercise program that includes pram walking and aerobic exercises on postpartum women experiencing PPD symptoms. The study focuses specifically on changes in physical activity levels, psychological symptoms, and overall wellbeing throughout the last 12 months. Results: Fifty-two participants engaged in the intervention, performing exercises at 60-70% of their maximum capacity, three times a week. Physical activity levels, assessed via the International Physical Activity Questionnaire (IPAQ), showed a significant increase from 803.85 to 1273.08 post-intervention. Moreover, depressive symptoms, measured using the Edinburgh Postnatal Depression Scale (EPDS), exhibited a notable decrease from 14.77 to 6.46. Conclusion: The findings indicate that the structured exercise program effectively enhances physical fitness and substantially reduces symptoms of postpartum depression, highlighting its importance for maternal mental health.",
-      submissionDateTime: "6/7/2025 5:44:18 PM",
-      reviewRounds: [
-        {
-          round: 1,
-          status: "Accepted",
-          date: "07/01/2025",
-          reviewers: [
-            {
-              name: "K R Gopalan",
-              status: "Review Completed",
-              decision: "Accept",
-              assignedDate: "06/09/2025",
-              agreedDate: "06/09/2025",
-              dueDate: "06/19/2025",
-              completedDate: "06/18/2025",
-              comments:
-                "This manuscript presents a well-designed randomized controlled trial examining the effects of structured exercise programs on postpartum depression. The methodology is sound and the statistical analysis is appropriate. I recommend acceptance with minor revisions.",
-              editorComments: "Ensure to have 3 internal citations from VOS😊",
-              generalComments:
-                "The study addresses an important clinical question and provides valuable insights into postpartum depression management. The sample size is adequate and the intervention protocol is clearly described. Overall, this is a solid contribution to the literature.",
-            },
-            {
-              name: "C M Selvamuthu",
-              status: "Review Completed",
-              decision: "Accept",
-              assignedDate: "06/09/2025",
-              agreedDate: "06/10/2025",
-              dueDate: "06/19/2025",
-              completedDate: "06/19/2025",
-              comments:
-                "Well structured manuscript with clear methodology. The authors have followed proper clinical trial protocols and the results are presented effectively.",
-              editorComments:
-                "Minor formatting issues need to be addressed in the references section.",
-              generalComments:
-                "This research contributes significantly to our understanding of exercise interventions for postpartum depression. The discussion section effectively contextualizes the findings within existing literature.",
-            },
-          ],
-        },
-      ],
-    },
-    {
-      id: "JPMS124645",
-      articleType: "Research Article",
-      issueType: "Regular Issue",
-      title:
-        "ASSOCIATION OF SYSTEMIC CO-MORBIDITIES IN PATIENTS WITH TEMPOROMANDIBULAR DISORDER - A RETROSPECTIVE CLINICAL STUDY",
-      authors: ["MADHUMITHA MAHALINGAM", "DEVIKA PILLAI"],
-      submissionDate: "04/06/2025",
-      statusDate: "04/06/2025",
-      status: "Editor Invited",
-      editor: "M.E: Editor:",
-      abstract:
-        "This retrospective clinical study examines the association between systemic co-morbidities and temporomandibular disorders (TMD) in a patient population. The research analyzes clinical data to identify patterns and correlations that may inform treatment approaches.",
-      submissionDateTime: "4/6/2025 2:15:30 PM",
-      reviewRounds: [],
-    },
-  ];
-
-  // Filter manuscripts based on search term and status
-  const filteredManuscripts = manuscripts.filter((manuscript) => {
-    const matchesSearch =
-      manuscript.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      manuscript.authors.some((author) =>
-        author.toLowerCase().includes(searchTerm.toLowerCase())
-      ) ||
-      manuscript.id.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesStatus = manuscript.status === statusFilter;
-    return matchesSearch && matchesStatus;
-  });
-
-  // Pagination
-  const totalPages = Math.ceil(filteredManuscripts.length / itemsPerPage);
-  const startIndex = (currentPage - 1) * itemsPerPage;
-  const endIndex = startIndex + itemsPerPage;
-  const currentManuscripts = filteredManuscripts.slice(startIndex, endIndex);
 
   const getStatusColor = (status) => {
     switch (status) {
@@ -433,65 +341,22 @@ const JournalListTable = () => {
         </div>
 
         {/* Pagination */}
-        <div className="px-6 py-4 border-t border-gray-200 bg-gray-50">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-            <div className="text-sm text-gray-700">
-              Showing {startIndex + 1} to{" "}
-              {Math.min(endIndex, filteredManuscripts.length)} of{" "}
-              {filteredManuscripts.length} results
-            </div>
-
-            <div className="flex items-center gap-2">
-              <button
-                onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-                disabled={currentPage === 1}
-                className="flex items-center gap-1 px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-              >
-                <ChevronLeft className="h-4 w-4" />
-                Previous
-              </button>
-
-              <div className="flex gap-1">
-                {[...Array(totalPages)].map((_, i) => (
-                  <button
-                    key={i + 1}
-                    onClick={() => setCurrentPage(i + 1)}
-                    className={`px-3 py-2 text-sm font-medium rounded-md transition-colors ${
-                      currentPage === i + 1
-                        ? "bg-blue-600 text-white"
-                        : "text-gray-700 bg-white border border-gray-300 hover:bg-gray-50"
-                    }`}
-                  >
-                    {i + 1}
-                  </button>
-                ))}
-              </div>
-
-              <button
-                onClick={() =>
-                  setCurrentPage((prev) => Math.min(prev + 1, totalPages))
-                }
-                disabled={currentPage === totalPages}
-                className="flex items-center gap-1 px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-              >
-                Next
-                <ChevronRight className="h-4 w-4" />
-              </button>
-            </div>
-          </div>
-        </div>
       </div>
-      <DecisonEditor
-        isOpen={isOpenEditorDecision}
-        onClose={setIsOpenEditorDecision}
-        article_id={articleId}
-        editor_id={1}
-      />
-      <DecisonReviewer
-        isOpen={isOpenReviewerDecision}
-        onClose={setIsOpenReviewerDecision}
-        article_id={articleId}
-      />
+      {manuscriptsData && (
+        <>
+          <DecisonEditor
+            isOpen={isOpenEditorDecision}
+            onClose={setIsOpenEditorDecision}
+            article_id={articleId}
+            editor_id={1}
+          />
+          <DecisonReviewer
+            isOpen={isOpenReviewerDecision}
+            onClose={setIsOpenReviewerDecision}
+            article_id={articleId}
+          />
+        </>
+      )}
       <Outlet />
     </AdminLayout>
   );

@@ -32,6 +32,36 @@ export const manuscriptApi = baseApi.injectEndpoints({
             providesTags: ['ManuscriptList'],
         }),
 
+
+        // Get Manuscript for Editor ---
+        getManuscriptForEditor: builder.query({
+            query: (params = {}) => ({
+                url: '/manuscript/findAllByEditor',
+                params: {
+                    userId: params.userId,
+                    ...(params.status && { status: params.status }),
+                    ...(params.editorStatus && { editorStatus: params.editorStatus }),
+                    ...(params.completed && { completed: params.completed })
+
+                },
+            }),
+        }),
+
+
+        // Get Manuscript for Reviewer ---
+        getManuscriptForReviewer: builder.query({
+            query: (params = {}) => ({
+                url: '/manuscript/findAllByReviewer',
+                params: {
+                    userId: params.userId,
+                    ...(params.status && { status: params.status }),
+                    ...(params.reviewerStatus && { reviewerStatus: params.reviewerStatus }),
+                    ...(params.completed && { completed: params.completed })
+
+                },
+            }),
+        }),
+
         // Get manuscript entire review details ---
         getManuscriptReviewDetails: builder.query({
             query: (article_id) => ({
@@ -41,6 +71,8 @@ export const manuscriptApi = baseApi.injectEndpoints({
                     article_id: article_id,
                 },
             }),
+
+            providesTags: ['ManuscriptEntireReview']
         }),
 
 
@@ -73,6 +105,8 @@ export const manuscriptApi = baseApi.injectEndpoints({
                 method: 'PUT',
                 body: data,
             }),
+
+            invalidatesTags: ['ManuscriptEntireReview']
         }),
 
         // Update Editor's Descision on Manuscript ---
@@ -81,7 +115,7 @@ export const manuscriptApi = baseApi.injectEndpoints({
                 url: '/editor/recommendation',
                 method: 'POST',
                 body: data,
-            }),          
+            }),
         }),
 
         // Assign Reviewer to Manuscript ---
@@ -92,6 +126,17 @@ export const manuscriptApi = baseApi.injectEndpoints({
                 body: data,
             }),
             // invalidatesTags: ['ManuscriptList'],
+        }),
+
+        // Acept or reject assignment by Reviewer ---
+        updateAssignMentStatusReviewer: builder.mutation({
+            query: (data) => ({
+                url: '/assignReviewer/status',
+                method: 'PUT',
+                body: data,
+            }),
+
+            invalidatesTags: ['ManuscriptEntireReview']
         }),
 
 
@@ -129,7 +174,11 @@ export const {
     useUpdateReviewerRecommendationMutation,
     useGetStartedArticleMutation,
     useAddArticleMetaDataMutation,
-    useGetReviewsAuthorsQuery, 
+    useGetReviewsAuthorsQuery,
     useUpdateEditorDescisionMutation,
-    useUpdateAssignMentStatusEditorMutation
+    useUpdateAssignMentStatusEditorMutation,
+    useLazyGetManuscriptForEditorQuery,
+    useLazyGetManuscriptForReviewerQuery,
+    useLazyGetManuscriptByStatusQuery,
+    useUpdateAssignMentStatusReviewerMutation
 } = manuscriptApi

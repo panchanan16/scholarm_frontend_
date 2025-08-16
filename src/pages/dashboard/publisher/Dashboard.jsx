@@ -46,34 +46,36 @@ const Dashboard = () => {
       <div className="p-6 bg-gradient-to-b from-white to-gray-50/30">
         <div className="space-y-3">
           {items.map((item, index) => (
-              <Link to={item.link || "#"} key={index}               
-                className="flex items-center justify-between p-3 rounded-lg border border-gray-50 hover:bg-gradient-to-r hover:from-gray-50 hover:to-white hover:border-gray-100 transition-all group cursor-pointer"
-              >
-                <div className="flex items-center gap-3">
-                  <div
-                    className={`w-2 h-2 rounded-full ${
-                      item.priority === "red"
-                        ? "bg-red-400"
-                        : item.priority === "orange"
-                        ? "bg-orange-400"
-                        : item.priority === "yellow"
-                        ? "bg-yellow-400"
-                        : item.priority === "green"
-                        ? "bg-green-400"
-                        : "bg-blue-400"
-                    } shadow-sm`}
-                  ></div>
-                  <span className="text-sm font-medium text-gray-700">
-                    {item.label}
-                  </span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-700 border border-gray-200">
-                    {item.count}
-                  </span>
-                  <Eye className="w-4 h-4 text-gray-400 group-hover:text-gray-600 transition-colors" />
-                </div>
-              </Link>      
+            <Link
+              to={item.link || "#"}
+              key={index}
+              className="flex items-center justify-between p-3 rounded-lg border border-gray-50 hover:bg-gradient-to-r hover:from-gray-50 hover:to-white hover:border-gray-100 transition-all group cursor-pointer"
+            >
+              <div className="flex items-center gap-3">
+                <div
+                  className={`w-2 h-2 rounded-full ${
+                    item.priority === "red"
+                      ? "bg-red-400"
+                      : item.priority === "orange"
+                      ? "bg-orange-400"
+                      : item.priority === "yellow"
+                      ? "bg-yellow-400"
+                      : item.priority === "green"
+                      ? "bg-green-400"
+                      : "bg-blue-400"
+                  } shadow-sm`}
+                ></div>
+                <span className="text-sm font-medium text-gray-700">
+                  {item.label}
+                </span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-700 border border-gray-200">
+                  {item.count}
+                </span>
+                <Eye className="w-4 h-4 text-gray-400 group-hover:text-gray-600 transition-colors" />
+              </div>
+            </Link>
           ))}
         </div>
       </div>
@@ -81,17 +83,57 @@ const Dashboard = () => {
   );
 
   const publisherTodoItems = [
-    { label: "New Submission", count: 0, priority: "green", link: 'manuscript?role=admin&id=1&status=newsubmission' },
-    { label: "Editor Invited", count: 23, priority: "orange" , link: 'manuscript?role=admin&id=1&status=newsubmission'},
-    { label: "Need To Assign Editor", count: 23, priority: "red", link: 'manuscript?role=admin&id=1&status=newsubmission' },
-    { label: "Need To Assign Reviewers", count: 6, priority: "yellow", link: 'manuscript?role=admin&id=1&status=needtoassignreviewer' },
+    {
+      label: "New Submission",
+      count: 0,
+      priority: "green",
+      link: "manuscript?role=admin&id=1&status=newsubmission",
+    },
+    {
+      label: "Editor Invited",
+      count: 23,
+      priority: "orange",
+      link: "manuscript?role=admin&id=1&status=editorinvited",
+    },
+    {
+      label: "Need To Assign Editor",
+      count: 23,
+      priority: "red",
+      link: "manuscript?role=admin&id=1&status=newsubmission",
+    },
+    {
+      label: "Need To Assign Reviewers",
+      count: 6,
+      priority: "yellow",
+      link: "manuscript?role=admin&id=1&status=needtoassignreviewer",
+    },
   ];
 
   const revisionItems = [
-    { label: "New Revision Received", count: 26, priority: "blue" },
-    { label: "Editor Invited", count: 0, priority: "gray" },
-    { label: "Need To Assign Editor", count: 0, priority: "gray" },
-    { label: "Need To Assign Reviewers", count: 0, priority: "gray", link: 'manuscript?role=admin&id=1&status=needtoassignreviewer' },
+    {
+      label: "New Revision Received",
+      count: 26,
+      priority: "blue",
+      link: "manuscript?role=admin&id=1&status=newsubmission",
+    },
+    {
+      label: "Editor Invited",
+      count: 0,
+      priority: "gray",
+      link: "manuscript?role=admin&id=1&status=editorinvited",
+    },
+    {
+      label: "Need To Assign Editor",
+      count: 0,
+      priority: "gray",
+      link: "manuscript?role=admin&id=1&status=newsubmission",
+    },
+    {
+      label: "Need To Assign Reviewers",
+      count: 0,
+      priority: "gray",
+      link: "manuscript?role=admin&id=1&status=needtoassignreviewer",
+    },
   ];
 
   const reviewProgressItems = [
@@ -100,14 +142,20 @@ const Dashboard = () => {
       label: "Submission Require Additional Reviews",
       count: 51,
       priority: "orange",
-      link: 'manuscript?role=admin&id=1&status=submissionneedadditionalreviewers'
+      link: "manuscript?role=admin&id=1&status=submissionneedadditionalreviewers",
     },
     {
       label: "Submission With Required Reviews Completed",
       count: 3,
       priority: "green",
+      link: "manuscript?role=admin&id=1&status=newsubmission",
     },
-    { label: "Under Review", count: 25, priority: "yellow" },
+    {
+      label: "Under Review",
+      count: 25,
+      priority: "yellow",
+      link: "manuscript?role=admin&id=1&status=newsubmission",
+    },
   ];
 
   const revisionProgressItems = [
@@ -116,24 +164,36 @@ const Dashboard = () => {
       label: "Submission Require Additional Reviews",
       count: 0,
       priority: "gray",
+      link: "manuscript?role=admin&id=1&status=newsubmission",
     },
     {
       label: "Submission With Required Reviews Completed",
       count: 0,
       priority: "gray",
+      link: "manuscript?role=admin&id=1&status=newsubmission",
     },
-    { label: "Under Review", count: 0, priority: "gray" },
+    {
+      label: "Under Review",
+      count: 0,
+      priority: "gray",
+      link: "manuscript?role=admin&id=1&status=newsubmission",
+    },
   ];
 
   const completedItems = [
-    { label: "Decision In Process", count: 0, priority: "blue" },
+    { label: "Decision In Process", count: 0, priority: "blue", link: 'manuscript?role=admin&id=1&status=newsubmission' },
     { label: "In Press", count: 0, priority: "green" },
     { label: "Publish", count: 0, priority: "green" },
     { label: "Accept", count: 78, priority: "green" },
   ];
 
   const incompleteItems = [
-    { label: "Incompleted Submissions", count: 56, priority: "red", link: 'manuscript?role=admin&id=1&status=incomplete' },
+    {
+      label: "Incompleted Submissions",
+      count: 56,
+      priority: "red",
+      link: "manuscript?role=admin&id=1&status=incomplete",
+    },
     { label: "Revisions Due", count: 34, priority: "orange" },
     { label: "Submissions Sent Back to Author", count: 0, priority: "gray" },
   ];

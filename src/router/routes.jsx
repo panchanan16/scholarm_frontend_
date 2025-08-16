@@ -33,7 +33,10 @@ const routes = [
         element: <JournalPage />,
         children: [
           { path: "manuscript/assign-editor", element: <AssignEditorPage /> },
-          { path: "manuscript/assign-reviewer", element: <AssignReviewerPage /> },
+          {
+            path: "manuscript/assign-reviewer",
+            element: <AssignReviewerPage />,
+          },
           { path: "manuscript/:article_id", element: <JournalDetails /> },
         ],
       },
@@ -43,23 +46,27 @@ const routes = [
         path: "editor-dashboard",
         element: <EditorDashBoard />,
         children: [
-          { path: "manuscript/:article_id", element: <JournalDetails /> }
+          { path: "manuscript/:article_id", element: <JournalDetails /> },
         ],
       },
       // Author Dashboard
-       {
+      {
         path: "author-dashboard",
         element: <AuthorDashboard />,
         children: [],
       },
       // Reviewer Dashboard
-      { path: "reviewer-dashboard", element: <ReviewerDashBoard /> },
+      {
+        path: "reviewer-dashboard",
+        element: <ReviewerDashBoard />,
+        children: [ { path: "manuscript/:article_id", element: <JournalDetails /> }],
+      },
       { path: "assign-editor", element: <AssignEditorPage /> },
       {
         path: "/submission",
         element: <SubmissionPage />,
         children: [
-          { index: true, element: <Mainform /> },
+          { path: "article-title", element: <Mainform /> },
           { path: "intro-section", element: <IntroForm /> },
           { path: "article-details", element: <ArticleDetailsForm /> },
           { path: "authors", element: <Author /> },

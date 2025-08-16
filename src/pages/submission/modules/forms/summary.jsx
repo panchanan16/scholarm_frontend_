@@ -107,6 +107,7 @@ const SummaryForm = ({
   const { data: articleSummary } = useGetArticleSummaryQuery({
     article_id: articleId,
   });
+
   const [finalSubmission] = useToastMutation(
     useConfirmAndSubmitManuscriptMutation(),
     { showLoading: true }
@@ -174,7 +175,7 @@ const SummaryForm = ({
     return;
   }
 
-  const InfoCard = ({ title, children, icon: Icon, sectionKey, url = '/' }) => (
+  const InfoCard = ({ title, children, icon: Icon, sectionKey, url = "/" }) => (
     <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
       <div className="bg-gray-600 px-4 py-3">
         <div className="flex items-center justify-between">
@@ -390,7 +391,12 @@ const SummaryForm = ({
 
       {/* Abstract */}
       <div className="mt-6">
-        <InfoCard title="Abstract" icon={FileText} sectionKey="abstract" url={`submission?article_id=${articleId}`}>
+        <InfoCard
+          title="Abstract"
+          icon={FileText}
+          sectionKey="abstract"
+          url={`submission?article_id=${articleId}`}
+        >
           <div className="space-y-4">
             <div>
               <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">
@@ -438,7 +444,12 @@ const SummaryForm = ({
       )}
       {/* Authors */}
       <div className="mt-6">
-        <InfoCard title="Authors" icon={Users} sectionKey="authors" url={`/submission/authors?article_id=${articleId}`}>
+        <InfoCard
+          title="Authors"
+          icon={Users}
+          sectionKey="authors"
+          url={`/submission/authors?article_id=${articleId}`}
+        >
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             {articleSummary &&
               articleSummary.data.articleAuthors.map((author, index) => (
@@ -484,7 +495,12 @@ const SummaryForm = ({
 
       {/* References */}
       <div className="mt-6">
-        <InfoCard title="References" icon={BookOpen} sectionKey="references" url={`/submission/reffrences?article_id=${articleId}`}>
+        <InfoCard
+          title="References"
+          icon={BookOpen}
+          sectionKey="references"
+          url={`/submission/reffrences?article_id=${articleId}`}
+        >
           <div className="space-y-2">
             {articleSummary &&
               articleSummary.data.Reffences.map((reference, index) => (
@@ -551,18 +567,23 @@ const SummaryForm = ({
       </div>
 
       {/* Action Buttons */}
-      <div className="mt-8 flex justify-between items-center">
-        <button className="px-6 py-2 text-gray-600 hover:text-gray-800 transition-colors font-medium">
-          Back
-        </button>
-        <button
-          onClick={confirmAndSubmit}
-          className="px-8 py-2.5 bg-gray-800 hover:bg-gray-900 text-white font-medium rounded-lg transition-colors flex items-center space-x-2"
-        >
-          <CheckCircle className="w-4 h-4" />
-          <span>Confirm & Submit</span>
-        </button>
-      </div>
+      {articleSummary &&
+        ["incomplete", "revise"].includes(
+          articleSummary?.data.article_status
+        ) && (
+          <div className="mt-8 flex justify-between items-center">
+            <button className="px-6 py-2 text-gray-600 hover:text-gray-800 transition-colors font-medium">
+              Back
+            </button>
+            <button
+              onClick={confirmAndSubmit}
+              className="px-8 py-2.5 bg-gray-800 hover:bg-gray-900 text-white font-medium rounded-lg transition-colors flex items-center space-x-2"
+            >
+              <CheckCircle className="w-4 h-4" />
+              <span>Confirm & Submit</span>
+            </button>
+          </div>
+        )}
     </div>
   );
 };

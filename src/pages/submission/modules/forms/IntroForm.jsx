@@ -1,8 +1,7 @@
 import { Field, Form, Formik } from "formik";
 import { useState } from "react";
 import { typeSubtypes } from "@/data/submissionType";
-import { useLazyGetArticleIntroByIdQuery } from "@/services/features/submission/submissionApi";
-import { useToastLazyQuery, useToastMutation } from "@/hooks/useNotification";
+import { useToastMutation } from "@/hooks/useNotification";
 import useSaveSteps from "@/hooks/useSaveSteps";
 import { useGetStartedArticleMutation } from "@/services/features/manuscript/slice";
 
@@ -36,13 +35,9 @@ export default function IntroForm() {
   };
 
   async function SubmitAndContinueHandler(values, setSubmitting) {
-    // setTimeout(() => {
-    //   alert(JSON.stringify(values, null, 2));
-    //   updateSaveSteps("/submission?article=1");
-    // }, 1000);
     const article = await getArticleStart(values);
     const article_id = article.data[0]?.intro_id;
-    article && updateSaveSteps(`/submission?article_id=${article_id}`);
+    article && updateSaveSteps(`/submission/article-title?article_id=${article_id}`);
   }
 
   return (

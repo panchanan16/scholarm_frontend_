@@ -89,7 +89,7 @@ export default function AddedAuthors() {
                       checked={author.isMain && author.author_id}
                       onChange={() =>
                         setCorrespondingAuthor({
-                          article_id: 2,
+                          article_id: Number(queryParams.get('article_id')),
                           author_id: author.author_id,
                           isMain: true,
                         })

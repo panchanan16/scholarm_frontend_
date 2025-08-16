@@ -81,13 +81,9 @@ const ReviewerDashBoard = () => {
   );
 
   const publisherTodoItems = [
-    { label: "New Invitaion", count: 0, priority: "green", link: 'editor-invitation' },
-    { label: "New Assignment", count: 23, priority: "orange" },
-    { label: "Submissions with required Review Completed", count: 23, priority: "red" },
-    { label: "Submissions requiring additional Reviewers", count: 6, priority: "yellow" },
-    { label: "Submissions with one or more late Reviews", count: 6, priority: "blue" },
-    { label: "Reviewers invited No Response", count: 6, priority: "red" },
-    { label: "Under Review", count: 6, priority: "green" }
+    { label: "New Assignment", count: 23, priority: "orange", link: `manuscript?id=1&reviewerStatus=invited` },
+    { label: "Pending Assignment", count: 23, priority: "red", link: `manuscript?id=1&reviewerStatus=accepted&completed=false` },
+    { label: "Completed Assignment", count: 6, priority: "yellow", link: `manuscript?id=1&reviewerStatus=accepted&completed=true` },
   ];
 
 
@@ -99,7 +95,7 @@ const ReviewerDashBoard = () => {
           <div className="flex items-center justify-between mb-6">
             <div>
               <h1 className="text-2xl font-bold text-gray-900">
-                Editor Dashboard
+                Reviewer Dashboard
               </h1>
               <p className="text-gray-600">
                 Manage submissions and track progress
@@ -177,6 +173,7 @@ const ReviewerDashBoard = () => {
           </div>
         </div>
       </main>
+      <Outlet />
     </AdminLayout>
   );
 };

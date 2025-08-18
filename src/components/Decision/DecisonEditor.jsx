@@ -1,5 +1,8 @@
 import { useToastMutation } from "@/hooks/useNotification";
-import { useGetReviewsAuthorsQuery, useUpdateEditorDescisionMutation } from "@/services/features/manuscript/slice";
+import {
+  useGetReviewsAuthorsQuery,
+  useUpdateEditorDescisionMutation,
+} from "@/services/features/manuscript/slice";
 import { Field, Form, Formik } from "formik";
 import { useState } from "react";
 
@@ -13,7 +16,10 @@ export default function DecisionEditor({
 
   const { data: reviewData } = useGetReviewsAuthorsQuery(article_id);
 
-  const [updateEditorRecommendation] = useToastMutation(useUpdateEditorDescisionMutation(), {showLoading: true})
+  const [updateEditorRecommendation] = useToastMutation(
+    useUpdateEditorDescisionMutation(),
+    { showLoading: true }
+  );
 
   const authors = reviewData && reviewData?.data.articleAuthors;
 
@@ -30,9 +36,10 @@ export default function DecisionEditor({
   };
 
   const handleEditorReviewSubmit = async (values, setSubmitting) => {
-    alert(JSON.stringify(values));
-    console.log(values);
-    // onClose();
+    // alert(JSON.stringify(values));
+    // console.log(values);
+    await updateEditorRecommendation(values);
+    onClose(false);
     setSubmitting(false);
   };
 
@@ -40,7 +47,7 @@ export default function DecisionEditor({
     setDecision("");
     setComments("");
     setSelectedFile(null);
-    onClose();
+    onClose(false);
   };
 
   const handleAuthorSelection = (
@@ -70,7 +77,8 @@ export default function DecisionEditor({
               Editor's Descision
             </h2>
             <p className="text-sm text-gray-500 mt-1">
-              Case Number: {reviewData && reviewData.data.case_number} {reviewData && reviewData.data.intro_id}
+              Case Number: {reviewData && reviewData.data.case_number}{" "}
+              {reviewData && reviewData.data.intro_id}
             </p>
             <p className="text-sm text-gray-500 mt-1">
               Review and provide feedback on the submitted manuscript
@@ -384,7 +392,9 @@ export default function DecisionEditor({
                               name="main_decision"
                               value={option}
                               checked={values.main_decision === option}
-                              onChange={(e) => setFieldValue('main_decision', e.target.value)}
+                              onChange={(e) =>
+                                setFieldValue("main_decision", e.target.value)
+                              }
                               className="w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-500"
                             />
                             <span className="ml-3 text-sm text-gray-700 group-hover:text-gray-900">

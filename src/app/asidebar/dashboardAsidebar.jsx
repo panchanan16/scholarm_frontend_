@@ -1,10 +1,10 @@
+import Logout from "@/components/logout/Logout";
 import {
   Users,
   Search,
   Plus,
   LayoutDashboardIcon,
   Settings,
-  ChartNetworkIcon,
   ChartNoAxesCombined,
 } from "lucide-react";
 import { Link } from "react-router-dom";
@@ -71,6 +71,7 @@ export default function DashboardSideBar() {
               <Settings className="w-4 h-4" />
               Settings
             </button>
+            <Logout />
           </div>
         </div>
       </div>

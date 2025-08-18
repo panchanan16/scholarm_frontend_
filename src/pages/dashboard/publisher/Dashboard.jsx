@@ -114,13 +114,13 @@ const Dashboard = () => {
       label: "New Revision Received",
       count: 26,
       priority: "blue",
-      link: "manuscript?role=admin&id=1&status=newsubmission",
+      link: "manuscript?role=admin&id=1&type=revision&status=newsubmission",
     },
     {
       label: "Editor Invited",
       count: 0,
       priority: "gray",
-      link: "manuscript?role=admin&id=1&status=editorinvited",
+      link: "manuscript?role=admin&id=1&type=revision&status=editorinvited",
     },
     {
       label: "Need To Assign Editor",
@@ -181,10 +181,15 @@ const Dashboard = () => {
   ];
 
   const completedItems = [
-    { label: "Decision In Process", count: 0, priority: "blue", link: 'manuscript?role=admin&id=1&status=newsubmission' },
+    {
+      label: "Decision In Process",
+      count: 0,
+      priority: "blue",
+      link: "manuscript?role=admin&id=1&status=newsubmission",
+    },
     { label: "In Press", count: 0, priority: "green" },
     { label: "Publish", count: 0, priority: "green" },
-    { label: "Accept", count: 78, priority: "green" },
+    { label: "Accept", count: 78, priority: "green", link: "manuscript?role=admin&id=1&status=accepted" },
   ];
 
   const incompleteItems = [

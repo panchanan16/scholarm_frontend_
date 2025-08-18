@@ -4,6 +4,7 @@ import {
   useUpdateAssignMentStatusEditorMutation,
   useUpdateAssignMentStatusReviewerMutation,
 } from "@/services/features/manuscript/slice";
+import { filterbyUserRole } from "@/utils/filterByUserRole";
 import groupByRound from "@/utils/handleReviewRound";
 import {
   ChevronDown,
@@ -29,10 +30,19 @@ function JournalDetails() {
 
   const { article_id } = useParams();
 
-  const user = { role: "reviewer", userId: 10 };
+  const user = { role: "reviewer", userId: 2 };
 
   const { data: manuscriptDetails } =
     useGetManuscriptReviewDetailsQuery(article_id);
+
+  // Current User Info ---
+  const paramData = manuscriptDetails
+    ? user.role == "reviewer"
+      ? manuscriptDetails.data.AssignReviewer
+      : manuscriptDetails.AssignEditor
+    : [];
+  const UserDataInfo = filterbyUserRole(paramData, user.role, user.userId);
+  console.log(UserDataInfo);
 
   // Status Update by Editor ---
   const [updateStatusEditor] = useToastMutation(
@@ -145,50 +155,54 @@ function JournalDetails() {
               Case Number:{" "}
               {manuscriptDetails && manuscriptDetails.data.case_number}
             </p>
-            <p className="text-sm text-gray-600 mt-1">User : {user.role.toUpperCase()}</p>
+            <p className="text-sm text-gray-600 mt-1">
+              User : {user.role.toUpperCase()}
+            </p>
           </div>
 
           {/* Accept and Reject buttons for editors only */}
           <div className="flex items-center gap-3">
             {/* Status For Editor */}
-            {user.role === "editor" && (
-              <>
-                <button
-                  onClick={() => handleEditorStatus("accepted")}
-                  className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-medium transition-colors flex items-center gap-2 text-sm"
-                >
-                  <Check className="h-4 w-4" />
-                  Accept
-                </button>
-                <button
-                  onClick={() => handleEditorStatus("rejected")}
-                  className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg font-medium transition-colors flex items-center gap-2 text-sm"
-                >
-                  <XCircle className="h-4 w-4" />
-                  Reject
-                </button>
-              </>
-            )}
+            {user.role === "editor" &&
+              UserDataInfo?.is_accepted === "invited" && (
+                <>
+                  <button
+                    onClick={() => handleEditorStatus("accepted")}
+                    className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-medium transition-colors flex items-center gap-2 text-sm"
+                  >
+                    <Check className="h-4 w-4" />
+                    Accept
+                  </button>
+                  <button
+                    onClick={() => handleEditorStatus("rejected")}
+                    className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg font-medium transition-colors flex items-center gap-2 text-sm"
+                  >
+                    <XCircle className="h-4 w-4" />
+                    Reject
+                  </button>
+                </>
+              )}
 
             {/* Status For Reviewer */}
-            {user.role === "reviewer" && (
-              <>
-                <button
-                  onClick={() => handleReviewerStatus("accepted")}
-                  className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-medium transition-colors flex items-center gap-2 text-sm"
-                >
-                  <Check className="h-4 w-4" />
-                  Accept
-                </button>
-                <button
-                  onClick={() => handleReviewerStatus("rejected")}
-                  className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg font-medium transition-colors flex items-center gap-2 text-sm"
-                >
-                  <XCircle className="h-4 w-4" />
-                  Reject
-                </button>
-              </>
-            )}
+            {user.role === "reviewer" &&
+              UserDataInfo?.is_accepted === "invited" && (
+                <>
+                  <button
+                    onClick={() => handleReviewerStatus("accepted")}
+                    className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-medium transition-colors flex items-center gap-2 text-sm"
+                  >
+                    <Check className="h-4 w-4" />
+                    Accept
+                  </button>
+                  <button
+                    onClick={() => handleReviewerStatus("rejected")}
+                    className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg font-medium transition-colors flex items-center gap-2 text-sm"
+                  >
+                    <XCircle className="h-4 w-4" />
+                    Reject
+                  </button>
+                </>
+              )}
             <button
               onClick={() => navigate(-1)}
               className="text-gray-400 hover:text-gray-600 p-1 rounded-md hover:bg-gray-100 transition-colors"
@@ -410,92 +424,45 @@ function JournalDetails() {
                           Attached Files
                         </h5>
                         <div className="space-y-2">
-                          {editor?.files && editor.files.length > 0 ? (
-                            editor.files.map((file, fileIndex) => (
-                              <div
-                                key={fileIndex}
-                                className="flex items-center justify-between p-3 bg-gray-50 border border-gray-200 rounded"
+                          <div className="flex items-center justify-between p-3 bg-gray-50 border border-gray-200 rounded">
+                            <div className="flex items-center gap-3">
+                              <FileText className="h-5 w-5 text-blue-600" />
+                              <div>
+                                <p className="text-sm font-medium text-gray-900">
+                                  Editor_Review_Report.pdf
+                                </p>
+                                <p className="text-xs text-gray-500">
+                                  245 KB • PDF • Uploaded 22/02/2001
+                                </p>
+                              </div>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <button
+                                onClick={() =>
+                                  handleFileAction(
+                                    { name: "Editor_Review_Report.pdf" },
+                                    "view"
+                                  )
+                                }
+                                className="p-2 text-blue-600 hover:text-blue-800 hover:bg-blue-50 rounded transition-colors"
+                                title="View File"
                               >
-                                <div className="flex items-center gap-3">
-                                  <FileText className="h-5 w-5 text-blue-600" />
-                                  <div>
-                                    <p className="text-sm font-medium text-gray-900">
-                                      {file.name ||
-                                        `Editor_Review_${fileIndex + 1}.pdf`}
-                                    </p>
-                                    <p className="text-xs text-gray-500">
-                                      {file.size || "245 KB"} •{" "}
-                                      {file.type || "PDF"} • Uploaded{" "}
-                                      {file.date || "22/02/2001"}
-                                    </p>
-                                  </div>
-                                </div>
-                                <div className="flex items-center gap-2">
-                                  <button
-                                    onClick={() =>
-                                      handleFileAction(file, "view")
-                                    }
-                                    className="p-2 text-blue-600 hover:text-blue-800 hover:bg-blue-50 rounded transition-colors"
-                                    title="View File"
-                                  >
-                                    <Eye className="h-4 w-4" />
-                                  </button>
-                                  <button
-                                    onClick={() =>
-                                      handleFileAction(file, "download")
-                                    }
-                                    className="p-2 text-green-600 hover:text-green-800 hover:bg-green-50 rounded transition-colors"
-                                    title="Download File"
-                                  >
-                                    <Download className="h-4 w-4" />
-                                  </button>
-                                </div>
-                              </div>
-                            ))
-                          ) : (
-                            // Mock files for demonstration
-                            <>
-                              <div className="flex items-center justify-between p-3 bg-gray-50 border border-gray-200 rounded">
-                                <div className="flex items-center gap-3">
-                                  <FileText className="h-5 w-5 text-blue-600" />
-                                  <div>
-                                    <p className="text-sm font-medium text-gray-900">
-                                      Editor_Review_Report.pdf
-                                    </p>
-                                    <p className="text-xs text-gray-500">
-                                      245 KB • PDF • Uploaded 22/02/2001
-                                    </p>
-                                  </div>
-                                </div>
-                                <div className="flex items-center gap-2">
-                                  <button
-                                    onClick={() =>
-                                      handleFileAction(
-                                        { name: "Editor_Review_Report.pdf" },
-                                        "view"
-                                      )
-                                    }
-                                    className="p-2 text-blue-600 hover:text-blue-800 hover:bg-blue-50 rounded transition-colors"
-                                    title="View File"
-                                  >
-                                    <Eye className="h-4 w-4" />
-                                  </button>
-                                  <button
-                                    onClick={() =>
-                                      handleFileAction(
-                                        { name: "Editor_Review_Report.pdf" },
-                                        "download"
-                                      )
-                                    }
-                                    className="p-2 text-green-600 hover:text-green-800 hover:bg-green-50 rounded transition-colors"
-                                    title="Download File"
-                                  >
-                                    <Download className="h-4 w-4" />
-                                  </button>
-                                </div>
-                              </div>
-                            </>
-                          )}
+                                <Eye className="h-4 w-4" />
+                              </button>
+                              <button
+                                onClick={() =>
+                                  handleFileAction(
+                                    { name: "Editor_Review_Report.pdf" },
+                                    "download"
+                                  )
+                                }
+                                className="p-2 text-green-600 hover:text-green-800 hover:bg-green-50 rounded transition-colors"
+                                title="Download File"
+                              >
+                                <Download className="h-4 w-4" />
+                              </button>
+                            </div>
+                          </div>
                         </div>
                       </div>
 
@@ -553,33 +520,6 @@ function JournalDetails() {
                 {/* Round Content - Collapsible */}
                 {expandedRounds[roundIndex] && (
                   <div className="p-6 border-t border-gray-200">
-                    {/* Publisher Comments */}
-                    <div className="mb-6">
-                      <div className="bg-blue-50 border border-blue-200 rounded p-3">
-                        <h4 className="text-sm font-semibold text-blue-700 mb-2">
-                          Publisher Comments
-                        </h4>
-                        <div className="flex gap-6 text-sm">
-                          <div>
-                            <span className="font-medium text-gray-600">
-                              Status:
-                            </span>
-                            <span className="ml-2 text-gray-900">
-                              {round.status}
-                            </span>
-                          </div>
-                          <div>
-                            <span className="font-medium text-gray-600">
-                              Date:
-                            </span>
-                            <span className="ml-2 text-gray-900">
-                              {round.date}
-                            </span>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-
                     {/* Reviewers Summary Table */}
                     <div className="mb-6 overflow-x-auto">
                       <table className="w-full border border-gray-300">
@@ -689,74 +629,6 @@ function JournalDetails() {
                             {/* Reviewer Content - Collapsible */}
                             {expandedReviewers[reviewerKey] && (
                               <div className="p-4 border-t border-gray-200 bg-white">
-                                {/* Reviewer Info Table */}
-                                <div className="mb-4 overflow-x-auto">
-                                  <table className="w-full border border-gray-300 text-sm">
-                                    <thead>
-                                      <tr className="bg-gray-100">
-                                        <th className="border border-gray-300 px-3 py-2 text-left font-semibold text-gray-700">
-                                          Name
-                                        </th>
-                                        <th className="border border-gray-300 px-3 py-2 text-left font-semibold text-gray-700">
-                                          Status
-                                        </th>
-                                        <th className="border border-gray-300 px-3 py-2 text-left font-semibold text-gray-700">
-                                          Decision
-                                        </th>
-                                        <th className="border border-gray-300 px-3 py-2 text-left font-semibold text-gray-700">
-                                          Assigned Date
-                                        </th>
-                                        <th className="border border-gray-300 px-3 py-2 text-left font-semibold text-gray-700">
-                                          Agreed Date
-                                        </th>
-                                        <th className="border border-gray-300 px-3 py-2 text-left font-semibold text-gray-700">
-                                          No. days
-                                        </th>
-                                        <th className="border border-gray-300 px-3 py-2 text-left font-semibold text-gray-700">
-                                          Completed Date
-                                        </th>
-                                        <th className="border border-gray-300 px-3 py-2 text-left font-semibold text-gray-700">
-                                          Action
-                                        </th>
-                                      </tr>
-                                    </thead>
-                                    <tbody>
-                                      <tr className="bg-gray-50">
-                                        <td className="border border-gray-300 px-3 py-2">
-                                          <div className="flex items-center gap-2">
-                                            <span className="text-blue-600 font-medium">
-                                              {reviewer.reviewer.reviewer_name}
-                                            </span>
-                                          </div>
-                                        </td>
-                                        <td className="border border-gray-300 px-3 py-2">
-                                          {reviewer.is_accepted}
-                                        </td>
-                                        <td className="border border-gray-300 px-3 py-2">
-                                          {reviewer.decision}
-                                        </td>
-                                        <td className="border border-gray-300 px-3 py-2">
-                                          {reviewer.assignedDate}
-                                        </td>
-                                        <td className="border border-gray-300 px-3 py-2">
-                                          {reviewer.agreedDate}
-                                        </td>
-                                        <td className="border border-gray-300 px-3 py-2">
-                                          {reviewer.no_days}
-                                        </td>
-                                        <td className="border border-gray-300 px-3 py-2">
-                                          {reviewer.completedDate}
-                                        </td>
-                                        <td className="border border-gray-300 px-3 py-2">
-                                          <button className="text-blue-600 hover:text-blue-800">
-                                            View
-                                          </button>
-                                        </td>
-                                      </tr>
-                                    </tbody>
-                                  </table>
-                                </div>
-
                                 {/* Comments For Editor */}
                                 <div className="mb-4">
                                   <h5 className="text-sm font-semibold text-gray-700 mb-2">
@@ -801,7 +673,7 @@ function JournalDetails() {
           ))}
 
           {/* Back Button */}
-          <div className="flex justify-end gap-5 pt-4 border-t border-gray-200">
+          <div className="flex justify-end gap-5 pt-4 border-t border-gray-200 mb-10">
             <button
               onClick={() => navigate(-1)}
               className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-medium transition-colors flex items-center gap-2"

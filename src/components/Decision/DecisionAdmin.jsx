@@ -1,35 +1,44 @@
 import { useToastMutation } from "@/hooks/useNotification";
-import { useGetReviewsAuthorsQuery, useUpdateEditorDescisionMutation } from "@/services/features/manuscript/slice";
+import {
+  useAddPublisherDescisionMutation,
+  useGetReviewsAuthorsQuery,
+} from "@/services/features/manuscript/slice";
 import { Field, Form, Formik } from "formik";
 import { useState } from "react";
 
 export default function DescisionAdmin({
   isOpen,
   onClose,
-  editor_id,
+  admin_id,
   article_id,
 }) {
   const [selectedFile, setSelectedFile] = useState(null);
 
   const { data: reviewData } = useGetReviewsAuthorsQuery(article_id);
 
-  const [updateEditorRecommendation] = useToastMutation(useUpdateEditorDescisionMutation(), {showLoading: true})
+  const [addPublisherDescision] = useToastMutation(
+    useAddPublisherDescisionMutation(),
+    { showLoading: true }
+  );
 
   const authors = reviewData && reviewData?.data.articleAuthors;
 
   const initialValues = {
-    editor_id: Number(editor_id),
     article_id: Number(article_id),
-    is_completed: true,
+    admin_id: Number(admin_id),
     comments: "",
-    editor_file: "",
+    admin_file: "",
+    admin_file_link: "https://example.com/files/review_notes.pdf",
     main_decision: "",
     to_show: [],
-    editor_file_link:
-      "https://example.com/uploads/editor_files/review_summary.pdf",
+    round: Number(reviewData && reviewData.data.revision_round) + 1,
+    // email_email: "author@example.com",
+    // email_subject: "Decision on your submitted article",
+    // email_body:
+    //   "Dear Author,\n\nYour article has been reviewed. Please find the decision and comments attached.\n\nBest regards,\nAdmin Team",
   };
 
-  const handleEditorReviewSubmit = async (values, setSubmitting) => {
+  const handlePublisherDecisionSubmit = async (values, setSubmitting) => {
     alert(JSON.stringify(values));
     console.log(values);
     // onClose();
@@ -67,10 +76,11 @@ export default function DescisionAdmin({
         <div className="border-b border-gray-200 px-6 py-4 flex items-center justify-between">
           <div>
             <h2 className="text-xl font-semibold text-gray-900">
-              Editor's Descision
+              Publisher's Descision
             </h2>
             <p className="text-sm text-gray-500 mt-1">
-              Case Number: {reviewData && reviewData.data.case_number} {reviewData && reviewData.data.intro_id}
+              Case Number: {reviewData && reviewData.data.case_number}{" "}
+              {reviewData && reviewData.data.intro_id}
             </p>
             <p className="text-sm text-gray-500 mt-1">
               Review and provide feedback on the submitted manuscript
@@ -188,8 +198,9 @@ export default function DescisionAdmin({
           {/* Form Section */}
           <Formik
             initialValues={initialValues}
+            enableReinitialize={true}
             onSubmit={(values, { setSubmitting }) =>
-              handleEditorReviewSubmit(values, setSubmitting)
+              handlePublisherDecisionSubmit(values, setSubmitting)
             }
           >
             {({ values, isSubmitting, setFieldValue }) => (
@@ -309,11 +320,11 @@ export default function DescisionAdmin({
                         </div>
                         <div className="relative">
                           <input
-                            name="editor_file"
+                            name="admin_file"
                             type="file"
                             onChange={(event) => {
                               setFieldValue(
-                                "editor_file",
+                                "admin_file",
                                 event.currentTarget.files[0]
                               );
                             }}
@@ -384,7 +395,9 @@ export default function DescisionAdmin({
                               name="main_decision"
                               value={option}
                               checked={values.main_decision === option}
-                              onChange={(e) => setFieldValue('main_decision', e.target.value)}
+                              onChange={(e) =>
+                                setFieldValue("main_decision", e.target.value)
+                              }
                               className="w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-500"
                             />
                             <span className="ml-3 text-sm text-gray-700 group-hover:text-gray-900">
@@ -411,10 +424,7 @@ export default function DescisionAdmin({
                           Close
                         </button>
                         <button
-                          type="button"
-                          onClick={() =>
-                            handleEditorReviewSubmit(values, () => {})
-                          }
+                          type="submit"
                           className="px-6 py-3 bg-black text-white rounded-lg font-semibold hover:bg-gray-800 transition-colors duration-200 flex items-center"
                         >
                           <svg

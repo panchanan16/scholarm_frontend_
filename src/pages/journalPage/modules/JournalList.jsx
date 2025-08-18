@@ -1,6 +1,5 @@
 import { useState, useEffect, useRef } from "react";
 import {
-  Search,
   Filter,
   Eye,
   Edit,
@@ -15,6 +14,7 @@ import DecisonReviewer from "@/components/Decision/DecisonReviewer";
 import JournalReviewDropDown from "@/components/JournalReviewDropdown/JournalReviewDropdown";
 import { AdminLayout } from "@/components/layout/AdminLayout";
 import useRenderManuscript from "@/hooks/useRenderManuscript";
+import DescisionAdmin from "@/components/Decision/DecisionAdmin";
 
 const JournalListTable = () => {
   const [queryParams] = useSearchParams();
@@ -22,6 +22,7 @@ const JournalListTable = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [isOpenReviewerDecision, setIsOpenReviewerDecision] = useState(false);
   const [isOpenEditorDecision, setIsOpenEditorDecision] = useState(false);
+  const [isOpenAdminDecision, setIsOpenAdminDecision] = useState(false);
   const [openDropdown, setOpenDropdown] = useState(null);
 
   const [articleId, setArticleId] = useState(null);
@@ -29,6 +30,7 @@ const JournalListTable = () => {
 
   // Page meta data ---
   const user = { role: "reviewer", userId: 1 };
+  const type = queryParams.get("type");
 
   // Call data ---
   const { manuscriptsData } = useRenderManuscript({
@@ -36,11 +38,9 @@ const JournalListTable = () => {
     status: statusFilter,
     editorStatus: queryParams.get("editorStatus"),
     userId: user.userId,
-    completed: queryParams.get("completed"),
-    reviewerStatus: queryParams.get("reviewerStatus")
+    completed: queryParams.get("complete"),
+    reviewerStatus: queryParams.get("reviewerStatus"),
   });
-
-  console.log(queryParams.get("completed"));
 
   // Handle outside click for dropdown
   useEffect(() => {
@@ -66,6 +66,11 @@ const JournalListTable = () => {
     setArticleId(article_id);
   }
 
+    function handlePublisherDescision(article_id) {
+    setIsOpenAdminDecision(true);
+    setArticleId(article_id);
+  }
+
   // handle actions ---
   const handleDropdownAction = (action, manuscript) => {
     switch (action) {
@@ -82,6 +87,11 @@ const JournalListTable = () => {
       case "handleReviewerDecision":
         // Handle reviewer decision
         handleReviewerDescision(manuscript.intro_id);
+        break;
+
+      case "handlePublisherDecision":
+        // Handle publisher decision
+        handlePublisherDescision(manuscript.intro_id);
         break;
 
       case "handleShare":
@@ -162,17 +172,6 @@ const JournalListTable = () => {
 
             {/* Search and Filter Controls */}
             <div className="flex flex-col sm:flex-row gap-3">
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-                <input
-                  type="text"
-                  placeholder="Search manuscripts..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
-                />
-              </div>
-
               <div className="relative">
                 <Filter className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
                 <select
@@ -353,6 +352,12 @@ const JournalListTable = () => {
           <DecisonReviewer
             isOpen={isOpenReviewerDecision}
             onClose={setIsOpenReviewerDecision}
+            article_id={articleId}
+          />
+
+          <DescisionAdmin
+            isOpen={isOpenAdminDecision}
+            onClose={setIsOpenAdminDecision}
             article_id={articleId}
           />
         </>

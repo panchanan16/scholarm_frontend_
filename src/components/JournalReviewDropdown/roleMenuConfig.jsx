@@ -45,6 +45,13 @@ export const roleMenuConfigs = {
       action: 'handleReviewerDecision'
     },
     {
+      id: 'publisher-decision',
+      label: 'Publisher Decision',
+      icon: ClipboardCheck,
+      type: 'button',
+      action: 'handlePublisherDecision'
+    },
+    {
       id: 'share',
       label: 'Share',
       icon: Share,

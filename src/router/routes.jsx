@@ -20,6 +20,7 @@ import ReviewerDashBoard from "@/pages/dashboard/reviewer/ReviewerDashboard";
 import { ValidatedJournalListTable } from "./validateRoute";
 import AuthorDashboard from "@/pages/dashboard/author/AuthorDashboard";
 import AdminLoginPage from "@/pages/loginPages/adminLogin/AdminLoginPage";
+import { AdminRoute } from "./protectedRoute";
 
 const routes = [
   {
@@ -27,7 +28,7 @@ const routes = [
     element: <App />,
     children: [
       { index: true, element: <AdminLoginPage /> },
-      { path: "/dashboard", element: <Dashboard /> },
+      { path: "/dashboard", element: <AdminRoute><Dashboard /></AdminRoute> },
       {
         path: "dashboard",
         element: <JournalPage />,
@@ -41,6 +42,7 @@ const routes = [
         ],
       },
       { path: "/:role/manuscript", element: <ValidatedJournalListTable /> },
+
       //Editor Dashboard
       {
         path: "editor-dashboard",

@@ -1,10 +1,11 @@
+import { BASE_URL } from '@/api/api'
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
 
 
-export const baseApi = createApi({
-  reducerPath: 'api',
+export const authApi = createApi({
+  reducerPath: 'AuthApi',
   baseQuery: fetchBaseQuery({
-    baseUrl: '/api',
+    baseUrl: `${BASE_URL}/auth`,
     prepareHeaders: (headers, { getState }) => {
       // Add auth token if available
       const token = getState().auth?.token
@@ -15,6 +16,6 @@ export const baseApi = createApi({
       return headers
     },
   }),
-  tagTypes: ['User', 'Post', 'Comment'], 
+  tagTypes: ['User'], 
   endpoints: () => ({}), 
 })

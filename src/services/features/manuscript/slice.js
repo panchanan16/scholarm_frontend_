@@ -113,7 +113,7 @@ export const manuscriptApi = baseApi.injectEndpoints({
         updateEditorDescision: builder.mutation({
             query: (data) => ({
                 url: '/editor/recommendation',
-                method: 'POST',
+                method: 'PUT',
                 body: data,
             }),
         }),
@@ -161,6 +161,16 @@ export const manuscriptApi = baseApi.injectEndpoints({
         }),
 
 
+        // Add publisher Descision
+        addPublisherDescision: builder.mutation({
+            query: (data) => ({
+                url: '/publisherReview/create',
+                method: 'POST',
+                body: data,
+            }),
+        }),
+
+
     }),
 })
 
@@ -180,5 +190,6 @@ export const {
     useLazyGetManuscriptForEditorQuery,
     useLazyGetManuscriptForReviewerQuery,
     useLazyGetManuscriptByStatusQuery,
-    useUpdateAssignMentStatusReviewerMutation
+    useUpdateAssignMentStatusReviewerMutation,
+    useAddPublisherDescisionMutation
 } = manuscriptApi

@@ -1,3 +1,4 @@
+import { useAuth } from "@/hooks/useAuth";
 import { useToastMutation } from "@/hooks/useNotification";
 import {
   useGetManuscriptReviewDetailsQuery,
@@ -29,21 +30,23 @@ function JournalDetails() {
   const [expandedEditors, setExpandedEditors] = useState({});
 
   const { article_id } = useParams();
+  const { user: userInfo } = useAuth();
+  // console.log(userN?.[`${userN.role}_id`]);
 
-  const user = { role: "reviewer", userId: 2 };
+  const user = userInfo ? { role: userInfo?.['role'], userId: userInfo?.[`${userInfo.role}_id`] } : null
 
   const { data: manuscriptDetails } =
     useGetManuscriptReviewDetailsQuery(article_id);
 
   // Current User Info ---
-  const paramData = manuscriptDetails
+  const paramData = user && manuscriptDetails
     ? user.role == "reviewer"
       ? manuscriptDetails.data.AssignReviewer
-      : manuscriptDetails.AssignEditor
+      : manuscriptDetails.data.AssignEditor
     : [];
-  const UserDataInfo = filterbyUserRole(paramData, user.role, user.userId);
-  console.log(UserDataInfo);
 
+  const UserDataInfo = user && filterbyUserRole(paramData, user?.role, user?.userId);
+  
   // Status Update by Editor ---
   const [updateStatusEditor] = useToastMutation(
     useUpdateAssignMentStatusEditorMutation(),
@@ -114,11 +117,13 @@ function JournalDetails() {
 
   // Handler functions for Accept and Reject buttons for Editor
   const handleEditorStatus = async (type) => {
-    await updateStatusEditor({
-      editor_id: user.userId,
-      article_id: Number(article_id),
-      status: type === "accepted" ? "accepted" : "rejected",
-    });
+    if (user) {
+      await updateStatusEditor({
+        editor_id: user.userId,
+        article_id: Number(article_id),
+        status: type === "accepted" ? "accepted" : "rejected",
+      });
+    }
   };
 
   // Handler functions for Accept and Reject buttons for Reviewer

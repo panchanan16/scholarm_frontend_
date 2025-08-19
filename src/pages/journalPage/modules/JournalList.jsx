@@ -15,6 +15,7 @@ import JournalReviewDropDown from "@/components/JournalReviewDropdown/JournalRev
 import { AdminLayout } from "@/components/layout/AdminLayout";
 import useRenderManuscript from "@/hooks/useRenderManuscript";
 import DescisionAdmin from "@/components/Decision/DecisionAdmin";
+import { useAuth } from "@/hooks/useAuth";
 
 const JournalListTable = () => {
   const [queryParams] = useSearchParams();
@@ -29,7 +30,9 @@ const JournalListTable = () => {
   const dropdownRef = useRef(null);
 
   // Page meta data ---
-  const user = { role: "reviewer", userId: 1 };
+  const {user: userInfo} = useAuth()
+  const user = userInfo ? { role: userInfo?.['role'], userId: userInfo?.[`${userInfo.role}_id`] } : null
+  // const user = { role: "admin", userId: 1 };
   const type = queryParams.get("type");
 
   // Call data ---

@@ -19,7 +19,7 @@ export default function AdminLoginPage() {
   const [formData, setFormData] = useState({
     email: "",
     password: "",
-    role: "author",
+    role: "",
     rememberMe: false,
   });
   const [showPassword, setShowPassword] = useState(false);
@@ -285,7 +285,7 @@ export default function AdminLoginPage() {
             <button
               type="submit"
               disabled={isLoading}
-              className={`w-full py-3 px-4 rounded-xl font-medium transition-all duration-200 ${selectedRole.color} text-white shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none`}
+              className={`w-full py-3 px-4 rounded-xl font-medium transition-all duration-200 ${selectedRole?.color} text-white shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none`}
             >
               {isLoading ? (
                 <div className="flex items-center justify-center">
@@ -293,7 +293,7 @@ export default function AdminLoginPage() {
                   Signing in...
                 </div>
               ) : (
-                `Sign in as ${selectedRole.label}`
+                `Sign in as ${selectedRole?.label}`
               )}
             </button>
           </form>

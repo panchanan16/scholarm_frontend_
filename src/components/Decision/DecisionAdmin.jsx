@@ -10,6 +10,7 @@ export default function DescisionAdmin({
   isOpen,
   onClose,
   admin_id,
+  round,
   article_id,
 }) {
   const [selectedFile, setSelectedFile] = useState(null);
@@ -39,10 +40,13 @@ export default function DescisionAdmin({
   };
 
   const handlePublisherDecisionSubmit = async (values, setSubmitting) => {
-    alert(JSON.stringify(values));
-    console.log(values);
-    // onClose();
-    setSubmitting(false);
+    if (values.to_show.length == 0) {
+      alert("Please Select atleast one author!");
+    } else {
+      await addPublisherDescision(values);
+      onClose(false);
+      setSubmitting(false);
+    }
   };
 
   const handleCancel = () => {
@@ -51,6 +55,11 @@ export default function DescisionAdmin({
     setSelectedFile(null);
     onClose();
   };
+
+  function handleFileChange(setFormValue, event) {
+    setFormValue("admin_file", event.currentTarget.files[0]);
+    setSelectedFile(event.currentTarget.files[0]);
+  }
 
   const handleAuthorSelection = (
     authorId,
@@ -322,12 +331,9 @@ export default function DescisionAdmin({
                           <input
                             name="admin_file"
                             type="file"
-                            onChange={(event) => {
-                              setFieldValue(
-                                "admin_file",
-                                event.currentTarget.files[0]
-                              );
-                            }}
+                            onChange={(event) =>
+                              handleFileChange(setFieldValue, event)
+                            }
                             className="hidden"
                             id="file-upload"
                           />

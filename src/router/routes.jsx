@@ -28,7 +28,14 @@ const routes = [
     element: <App />,
     children: [
       { index: true, element: <AdminLoginPage /> },
-      { path: "/dashboard", element: <AdminRoute><Dashboard /></AdminRoute> },
+      {
+        path: "/dashboard",
+        element: (
+          <AdminRoute>
+            <Dashboard />
+          </AdminRoute>
+        ),
+      },
       {
         path: "dashboard",
         element: <JournalPage />,
@@ -45,12 +52,24 @@ const routes = [
 
       //Editor Dashboard
       {
+        path: "/editor-dashboard",
+        element: <EditorDashBoard />
+      },
+      {
         path: "editor-dashboard",
-        element: <EditorDashBoard />,
+        element: <JournalPage />,
         children: [
+          { path: "manuscript/assign-editor", element: <AssignEditorPage /> },
+          {
+            path: "manuscript/assign-reviewer",
+            element: <AssignReviewerPage />,
+          },
           { path: "manuscript/:article_id", element: <JournalDetails /> },
         ],
       },
+      { path: "/:role/manuscript", element: <ValidatedJournalListTable /> },
+
+      
       // Author Dashboard
       {
         path: "author-dashboard",
@@ -61,7 +80,9 @@ const routes = [
       {
         path: "reviewer-dashboard",
         element: <ReviewerDashBoard />,
-        children: [ { path: "manuscript/:article_id", element: <JournalDetails /> }],
+        children: [
+          { path: "manuscript/:article_id", element: <JournalDetails /> },
+        ],
       },
       { path: "assign-editor", element: <AssignEditorPage /> },
       {

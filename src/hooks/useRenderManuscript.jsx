@@ -1,5 +1,6 @@
 import {
   useLazyGetManuscriptByStatusQuery,
+  useLazyGetManuscriptForAuthorQuery,
   useLazyGetManuscriptForEditorQuery,
   useLazyGetManuscriptForReviewerQuery,
 } from "@/services/features/manuscript/slice";
@@ -11,22 +12,27 @@ function useRenderManuscript({
   editorStatus,
   reviewerStatus,
   completed,
+  type,
+  processed,
   userId,
+  disposal
 }) {
   const [fetchForAdmin, adminData] = useLazyGetManuscriptByStatusQuery();
   const [fetchForEditor, editorData] = useLazyGetManuscriptForEditorQuery();
-  const [fetchForReviewer, reviewerData] =
-    useLazyGetManuscriptForReviewerQuery();
+  const [fetchForReviewer, reviewerData] = useLazyGetManuscriptForReviewerQuery();
+  const [fetchForAuthor, authorData] = useLazyGetManuscriptForAuthorQuery();
 
   useEffect(() => {
     if (role == "admin") {
-      fetchForAdmin({ status });
+      fetchForAdmin({ status, type });
     } else if (role == "reviewer") {
       fetchForReviewer({ userId, status, reviewerStatus, completed });
+    } else if (role == "author") {
+      fetchForAuthor({ userId, status, processed });
     } else {
-      fetchForEditor({ userId, status, editorStatus, completed });
+      fetchForEditor({ userId, status, editorStatus, completed, disposal });
     }
-  }, [role]);
+  }, [role, status, processed, type]);
 
   if (role == "admin") {
     return {
@@ -35,6 +41,10 @@ function useRenderManuscript({
   } else if (role == "reviewer") {
     return {
       manuscriptsData: reviewerData && reviewerData.data,
+    };
+  } else if (role == "author") {
+    return {
+      manuscriptsData: authorData && authorData.data,
     };
   } else {
     return {

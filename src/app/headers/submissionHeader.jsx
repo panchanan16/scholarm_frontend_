@@ -3,15 +3,12 @@ import { Link, useSearchParams } from "react-router-dom";
 
 function SubmissionHeader() {
   const [queryParam] = useSearchParams();
-  if (queryParam.get("mode") === "edit") {
+  // if (queryParam.get("mode") === "edit") {
     return (
       <div className="bg-slate-700 text-white px-6 py-4 flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center">
-            <span className="text-sm font-bold">C</span>
-          </div>
+        <div className="flex items-center gap-3">          
           <span className="text-sm font-medium bg-slate-600 px-3 py-1 rounded-full">
-            EDIT MODE
+            Submit Mode
           </span>
         </div>
         <div className="flex items-center gap-3">
@@ -28,7 +25,7 @@ function SubmissionHeader() {
         </div>
       </div>
     );
-  }
+  // }
 }
 
 export default SubmissionHeader;

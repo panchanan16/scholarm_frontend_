@@ -4,6 +4,7 @@ import { typeSubtypes } from "@/data/submissionType";
 import { useToastMutation } from "@/hooks/useNotification";
 import useSaveSteps from "@/hooks/useSaveSteps";
 import { useGetStartedArticleMutation } from "@/services/features/manuscript/slice";
+import { useAuth } from "@/hooks/useAuth";
 
 export default function IntroForm() {
   const [type, setType] = useState("");
@@ -14,12 +15,13 @@ export default function IntroForm() {
   });
 
   const [getArticleStart] = useToastMutation(useGetStartedArticleMutation());
+  const { userRole, user, isAuthenticated } = useAuth();
 
   const initialValues = {
     articleDetails: {
       type: "",
       sub_class: "",
-      main_author: 1,
+      main_author: user && user.author_id,
     },
     sections: [],
   };
@@ -35,9 +37,15 @@ export default function IntroForm() {
   };
 
   async function SubmitAndContinueHandler(values, setSubmitting) {
-    const article = await getArticleStart(values);
-    const article_id = article.data[0]?.intro_id;
-    article && updateSaveSteps(`/submission/article-title?article_id=${article_id}`);
+    if (userRole === "author" && user && isAuthenticated && initialValues.articleDetails.main_author) {
+      const article = await getArticleStart(values);
+      const article_id = article.data[0]?.intro_id;
+      article &&
+        updateSaveSteps(`/submission/article-title?article_id=${article_id}`);
+      setSubmitting(false);
+    } else {
+      alert("You must login as author to submit")
+    }
   }
 
   return (
@@ -45,6 +53,7 @@ export default function IntroForm() {
       <div className="max-w-2xl mx-auto bg-white rounded-lg shadow-sm border border-gray-200 p-8">
         <Formik
           initialValues={initialValues}
+          enableReinitialize={true}
           onSubmit={(values, { setSubmitting }) =>
             SubmitAndContinueHandler(values, setSubmitting)
           }
@@ -117,3 +126,6 @@ export default function IntroForm() {
     </div>
   );
 }
+
+
+

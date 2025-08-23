@@ -1,182 +1,193 @@
-import { Archive, Edit, Eye, Flag, Share, Trash2, UserPlus, FileText, ClipboardCheck } from "lucide-react";
+import {
+  Archive,
+  Edit,
+  Eye,
+  Flag,
+  Share,
+  Trash2,
+  UserPlus,
+  FileText,
+  ClipboardCheck,
+  ScrollTextIcon,
+} from "lucide-react";
 
 export const roleMenuConfigs = {
   admin: [
     {
-      id: 'view-details',
-      label: 'View Details',
+      id: "view-details",
+      label: "View Details",
       icon: Eye,
-      type: 'link',
-      url: (manuscript) => `${manuscript.intro_id}`
+      type: "link",
+      status: [],
+      url: (manuscript) => `${manuscript.intro_id}`,
     },
     {
-      id: 'invite-editor',
-      label: 'Invite Editor',
+      id: "invite-editor",
+      label: "Invite Editor",
       icon: UserPlus,
-      type: 'link',
-      url: (manuscript) => `assign-editor?article_id=${manuscript.intro_id}`
+      type: "link",
+      status: ["newsubmission", "needtoassigneditor"],
+      url: (manuscript) => `assign-editor?article_id=${manuscript.intro_id}`,
     },
     {
-      id: 'edit-manuscript',
-      label: 'Edit Manuscript',
+      id: "edit-manuscript",
+      label: "Edit Manuscript",
       icon: Edit,
-      type: 'link',
-      url: (manuscript) => `edit-manuscript?article_id=${manuscript.intro_id}`
+      type: "link",
+      status: [],
+      url: (manuscript) => `edit-manuscript?article_id=${manuscript.intro_id}`,
     },
     {
-      id: 'invite-reviewer',
-      label: 'Invite Reviewer',
+      id: "invite-reviewer",
+      label: "Invite Reviewer",
       icon: UserPlus,
-      type: 'link',
-      url: (manuscript) => `assign-reviewer?article_id=${manuscript.intro_id}`
+      type: "link",
+      url: (manuscript) => `assign-reviewer?article_id=${manuscript.intro_id}`,
     },
     {
-      id: 'editor-decision',
-      label: 'Post Editor Decision',
+      id: "publisher-decision",
+      label: "Publisher Decision",
       icon: ClipboardCheck,
-      type: 'button',
-      action: 'handleEditorDecision'
+      type: "button",
+      role: [],
+      status: [],
+      action: "handlePublisherDecision",
     },
     {
-      id: 'reviewer-decision',
-      label: 'Reviewer Decision',
-      icon: ClipboardCheck,
-      type: 'button',
-      action: 'handleReviewerDecision'
+      id: "publish",
+      label: "Publish Now",
+      icon: ScrollTextIcon,
+      type: "link",
+      status: ['accepted'],
+      url: (manuscript) => `assign-reviewer?article_id=${manuscript.intro_id}`,
     },
     {
-      id: 'publisher-decision',
-      label: 'Publisher Decision',
-      icon: ClipboardCheck,
-      type: 'button',
-      action: 'handlePublisherDecision'
-    },
-    {
-      id: 'share',
-      label: 'Share',
+      id: "share",
+      label: "Share",
       icon: Share,
-      type: 'button',
-      action: 'handleShare'
+      type: "button",
+      action: "handleShare",
     },
     {
-      id: 'archive',
-      label: 'Archive',
+      id: "archive",
+      label: "Archive",
       icon: Archive,
-      type: 'button',
-      action: 'handleArchive'
+      type: "button",
+      action: "handleArchive",
     },
     {
-      id: 'flag',
-      label: 'Flag for Review',
+      id: "flag",
+      label: "Flag for Review",
       icon: Flag,
-      type: 'button',
-      action: 'handleFlag'
+      type: "button",
+      action: "handleFlag",
     },
     {
-      id: 'separator',
-      type: 'separator'
+      id: "separator",
+      type: "separator",
     },
     {
-      id: 'delete',
-      label: 'Delete',
+      id: "delete",
+      label: "Delete",
       icon: Trash2,
-      type: 'button',
-      action: 'handleDelete',
-      className: 'text-red-600 hover:bg-red-50'
-    }
+      type: "button",
+      action: "handleDelete",
+      className: "text-red-600 hover:bg-red-50",
+    },
   ],
-  
+
   editor: [
     {
-      id: 'view-details',
-      label: 'View Details',
+      id: "view-details",
+      label: "View Details",
       icon: Eye,
-      type: 'button',
-      action: 'handleViewDetails'
+      type: "button",
+      action: "handleViewDetails",
     },
     {
-      id: 'edit-manuscript',
-      label: 'Edit Manuscript',
+      id: "edit-manuscript",
+      label: "Edit Manuscript",
       icon: Edit,
-      type: 'link',
-      url: (manuscript) => `edit-manuscript?article_id=${manuscript.intro_id}`
+      type: "link",
+      url: (manuscript) => `edit-manuscript?article_id=${manuscript.intro_id}`,
     },
     {
-      id: 'invite-reviewer',
-      label: 'Invite Reviewer',
+      id: "invite-reviewer",
+      label: "Invite Reviewer",
       icon: UserPlus,
-      type: 'link',
-      url: (manuscript) => `assign-reviewer?article_id=${manuscript.intro_id}`
+      type: "link",
+      url: (manuscript) => `assign-reviewer?article_id=${manuscript.intro_id}`,
     },
     {
-      id: 'editor-decision',
-      label: 'Post Editor Decision',
+      id: "editor-decision",
+      label: "Post Editor Decision",
       icon: ClipboardCheck,
-      type: 'button',
-      action: 'handleEditorDecision'
+      type: "button",
+      action: "handleEditorDescision",
     },
+    ,
     {
-      id: 'share',
-      label: 'Share',
+      id: "share",
+      label: "Share",
       icon: Share,
-      type: 'button',
-      action: 'handleShare'
+      type: "button",
+      action: "handleShare",
     },
     {
-      id: 'flag',
-      label: 'Flag for Review',
+      id: "flag",
+      label: "Flag for Review",
       icon: Flag,
-      type: 'button',
-      action: 'handleFlag'
-    }
+      type: "button",
+      action: "handleFlag",
+    },
   ],
-  
+
   reviewer: [
     {
-      id: 'view-details',
-      label: 'View Details',
+      id: "view-details",
+      label: "View Details",
       icon: Eye,
-      type: 'button',
-      action: 'handleViewDetails'
+      type: "button",
+      action: "handleViewDetails",
     },
     {
-      id: 'reviewer-decision',
-      label: 'Submit Review',
+      id: "reviewer-decision",
+      label: "Reviewer Decision",
       icon: ClipboardCheck,
-      type: 'button',
-      action: 'handleReviewerDecision'
+      type: "button",
+      action: "handleReviewerDecision",
     },
+    ,
     {
-      id: 'share',
-      label: 'Share',
+      id: "share",
+      label: "Share",
       icon: Share,
-      type: 'button',
-      action: 'handleShare'
-    }
+      type: "button",
+      action: "handleShare",
+    },
   ],
-  
+
   author: [
     {
-      id: 'view-details',
-      label: 'View Details',
+      id: "view-details",
+      label: "View Details",
       icon: Eye,
-      type: 'button',
-      action: 'handleViewDetails'
+      type: "button",
+      action: "handleViewDetails",
     },
     {
-      id: 'edit-manuscript',
-      label: 'Edit Manuscript',
+      id: "edit-manuscript",
+      label: "Edit Manuscript",
       icon: Edit,
-      type: 'link',
-      url: (manuscript) => `edit-manuscript?article_id=${manuscript.intro_id}`
+      type: "link",
+      url: (manuscript) => `edit-manuscript?article_id=${manuscript.intro_id}`,
     },
     {
-      id: 'share',
-      label: 'Share',
+      id: "share",
+      label: "Share",
       icon: Share,
-      type: 'button',
-      action: 'handleShare'
-    }
+      type: "button",
+      action: "handleShare",
+    },
   ],
-  
 };

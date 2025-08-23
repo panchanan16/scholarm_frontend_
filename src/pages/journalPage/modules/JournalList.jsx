@@ -16,10 +16,10 @@ import { AdminLayout } from "@/components/layout/AdminLayout";
 import useRenderManuscript from "@/hooks/useRenderManuscript";
 import DescisionAdmin from "@/components/Decision/DecisionAdmin";
 import { useAuth } from "@/hooks/useAuth";
+import { roleBasedStatus, setStatusForDashboard } from "@/utils/setStatusForDashboard";
 
 const JournalListTable = () => {
-  const [queryParams] = useSearchParams();
-  const [statusFilter, setStatusFilter] = useState(queryParams.get("status"));
+  const [queryParams, setQueryParams] = useSearchParams();
   const [searchTerm, setSearchTerm] = useState("");
   const [isOpenReviewerDecision, setIsOpenReviewerDecision] = useState(false);
   const [isOpenEditorDecision, setIsOpenEditorDecision] = useState(false);
@@ -30,20 +30,26 @@ const JournalListTable = () => {
   const dropdownRef = useRef(null);
 
   // Page meta data ---
-  const {user: userInfo} = useAuth()
-  const user = userInfo ? { role: userInfo?.['role'], userId: userInfo?.[`${userInfo.role}_id`] } : null
-  // const user = { role: "admin", userId: 1 };
-  const type = queryParams.get("type");
+  const { user: userInfo } = useAuth();
+  const user = userInfo
+    ? { role: userInfo?.["role"], userId: userInfo?.[`${userInfo.role}_id`] }
+    : null;
 
   // Call data ---
   const { manuscriptsData } = useRenderManuscript({
     role: user.role,
-    status: statusFilter,
+    status: queryParams.get("status"),
     editorStatus: queryParams.get("editorStatus"),
     userId: user.userId,
-    completed: queryParams.get("complete"),
+    completed: queryParams.get("completed"),
     reviewerStatus: queryParams.get("reviewerStatus"),
+    disposal: queryParams.get("disposal"),
+    type: queryParams.get("type")
   });
+
+  const currentStatus = setStatusForDashboard(queryParams, user.role);
+
+  console.log(currentStatus);
 
   // Handle outside click for dropdown
   useEffect(() => {
@@ -59,6 +65,16 @@ const JournalListTable = () => {
     };
   }, []);
 
+  const handleChangeStatus = (e, role) => {
+    const statusmap = role ? roleBasedStatus[role] : [];
+    const selectedId = Number(e.target.value);
+    const selectedMapping = statusmap.find((m) => m.id === selectedId);
+
+    if (selectedMapping) {
+      setQueryParams(selectedMapping.urlParam); // update URL params
+    }
+  };
+
   function handleReviewerDescision(article_id) {
     setIsOpenReviewerDecision(true);
     setArticleId(article_id);
@@ -69,7 +85,7 @@ const JournalListTable = () => {
     setArticleId(article_id);
   }
 
-    function handlePublisherDescision(article_id) {
+  function handlePublisherDescision(article_id) {
     setIsOpenAdminDecision(true);
     setArticleId(article_id);
   }
@@ -82,7 +98,7 @@ const JournalListTable = () => {
         console.log("Viewing details for:", manuscript.intro_id);
         break;
 
-      case "handleEditorDecision":
+      case "handleEditorDescision":
         // Handle editor decision
         handleEditorDescision(manuscript.intro_id);
         break;
@@ -178,14 +194,20 @@ const JournalListTable = () => {
               <div className="relative">
                 <Filter className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
                 <select
-                  value={statusFilter}
-                  onChange={(e) => setStatusFilter(e.target.value)}
+                  value={
+                    roleBasedStatus[user.role].find(
+                      (m) => m.status === currentStatus
+                    )?.id || ""
+                  }
+                  onChange={(e) => handleChangeStatus(e, user.role)}
                   className="pl-10 pr-8 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm appearance-none bg-white"
                 >
-                  <option value="editorinvited">Editor Invited</option>
-                  <option value="Under Review">Under Review</option>
-                  <option value="Accepted">Accepted</option>
-                  <option value="Rejected">Rejected</option>
+                  {user &&
+                    roleBasedStatus[user.role].map((stts, ind) => (
+                      <option value={stts.id} key={ind}>
+                        {stts.status}
+                      </option>
+                    ))}
                 </select>
               </div>
             </div>
@@ -329,8 +351,9 @@ const JournalListTable = () => {
                           {openDropdown === manuscript.intro_id && (
                             <JournalReviewDropDown
                               manuscript={manuscript}
-                              userRole="admin"
+                              userRole={user.role}
                               onAction={handleDropdownAction}
+                              ArticleStatus={manuscript.article_status}
                             />
                           )}
                         </div>
@@ -350,7 +373,7 @@ const JournalListTable = () => {
             isOpen={isOpenEditorDecision}
             onClose={setIsOpenEditorDecision}
             article_id={articleId}
-            editor_id={1}
+            editor_id={user.userId}
           />
           <DecisonReviewer
             isOpen={isOpenReviewerDecision}
@@ -362,6 +385,7 @@ const JournalListTable = () => {
             isOpen={isOpenAdminDecision}
             onClose={setIsOpenAdminDecision}
             article_id={articleId}
+            admin_id={user.userId}
           />
         </>
       )}

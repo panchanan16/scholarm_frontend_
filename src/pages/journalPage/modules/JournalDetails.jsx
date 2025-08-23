@@ -28,25 +28,30 @@ function JournalDetails() {
   const [expandedRounds, setExpandedRounds] = useState({});
   const [expandedReviewers, setExpandedReviewers] = useState({});
   const [expandedEditors, setExpandedEditors] = useState({});
+  const [expandedPublisher, setExpandedPublisher] = useState({});
 
   const { article_id } = useParams();
   const { user: userInfo } = useAuth();
   // console.log(userN?.[`${userN.role}_id`]);
 
-  const user = userInfo ? { role: userInfo?.['role'], userId: userInfo?.[`${userInfo.role}_id`] } : null
+  const user = userInfo
+    ? { role: userInfo?.["role"], userId: userInfo?.[`${userInfo.role}_id`] }
+    : null;
 
   const { data: manuscriptDetails } =
     useGetManuscriptReviewDetailsQuery(article_id);
 
   // Current User Info ---
-  const paramData = user && manuscriptDetails
-    ? user.role == "reviewer"
-      ? manuscriptDetails.data.AssignReviewer
-      : manuscriptDetails.data.AssignEditor
-    : [];
+  const paramData =
+    user && manuscriptDetails
+      ? user.role == "reviewer"
+        ? manuscriptDetails.data.AssignReviewer
+        : manuscriptDetails.data.AssignEditor
+      : [];
 
-  const UserDataInfo = user && filterbyUserRole(paramData, user?.role, user?.userId);
-  
+  const UserDataInfo =
+    user && filterbyUserRole(paramData, user?.role, user?.userId);
+
   // Status Update by Editor ---
   const [updateStatusEditor] = useToastMutation(
     useUpdateAssignMentStatusEditorMutation(),
@@ -80,6 +85,13 @@ function JournalDetails() {
     setExpandedEditors((prev) => ({
       ...prev,
       [editorIndex]: !prev[editorIndex],
+    }));
+  };
+
+  const togglePublisher = (publisherIndex) => {
+    setExpandedPublisher((prev) => ({
+      ...prev,
+      [publisherIndex]: !prev[publisherIndex],
     }));
   };
 
@@ -313,6 +325,138 @@ function JournalDetails() {
             </div>
           </div>
 
+          {/* Assigned Publisher - Updated Expandable Section */}
+          <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
+            {manuscriptDetails &&
+              manuscriptDetails.data?.AssignAdmin?.map((editor, index) => (
+                <div key={index}>
+                  {/* Editor Header - Clickable */}
+                  <button
+                    onClick={() => togglePublisher(index)}
+                    className="w-full flex items-center justify-between p-4 bg-gradient-to-r from-orange-50 to-yellow-50 hover:bg-orange-100 transition-colors"
+                  >
+                    <h3 className="text-lg font-semibold text-yellow-600 flex items-center gap-2">
+                      <User className="h-5 w-5" />
+                      Publisher <span className="text-xs">Round - {editor.round}</span>
+                    </h3>
+                    <div className="flex items-center gap-4">
+                      <p className="text-gray-700 font-medium">
+                        {editor?.admin.admin_name}
+                      </p>                      
+                      <ChevronDown
+                        className={`h-5 w-5 text-gray-500 transition-transform duration-200 ${
+                          expandedPublisher[index] ? "rotate-180" : ""
+                        }`}
+                      />
+                    </div>
+                  </button>
+
+                  {/* Editor Expanded Content */}
+                  {expandedPublisher[index] && (
+                    <div className="p-6 border-t border-gray-200 bg-white space-y-6">
+                      {/* Editor Details Table */}
+                      <div className="overflow-x-auto">
+                        <table className="w-full border border-gray-300 text-sm">
+                          <thead>
+                            <tr className="bg-gray-100">
+                              <th className="border border-gray-300 px-3 py-2 text-left font-semibold text-gray-700">
+                                Name
+                              </th>
+                              <th className="border border-gray-300 px-3 py-2 text-left font-semibold text-gray-700">
+                                Descision
+                              </th>                              
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <tr className="bg-gray-50">
+                              <td className="border border-gray-300 px-3 py-2">
+                                <div className="flex items-center gap-2">
+                                  <span className="text-violet-600 font-medium">
+                                    {editor?.admin.admin_name}
+                                  </span>
+                                </div>
+                              </td>
+                              <td className="border border-gray-300 px-3 py-2">
+                                <span
+                                  className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium border ${getAcceptanceStatusColor(
+                                    editor?.main_decision
+                                  )}`}
+                                >
+                                  {editor?.main_decision || "Pending"}
+                                </span>
+                              </td>                              
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+
+                      {/* Editor Comments Section */}
+                      <div className="space-y-4">
+                        <div>
+                          <h5 className="text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
+                            <MessageSquare className="h-4 w-4" />
+                            Publisher Comments
+                          </h5>
+                          <div className="border border-gray-300 rounded p-3 bg-gray-50 text-sm text-gray-700 min-h-[80px]">
+                            {editor?.comments || "No comment yet!"}
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Files Section */}
+                      <div>
+                        <h5 className="text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
+                          <File className="h-4 w-4" />
+                          Attached Files
+                        </h5>
+                        <div className="space-y-2">
+                          <div className="flex items-center justify-between p-3 bg-gray-50 border border-gray-200 rounded">
+                            <div className="flex items-center gap-3">
+                              <FileText className="h-5 w-5 text-blue-600" />
+                              <div>
+                                <p className="text-sm font-medium text-gray-900">
+                                  Editor_Review_Report.pdf
+                                </p>
+                                <p className="text-xs text-gray-500">
+                                  245 KB • PDF • Uploaded 22/02/2001
+                                </p>
+                              </div>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <button
+                                onClick={() =>
+                                  handleFileAction(
+                                    { name: "Editor_Review_Report.pdf" },
+                                    "view"
+                                  )
+                                }
+                                className="p-2 text-blue-600 hover:text-blue-800 hover:bg-blue-50 rounded transition-colors"
+                                title="View File"
+                              >
+                                <Eye className="h-4 w-4" />
+                              </button>
+                              <button
+                                onClick={() =>
+                                  handleFileAction(
+                                    { name: "Editor_Review_Report.pdf" },
+                                    "download"
+                                  )
+                                }
+                                className="p-2 text-green-600 hover:text-green-800 hover:bg-green-50 rounded transition-colors"
+                                title="Download File"
+                              >
+                                <Download className="h-4 w-4" />
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      </div>                     
+                    </div>
+                  )}
+                </div>
+              ))}
+          </div>
+
           {/* Assigned Editor - Updated Expandable Section */}
           <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
             {manuscriptDetails &&
@@ -325,7 +469,7 @@ function JournalDetails() {
                   >
                     <h3 className="text-lg font-semibold text-violet-600 flex items-center gap-2">
                       <User className="h-5 w-5" />
-                      Editor
+                      Editor <span className="text-xs">Round - {editor.round}</span>
                     </h3>
                     <div className="flex items-center gap-4">
                       <p className="text-gray-700 font-medium">
@@ -358,7 +502,7 @@ function JournalDetails() {
                                 Name
                               </th>
                               <th className="border border-gray-300 px-3 py-2 text-left font-semibold text-gray-700">
-                                Status
+                                Descision
                               </th>
                               <th className="border border-gray-300 px-3 py-2 text-left font-semibold text-gray-700">
                                 Assigned Date
@@ -386,10 +530,10 @@ function JournalDetails() {
                               <td className="border border-gray-300 px-3 py-2">
                                 <span
                                   className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium border ${getAcceptanceStatusColor(
-                                    editor?.is_accepted
+                                    editor?.main_decision
                                   )}`}
                                 >
-                                  {editor?.is_accepted || "Pending"}
+                                  {editor?.main_decision || "Pending"}
                                 </span>
                               </td>
                               <td className="border border-gray-300 px-3 py-2">
@@ -511,7 +655,8 @@ function JournalDetails() {
                   className="w-full flex items-center justify-between p-4 bg-gradient-to-r from-blue-50 to-indigo-50 hover:from-blue-100 hover:to-indigo-100 transition-colors"
                 >
                   <h3 className="text-lg font-semibold text-blue-600 flex items-center gap-2">
-                    Round {round}
+                     <User className="h-5 w-5" />
+                      Reviewers <span className="text-xs">Round - {round}</span>
                   </h3>
                   <div className="flex items-center gap-4">
                     <ChevronDown
@@ -678,14 +823,7 @@ function JournalDetails() {
           ))}
 
           {/* Back Button */}
-          <div className="flex justify-end gap-5 pt-4 border-t border-gray-200 mb-10">
-            <button
-              onClick={() => navigate(-1)}
-              className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-medium transition-colors flex items-center gap-2"
-            >
-              <ChevronLeft className="h-4 w-4" />
-              Back
-            </button>
+          <div className="flex justify-end gap-5 pt-4 border-t border-gray-200 mb-10">            
             <button
               onClick={() => navigate(-1)}
               className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-medium transition-colors flex items-center gap-2"

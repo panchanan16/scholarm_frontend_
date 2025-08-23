@@ -6,12 +6,10 @@ import {
   CheckCircle,
   AlertCircle,
   Users,
-  Filter,
   BarChart3,
-  CirclePlus,
 } from "lucide-react";
 import { AdminLayout } from "@/components/layout/AdminLayout";
-import { Link, Outlet } from "react-router-dom";
+import { Link } from "react-router-dom";
 
 const Dashboard = () => {
   const StatCard = ({ title, value, icon: Icon, trend, color = "gray" }) => (
@@ -109,74 +107,84 @@ const Dashboard = () => {
     },
   ];
 
-  const revisionItems = [
-    {
-      label: "New Revision Received",
-      count: 26,
-      priority: "blue",
-      link: "manuscript?role=admin&id=1&type=revision&status=newsubmission",
-    },
-    {
-      label: "Editor Invited",
-      count: 0,
-      priority: "gray",
-      link: "manuscript?role=admin&id=1&type=revision&status=editorinvited",
-    },
-    {
-      label: "Need To Assign Editor",
-      count: 0,
-      priority: "gray",
-      link: "manuscript?role=admin&id=1&status=newsubmission",
-    },
-    {
-      label: "Need To Assign Reviewers",
-      count: 0,
-      priority: "gray",
-      link: "manuscript?role=admin&id=1&status=needtoassignreviewer",
-    },
-  ];
-
   const reviewProgressItems = [
-    { label: "Reviewers Invited", count: 54, priority: "blue" },
+    {
+      label: "Reviewers Invited",
+      count: 54,
+      priority: "blue",
+      link: "manuscript?role=admin&status=newsubmission",
+    },
     {
       label: "Submission Require Additional Reviews",
       count: 51,
       priority: "orange",
-      link: "manuscript?role=admin&id=1&status=submissionneedadditionalreviewers",
+      link: "manuscript?role=admin&status=newsubmission",
     },
     {
       label: "Submission With Required Reviews Completed",
       count: 3,
       priority: "green",
-      link: "manuscript?role=admin&id=1&status=newsubmission",
+      link: "manuscript?role=admin&status=newsubmission",
     },
     {
       label: "Under Review",
       count: 25,
       priority: "yellow",
-      link: "manuscript?role=admin&id=1&status=newsubmission",
+      link: "manuscript?role=admin&status=newsubmission",
+    },
+  ];
+
+  const revisionItems = [
+    {
+      label: "New Revision Received",
+      count: 26,
+      priority: "blue",
+      link: "manuscript?role=admin&type=revision&status=newsubmission",
+    },
+    {
+      label: "Editor Invited",
+      count: 0,
+      priority: "gray",
+      link: "manuscript?role=admin&type=revision&status=editorinvited",
+    },
+    {
+      label: "Need To Assign Editor",
+      count: 0,
+      priority: "gray",
+      link: "manuscript?role=admin&type=revision&status=needtoassigneditor",
+    },
+    {
+      label: "Need To Assign Reviewers",
+      count: 0,
+      priority: "gray",
+      link: "manuscript?role=admin&&type=revision&status=needtoassignreviewer",
     },
   ];
 
   const revisionProgressItems = [
-    { label: "Reviewers Invited", count: 0, priority: "gray" },
+    {
+      label: "Reviewers Invited",
+      count: 0,
+      priority: "gray",
+      link: "manuscript?role=admin&type=revision&status=reviewerinvited",
+    },
     {
       label: "Submission Require Additional Reviews",
       count: 0,
       priority: "gray",
-      link: "manuscript?role=admin&id=1&status=newsubmission",
+      link: "manuscript?role=admin&type=revision&status=submissionneedadditionalreviewers",
     },
     {
       label: "Submission With Required Reviews Completed",
       count: 0,
       priority: "gray",
-      link: "manuscript?role=admin&id=1&status=newsubmission",
+      link: "manuscript?role=admin&type=revision&status=submissionwithrequiredreviewerscompleted",
     },
     {
       label: "Under Review",
       count: 0,
       priority: "gray",
-      link: "manuscript?role=admin&id=1&status=newsubmission",
+      link: "manuscript?role=admin&type=revision&status=underreview",
     },
   ];
 
@@ -187,9 +195,20 @@ const Dashboard = () => {
       priority: "blue",
       link: "manuscript?role=admin&id=1&status=newsubmission",
     },
-    { label: "In Press", count: 0, priority: "green" },
+    { label: "In Press", count: 0, priority: "yellow" },
     { label: "Publish", count: 0, priority: "green" },
-    { label: "Accept", count: 78, priority: "green", link: "manuscript?role=admin&id=1&status=accepted" },
+    {
+      label: "Accepted",
+      count: 78,
+      priority: "green",
+      link: "manuscript?role=admin&id=1&status=accepted",
+    },
+    {
+      label: "Rejected",
+      count: 78,
+      priority: "red",
+      link: "manuscript?role=admin&id=1&status=rejected",
+    },
   ];
 
   const incompleteItems = [
@@ -202,6 +221,8 @@ const Dashboard = () => {
     { label: "Revisions Due", count: 34, priority: "orange" },
     { label: "Submissions Sent Back to Author", count: 0, priority: "gray" },
   ];
+
+  const [analytics, setAnalytics] = useState(false);
 
   return (
     <AdminLayout>
@@ -218,25 +239,22 @@ const Dashboard = () => {
               </p>
             </div>
             <div className="flex items-center gap-3">
-              <button className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-blue-700 bg-blue-50 border border-blue-200 rounded-lg hover:bg-blue-100 transition-colors">
-                <Filter className="w-4 h-4" />
-                Filter
-              </button>
-              <Link to={"/submission/intro-section"}>
-                <button className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 bg-gray-50 border border-gray-200 rounded-lg hover:bg-gray-100 transition-colors">
-                  <CirclePlus className="w-4 h-4" />
-                  Submit New
-                </button>
-              </Link>
-              <button className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 bg-gray-50 border border-gray-200 rounded-lg hover:bg-gray-100 transition-colors">
+              <button
+                onClick={() => setAnalytics(!analytics)}
+                className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 bg-gray-50 border border-gray-200 rounded-lg hover:bg-gray-100 transition-colors"
+              >
                 <BarChart3 className="w-4 h-4" />
-                Analytics
+                Overview
               </button>
             </div>
           </div>
 
           {/* Overview Stats */}
-          <div className="mb-6 p-4 bg-gradient-to-r from-blue-50/50 to-blue-50/80 rounded-xl border border-blue-100">
+          <div
+            className={`mb-6 p-4 bg-gradient-to-r from-blue-50/50 to-blue-50/80 rounded-xl border border-blue-100 ${
+              analytics ? "" : "hidden"
+            }`}
+          >
             <h2 className="text-base font-semibold text-gray-900 mb-3">
               Submission Overview
             </h2>

@@ -6,8 +6,10 @@ function JournalReviewDropDown({
   manuscript, 
   userRole = 'admin', 
   onAction,
-  className = ""
+  className = "",
+  ArticleStatus,
 }) {
+
   // Get menu items for the current user role
   const menuItems = roleMenuConfigs[userRole] || roleMenuConfigs.admin;
 
@@ -25,7 +27,7 @@ function JournalReviewDropDown({
 
   // Render individual menu item
   const renderMenuItem = (item) => {
-    const { id, label, icon: Icon, type, url, action, className: itemClassName } = item;
+    const { id, label, icon: Icon, type, url, action, className: itemClassName, status } = item;
 
     // Handle separator
     if (type === 'separator') {
@@ -40,7 +42,7 @@ function JournalReviewDropDown({
     }`;
 
     // Handle link items
-    if (type === 'link' && url) {
+    if ((type === 'link' && url && status === undefined) || status?.includes(ArticleStatus)) {
       const linkUrl = typeof url === 'function' ? url(manuscript) : url;
       
       return (
@@ -54,7 +56,7 @@ function JournalReviewDropDown({
     }
 
     // Handle button items
-    if (type === 'button' && action) {
+    if ((type === 'button' && action && status === undefined) || status?.includes(ArticleStatus)) {
       return (
         <button
           key={id}

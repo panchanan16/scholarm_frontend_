@@ -21,12 +21,13 @@ export const manuscriptApi = baseApi.injectEndpoints({
             }),
         }),
 
-        // Get manuscript API by status ---
+        // Get manuscript API by status for publisher ---
         getManuscriptByStatus: builder.query({
             query: (params = {}) => ({
                 url: '/manuscript/findAllByStatus',
                 params: {
                     status: params.status,
+                    ...(params.type && { type: params.type }),
                 },
             }),
             providesTags: ['ManuscriptList'],
@@ -41,7 +42,8 @@ export const manuscriptApi = baseApi.injectEndpoints({
                     userId: params.userId,
                     ...(params.status && { status: params.status }),
                     ...(params.editorStatus && { editorStatus: params.editorStatus }),
-                    ...(params.completed && { completed: params.completed })
+                    ...(params.completed && { completed: params.completed }),
+                    ...(params.disposal && { completed: params.disposal })
 
                 },
             }),
@@ -59,6 +61,16 @@ export const manuscriptApi = baseApi.injectEndpoints({
                     ...(params.completed && { completed: params.completed })
 
                 },
+            }),
+        }),
+
+
+        // Get Manuscript for Authors ---
+        getManuscriptForAuthor: builder.query({
+            query: (data) => ({
+                url: '/manuscript/findAllByAuthor',
+                method: 'POST',
+                body: data,
             }),
         }),
 
@@ -97,6 +109,7 @@ export const manuscriptApi = baseApi.injectEndpoints({
             }),
             // invalidatesTags: ['ManuscriptList'],
         }),
+
 
         // Acept or reject assignment by Editor ---
         updateAssignMentStatusEditor: builder.mutation({
@@ -191,5 +204,6 @@ export const {
     useLazyGetManuscriptForReviewerQuery,
     useLazyGetManuscriptByStatusQuery,
     useUpdateAssignMentStatusReviewerMutation,
-    useAddPublisherDescisionMutation
+    useAddPublisherDescisionMutation,
+    useLazyGetManuscriptForAuthorQuery
 } = manuscriptApi

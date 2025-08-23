@@ -7,19 +7,21 @@ import {
   setCredentials,
   selectIsAuthenticated,
 } from "@/store/feature/auth/authSlice";
+import { useAuth } from "@/hooks/useAuth";
 
 export default function AdminLoginPage() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const location = useLocation();
   const isAuthenticated = useSelector(selectIsAuthenticated);
+  const { userRole } = useAuth();
 
   const [login, { isLoading, error }] = useLoginMutation();
 
   const [formData, setFormData] = useState({
     email: "",
     password: "",
-    role: "",
+    role: userRole,
     rememberMe: false,
   });
   const [showPassword, setShowPassword] = useState(false);
@@ -36,7 +38,7 @@ export default function AdminLoginPage() {
     editor: "/editor-dashboard",
     admin: "/dashboard",
     author: "/author-dashboard",
-    reviewer: "/reviewer-dasboard",
+    reviewer: "/reviewer-dashboard",
   };
 
   const from = routesMap[formData.role] || "/";
@@ -86,6 +88,9 @@ export default function AdminLoginPage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    if (!formData.role) {
+      return alert("Select a fole first!")
+    }
     if (!validateForm()) return;
 
     try {
@@ -293,7 +298,7 @@ export default function AdminLoginPage() {
                   Signing in...
                 </div>
               ) : (
-                `Sign in as ${selectedRole?.label}`
+                `Sign in as ${selectedRole?.value ? selectedRole.value : "" }`
               )}
             </button>
           </form>

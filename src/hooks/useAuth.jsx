@@ -14,6 +14,7 @@ import {
 export const useAuth = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+
   
   const user = useSelector(selectCurrentUser);
   const token = useSelector(selectCurrentToken);
@@ -24,7 +25,7 @@ export const useAuth = () => {
 
   const logout = async (redirectTo = '/') => {
     try {
-      await logoutMutation().unwrap();
+      await logoutMutation({role: userRole}).unwrap();
     } catch (error) {
       console.error('Logout API call failed:', error);
     } finally {

@@ -84,16 +84,18 @@ const EditorDashBoard = () => {
     { label: "New Invitaion", count: 0, priority: "green", link: 'manuscript?id=1&status=editorinvited' },
     { label: "New Assignment", count: 23, priority: "orange", link: 'manuscript?id=1&editorStatus=accepted&completed=false' },
     { label: "Submissions with required Review Completed", count: 23, priority: "red" },
-    { label: "Submissions requiring additional Reviewers", count: 6, priority: "yellow" },
+    { label: "Submissions requiring additional Reviewers", count: 6, priority: "yellow", link: 'manuscript?id=1&status=submissionneedadditionalreviewers&completed=false' },
     { label: "Submissions with one or more late Reviews", count: 6, priority: "blue" },
     { label: "Reviewers invited No Response", count: 6, priority: "red" },
     { label: "Under Review", count: 6, priority: "green" }
   ];
 
   const revisionItems = [
-    { label: "My Assignments With Decision", count: 26, priority: "blue" },
-    { label: "My Assignments With Final Disposal ", count: 0, priority: "yellow" },
+    { label: "My Assignments With Decision", count: 26, priority: "blue", link: 'manuscript?id=1&editorStatus=accepted&completed=true&disposal=false' },
+    { label: "My Assignments With Final Disposal ", count: 0, priority: "yellow", link: 'manuscript?id=1&completed=true&disposal=true' },
   ];
+
+  const [analytics, setAnalytics] = useState(false)
 
 
   return (
@@ -110,18 +112,8 @@ const EditorDashBoard = () => {
                 Manage submissions and track progress
               </p>
             </div>
-            <div className="flex items-center gap-3">
-              <button className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-blue-700 bg-blue-50 border border-blue-200 rounded-lg hover:bg-blue-100 transition-colors">
-                <Filter className="w-4 h-4" />
-                Filter
-              </button>
-              <Link to={"/submission/intro-section"}>
-                <button className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 bg-gray-50 border border-gray-200 rounded-lg hover:bg-gray-100 transition-colors">
-                  <CirclePlus className="w-4 h-4" />
-                  Submit New
-                </button>
-              </Link>
-              <button className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 bg-gray-50 border border-gray-200 rounded-lg hover:bg-gray-100 transition-colors">
+            <div className="flex items-center gap-3">             
+              <button onClick={()=> setAnalytics(!analytics)} className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 bg-gray-50 border border-gray-200 rounded-lg hover:bg-gray-100 transition-colors">
                 <BarChart3 className="w-4 h-4" />
                 Analytics
               </button>
@@ -129,7 +121,7 @@ const EditorDashBoard = () => {
           </div>
 
           {/* Overview Stats */}
-          <div className="mb-6 p-4 bg-gradient-to-r from-blue-50/50 to-blue-50/80 rounded-xl border border-blue-100">
+          <div className={`mb-6 p-4 bg-gradient-to-r from-blue-50/50 to-blue-50/80 rounded-xl border border-blue-100 ${analytics ? '' : 'hidden'}`}>
             <h2 className="text-base font-semibold text-gray-900 mb-3">
               Submission Overview
             </h2>
@@ -190,7 +182,6 @@ const EditorDashBoard = () => {
           </div>
         </div>        
       </main>
-      <Outlet />
     </AdminLayout>
   );
 };

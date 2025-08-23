@@ -14,8 +14,13 @@ import {
   Settings,
   LogOut,
 } from "lucide-react";
-import { Link, Outlet } from "react-router-dom";
-import { useGetManuscriptByStatusQuery } from "@/services/features/manuscript/slice";
+import { Link, Outlet, useSearchParams } from "react-router-dom";
+import { useAuth } from "@/hooks/useAuth";
+import useRenderManuscript from "@/hooks/useRenderManuscript";
+import {
+  roleBasedStatus,
+  setStatusForDashboard,
+} from "@/utils/setStatusForDashboard";
 
 const AuthorDashboard = () => {
   const [currentPage, setCurrentPage] = useState(1);
@@ -23,37 +28,31 @@ const AuthorDashboard = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [showProfileDropdown, setShowProfileDropdown] = useState(false);
 
-  const [articleId, setArticleId] = useState(null);
-
   const itemsPerPage = 5;
 
   // Page meta data ---
-  const user = {
-    role: "author",
-    userId: 1,
-    name: "Dr. John Smith",
-    email: "john.smith@journal.com",
-    avatar: null,
-  };
+  const { user: userInfo, logout } = useAuth();
+  const user = userInfo
+    ? {
+        role: userInfo?.["role"],
+        userId: userInfo?.[`author_id`],
+        name: `${userInfo?.["author_fname"]} ${userInfo?.["author_lname"]}`,
+      }
+    : null;
 
   // Call data ---
-  const { data: manuscriptsData } = useGetManuscriptByStatusQuery({
-    ...(statusFilter !== "all" && { status: statusFilter }),
+  const { manuscriptsData } = useRenderManuscript({
     role: user.role,
+    ...(statusFilter !== "all" &&
+      statusFilter !== "processed" && { status: statusFilter }),
     userId: user.userId,
+    processed: statusFilter === "processed",
+    // completed: queryParams.get("completed"),
   });
 
   function handleProfile() {
     console.log("View profile");
     // Add your profile navigation logic here
-  }
-
-  function handleLogout() {
-    console.log("Logout user");
-    // Add your logout logic here
-    if (window.confirm("Are you sure you want to logout?")) {
-      // Perform logout
-    }
   }
 
   // Sample data with additional details for the modal
@@ -146,7 +145,6 @@ const AuthorDashboard = () => {
   const totalPages = Math.ceil(filteredManuscripts.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
   const endIndex = startIndex + itemsPerPage;
-  const currentManuscripts = filteredManuscripts.slice(startIndex, endIndex);
 
   const getStatusColor = (status) => {
     switch (status) {
@@ -294,7 +292,7 @@ const AuthorDashboard = () => {
                       </button>
 
                       <button
-                        onClick={handleLogout}
+                        onClick={() => logout("/")}
                         className="flex items-center w-full px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors duration-200"
                       >
                         <LogOut className="w-4 h-4 mr-3 text-red-500" />
@@ -326,19 +324,24 @@ const AuthorDashboard = () => {
             </div>
 
             {/* Filter */}
-            <div className="md:w-48">
+            <div className="md:w-64">
               <div className="relative">
-                <Filter className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+                <Filter className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />               
                 <select
                   value={statusFilter}
                   onChange={(e) => setStatusFilter(e.target.value)}
                   className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
                 >
                   <option value="all">All</option>
-                  <option value="editorinvited">Editor Invited</option>
-                  <option value="Under Review">Under Review</option>
-                  <option value="Accepted">Accepted</option>
-                  <option value="Rejected">Rejected</option>
+                  <option value="incomplete">Incomplete Submission</option>
+                  <option value="senttoauthor">Sent back to author</option>
+                  <option value="processed">Processing</option>
+                  <option value="revise">Sent for revision</option>
+                  <option value="accepted">Accepted</option>
+                  <option value="rejected">Rejected</option>
+                  <option value="revise">Sent for revision</option>
+                  <option value="processed">Revision being processed</option>
+                  <option value="published">Published</option>
                 </select>
               </div>
             </div>
@@ -459,7 +462,9 @@ const AuthorDashboard = () => {
                             </button>
                           </Link>
 
-                          <Link to={`/submission?mode=edit&article_id=${manuscript.intro_id}`}>
+                          <Link
+                            to={`/submission/article-title?article_id=${manuscript.intro_id}`}
+                          >
                             <button
                               className="text-green-600 hover:text-green-900 p-1 hover:bg-green-50 rounded transition-colors"
                               title="Edit"

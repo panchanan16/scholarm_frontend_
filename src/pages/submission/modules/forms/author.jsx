@@ -16,10 +16,12 @@ export default function Author() {
 
   const [queryParams] = useSearchParams()
 
-  const [getAuthorWithEmail, { data }] = useToastLazyQuery(
+  const [getAuthorWithEmail, { data, isSuccess }] = useToastLazyQuery(
     useLazyGetOneAuthorQuery(),
     { showLoading: true }
   );
+
+  console.log(data)
 
   const addedAuthors = useGetArticleAuthorsByArticleIdQuery({ article_id : queryParams.get('article_id') });
 
@@ -95,7 +97,7 @@ export default function Author() {
         txt={false}
         email={searchTerm}
         hasAuthor={hasSearched}
-        author={data ? data : {}}
+        author={isSuccess && data ? data : {}}
         articleId={Number(queryParams.get('article_id'))}
       />
     </div>

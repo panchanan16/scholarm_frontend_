@@ -13,8 +13,6 @@ export default function AddedAuthors() {
     article_id: queryParams.get('article_id') ,
   });
 
-  console.log(authorsList)
-
   const [setCorrespondingAuthor, { data }] = useToastMutation(
     useSetCorrespondingAuthorMutation(),
     { showLoading: true }

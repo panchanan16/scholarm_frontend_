@@ -16,7 +16,11 @@ import { AdminLayout } from "@/components/layout/AdminLayout";
 import useRenderManuscript from "@/hooks/useRenderManuscript";
 import DescisionAdmin from "@/components/Decision/DecisionAdmin";
 import { useAuth } from "@/hooks/useAuth";
-import { roleBasedStatus, setStatusForDashboard } from "@/utils/setStatusForDashboard";
+import {
+  roleBasedStatus,
+  setStatusForDashboard,
+} from "@/utils/setStatusForDashboard";
+import { useSearchParamIfExist } from "@/hooks/useSearchParamIfExist";
 
 const JournalListTable = () => {
   const [queryParams, setQueryParams] = useSearchParams();
@@ -25,7 +29,7 @@ const JournalListTable = () => {
   const [isOpenEditorDecision, setIsOpenEditorDecision] = useState(false);
   const [isOpenAdminDecision, setIsOpenAdminDecision] = useState(false);
   const [openDropdown, setOpenDropdown] = useState(null);
-
+  const [searchParams, setQueryParamsIfTruthy] = useSearchParamIfExist();
   const [articleId, setArticleId] = useState(null);
   const dropdownRef = useRef(null);
 
@@ -38,16 +42,16 @@ const JournalListTable = () => {
   // Call data ---
   const { manuscriptsData } = useRenderManuscript({
     role: user.role,
-    status: queryParams.get("status"),
-    editorStatus: queryParams.get("editorStatus"),
+    status: searchParams.get("status"),
+    editorStatus: searchParams.get("editorStatus"),
     userId: user.userId,
-    completed: queryParams.get("completed"),
-    reviewerStatus: queryParams.get("reviewerStatus"),
-    disposal: queryParams.get("disposal"),
-    type: queryParams.get("type")
+    completed: searchParams.get("completed"),
+    reviewerStatus: searchParams.get("reviewerStatus"),
+    disposal: searchParams.get("disposal"),
+    type: searchParams.get("type"),
   });
 
-  const currentStatus = setStatusForDashboard(queryParams, user.role);
+  const currentStatus = setStatusForDashboard(searchParams, user.role);
 
   console.log(currentStatus);
 
@@ -65,13 +69,14 @@ const JournalListTable = () => {
     };
   }, []);
 
+
   const handleChangeStatus = (e, role) => {
     const statusmap = role ? roleBasedStatus[role] : [];
     const selectedId = Number(e.target.value);
     const selectedMapping = statusmap.find((m) => m.id === selectedId);
 
     if (selectedMapping) {
-      setQueryParams(selectedMapping.urlParam); // update URL params
+      setQueryParamsIfTruthy(selectedMapping.urlParam); // update URL params
     }
   };
 

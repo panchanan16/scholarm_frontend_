@@ -6,7 +6,7 @@
         { value: "feature", label: "Feature Article" },
         { value: "editorial", label: "Editorial" },
       ],
-      section: ["Introduction", "Body", "Conclusion"],
+      section: ["introduction", "body", "conclusion"],
     },
     research: {
       subclass: [
@@ -15,7 +15,7 @@
         { value: "mixed", label: "Mixed Methods" },
         { value: "experimental", label: "Experimental" },
       ],
-      section: ["Abstract", "Methodology", "Findings", "Discussion"],
+      section: ["abstract", "methodology", "findings", "discussion"],
     },
     review: {
       subclass: [
@@ -24,7 +24,7 @@
         { value: "meta", label: "Meta-analysis" },
         { value: "narrative", label: "Narrative Review" },
       ],
-      section: ["Overview", "Criteria", "Analysis", "Conclusion"],
+      section: ["overview", "criteria", "analysis", "conclusion"],
     },
     report: {
       subclass: [
@@ -33,6 +33,6 @@
         { value: "progress", label: "Progress Report" },
         { value: "annual", label: "Annual Report" },
       ],
-      section: ["Executive Summary", "Details", "Results", "Recommendations"],
+      section: ["executive Summary", "details", "results", "recommendations"],
     },
   };

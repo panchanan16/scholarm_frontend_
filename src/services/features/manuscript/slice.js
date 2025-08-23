@@ -21,6 +21,16 @@ export const manuscriptApi = baseApi.injectEndpoints({
             }),
         }),
 
+        // GET manuscript for preview---
+         getManuscriptForView: builder.query({
+            query: (article_id) => ({
+                url: '/manuscript/findArticleForView',
+                params: {
+                    article_id
+                },
+            }),         
+        }),
+
         // Get manuscript API by status for publisher ---
         getManuscriptByStatus: builder.query({
             query: (params = {}) => ({
@@ -205,5 +215,6 @@ export const {
     useLazyGetManuscriptByStatusQuery,
     useUpdateAssignMentStatusReviewerMutation,
     useAddPublisherDescisionMutation,
-    useLazyGetManuscriptForAuthorQuery
+    useLazyGetManuscriptForAuthorQuery,
+    useGetManuscriptForViewQuery
 } = manuscriptApi

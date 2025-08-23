@@ -84,6 +84,7 @@ export const roleBasedStatus = {
         {
             id: 1,
             urlParam: {
+                type: "regular",
                 status: "newsubmission",
             },
             status: "New Submission"
@@ -91,6 +92,7 @@ export const roleBasedStatus = {
         {
             id: 2,
             urlParam: {
+                type: "regular",
                 status: "editorinvited",
             },
             status: "Editor Invited"
@@ -98,6 +100,7 @@ export const roleBasedStatus = {
         {
             id: 4,
             urlParam: {
+                type: "regular",
                 status: "needtoassigneditor",
             },
             status: "Need to Assign Editor"
@@ -105,6 +108,7 @@ export const roleBasedStatus = {
         {
             id: 5,
             urlParam: {
+                type: "regular",
                 status: "needtoassignreviewer",
             },
             status: "Need to Assign Reviewer"
@@ -112,24 +116,16 @@ export const roleBasedStatus = {
         {
             id: 6,
             urlParam: {
+                type: "regular",
                 status: "reviewerinvited",
             },
             status: "Reviewer Invited"
         },
-        // revsion status
-        {
-            id: 14,
-            urlParam: {
-                type: "revision",
-                status: "submissionneedadditionalreviewers",
-            },
-            status: "Submission Need Additional Reviewer"
-        },
-
         // normal status
         {
             id: 7,
             urlParam: {
+                type: "regular",
                 status: "submissionneedadditionalreviewers",
             },
             status: "Submission Require Additional Reviewer"
@@ -137,6 +133,7 @@ export const roleBasedStatus = {
         {
             id: 8,
             urlParam: {
+                type: "regular",
                 status: "underreview",
             },
             status: "Under Review"
@@ -144,6 +141,7 @@ export const roleBasedStatus = {
         {
             id: 9,
             urlParam: {
+                type: "regular",
                 status: "submissionwithrequiredreviewerscompleted",
             },
             status: "Required Review Completed"
@@ -180,8 +178,18 @@ export const roleBasedStatus = {
                 status: "needtoassignreviewer",
             },
             status: "Need to Assign Reviewer"
-        }, {
-            id: 20,
+        },
+        // revsion status
+        {
+            id: 14,
+            urlParam: {
+                type: "revision",
+                status: "submissionneedadditionalreviewers",
+            },
+            status: "Submission Need Additional Reviewer"
+        },
+        {
+            id: 15,
             urlParam: {
                 type: "revision",
                 status: "reviewerinvited",
@@ -189,7 +197,7 @@ export const roleBasedStatus = {
             status: "Reviewer Invited"
         },
         {
-            id: 15,
+            id: 16,
             urlParam: {
                 type: "revision",
                 status: "underreview",
@@ -197,7 +205,7 @@ export const roleBasedStatus = {
             status: "Under Review"
         },
         {
-            id: 16,
+            id: 17,
             urlParam: {
                 type: "revision",
                 status: "submissionwithrequiredreviewerscompleted",
@@ -205,7 +213,7 @@ export const roleBasedStatus = {
             status: "Required Review Completed"
         },
         {
-            id: 17,
+            id: 18,
             urlParam: {
                 type: "revision",
                 status: "incomplete",
@@ -213,18 +221,39 @@ export const roleBasedStatus = {
             status: "Incomplete Submission"
         },
         {
-            id: 18,
+            id: 19,
             urlParam: {
                 status: "revisiondue",
             },
             status: "Revision Due"
         },
         {
-            id: 19,
+            id: 20,
             urlParam: {
                 status: "senttoauthor",
             },
             status: "Sent Back to Author"
+        },
+        {
+            id: 21,
+            urlParam: {
+                status: "accepted",
+            },
+            status: "Accepted"
+        },
+        {
+            id: 22,
+            urlParam: {
+                status: "rejected",
+            },
+            status: "Rejected"
+        },
+         {
+            id: 23,
+            urlParam: {
+                status: "incomplete",
+            },
+            status: "Incompleted"
         },
     ]
 }
@@ -233,10 +262,11 @@ export const roleBasedStatus = {
 export function setStatusForDashboard(searchParams, role) {
     const statusmap = role ? roleBasedStatus[role] : []
     for (const mapping of statusmap) {
-        console.log(mapping)
+        // console.log(mapping)
         const { urlParam, status } = mapping;
+        // console.log(Object.entries(urlParam))
         const allMatch = Object.entries(urlParam).every(
-            ([key, value]) => { return searchParams.get(key) === value } //console.log(key, value); 
+            ([key, value]) => { return searchParams.get(key) === value }
         );
         if (allMatch) return status;
     }

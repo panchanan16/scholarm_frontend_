@@ -10,6 +10,7 @@ import { useLazyGetOneReviewerQuery } from "@/services/features/reviewers/slice"
 import AddReviewerModal from "@/components/ui/reviewerModal";
 import { useSearchParams } from "react-router-dom";
 import useSaveSteps from "@/hooks/useSaveSteps";
+import SubmissionError from "@/components/error/submissionError";
 
 const AddReviewersForm = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -24,7 +25,7 @@ const AddReviewersForm = () => {
     isExpand: true,
   });
 
-  const [getReviewerWithEmail, { data }] = useToastLazyQuery(
+  const [getReviewerWithEmail, { data, isSuccess }] = useToastLazyQuery(
     useLazyGetOneReviewerQuery(),
     { showLoading: true }
   );
@@ -62,7 +63,7 @@ const AddReviewersForm = () => {
   return (
     <div className="max-w-4xl mx-auto">
       <Breadcrumb title="Author" content="Add Co-Author" />
-      {isSection && <SubmissionError />}
+      {isSection && <SubmissionError msg="Three or more reviewer must be there" />}
 
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
         <div className="p-4">
@@ -121,7 +122,7 @@ const AddReviewersForm = () => {
         txt={false}
         email={searchTerm}
         hasAuthor={hasSearched}
-        reviewer={data ? data : {}}
+        reviewer={isSuccess && data ? data : {}}
         articleId={articleId}
       />
     </div>

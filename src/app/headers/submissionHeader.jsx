@@ -12,7 +12,7 @@ function SubmissionHeader() {
           </span>
         </div>
         <div className="flex items-center gap-3">
-          <Link to="preview">
+          <Link to={`preview?article_id=${queryParam.get('article_id')}`}>
             <button className="px-4 font-medium py-2 bg-slate-600 hover:bg-slate-500 rounded-lg transition-colors">
               Preview
             </button>

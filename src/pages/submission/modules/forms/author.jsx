@@ -21,8 +21,6 @@ export default function Author() {
     { showLoading: true }
   );
 
-  console.log(data)
-
   const addedAuthors = useGetArticleAuthorsByArticleIdQuery({ article_id : queryParams.get('article_id') });
 
   function handleSaveAndContinue() {

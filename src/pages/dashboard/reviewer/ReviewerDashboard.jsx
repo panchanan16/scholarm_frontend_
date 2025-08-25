@@ -81,9 +81,9 @@ const ReviewerDashBoard = () => {
   );
 
   const publisherTodoItems = [
-    { label: "New Assignment", count: 23, priority: "orange", link: `manuscript?id=1&reviewerStatus=invited` },
-    { label: "Pending Assignment", count: 23, priority: "red", link: `manuscript?id=1&reviewerStatus=accepted&completed=false` },
-    { label: "Completed Assignment", count: 6, priority: "yellow", link: `manuscript?id=1&reviewerStatus=accepted&completed=true` },
+    { label: "New Assignment", count: 23, priority: "orange", link: `manuscript?reviewerStatus=invited` },
+    { label: "Pending Assignment", count: 23, priority: "red", link: `manuscript?reviewerStatus=accepted&completed=false` },
+    { label: "Completed Assignment", count: 6, priority: "yellow", link: `manuscript?reviewerStatus=accepted&completed=true` },
   ];
 
 
@@ -91,74 +91,6 @@ const ReviewerDashBoard = () => {
     <AdminLayout>
       <main className="flex-1 p-6 bg-gradient-to-b from-transparent to-gray-50/50">
         <div className="max-w-7xl mx-auto">
-          {/* Top Actions */}
-          <div className="flex items-center justify-between mb-6">
-            <div>
-              <h1 className="text-2xl font-bold text-gray-900">
-                Reviewer Dashboard
-              </h1>
-              <p className="text-gray-600">
-                Manage submissions and track progress
-              </p>
-            </div>
-            <div className="flex items-center gap-3">
-              <button className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-blue-700 bg-blue-50 border border-blue-200 rounded-lg hover:bg-blue-100 transition-colors">
-                <Filter className="w-4 h-4" />
-                Filter
-              </button>
-              <Link to={"/submission/intro-section"}>
-                <button className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 bg-gray-50 border border-gray-200 rounded-lg hover:bg-gray-100 transition-colors">
-                  <CirclePlus className="w-4 h-4" />
-                  Submit New
-                </button>
-              </Link>
-              <button className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 bg-gray-50 border border-gray-200 rounded-lg hover:bg-gray-100 transition-colors">
-                <BarChart3 className="w-4 h-4" />
-                Analytics
-              </button>
-            </div>
-          </div>
-
-          {/* Overview Stats */}
-          <div className="mb-6 p-4 bg-gradient-to-r from-blue-50/50 to-blue-50/80 rounded-xl border border-blue-100">
-            <h2 className="text-base font-semibold text-gray-900 mb-3">
-              Submission Overview
-            </h2>
-            <div className="grid grid-cols-3 gap-3 mb-3">
-              <StatCard
-                title="No Review Completed"
-                value="12"
-                icon={FileText}
-                color="gray"
-              />
-              <StatCard
-                title="One Review Completed"
-                value="10"
-                icon={Clock}
-                color="blue"
-              />
-              <StatCard
-                title="Two Reviews Completed"
-                value="1"
-                icon={Users}
-                color="blue"
-              />
-            </div>
-            <div className="grid grid-cols-2 gap-3 max-w-2xl">
-              <StatCard
-                title="Three Reviews Completed"
-                value="2"
-                icon={CheckCircle}
-                color="blue"
-              />
-              <StatCard
-                title="Four or More Reviews"
-                value="0"
-                icon={BarChart3}
-                color="gray"
-              />
-            </div>
-          </div>
 
           {/* Main Grid */}
           <div className="grid grid-cols-1 lg:grid-cols-1 gap-6">

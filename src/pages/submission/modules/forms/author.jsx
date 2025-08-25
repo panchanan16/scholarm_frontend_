@@ -7,32 +7,43 @@ import { useToastLazyQuery } from "@/hooks/useNotification";
 import { useLazyGetOneAuthorQuery } from "@/services/features/authors/slice";
 import { useGetArticleAuthorsByArticleIdQuery } from "@/services/features/submission/submissionApi";
 import { useSearchParams } from "react-router-dom";
+import useSaveSteps from "@/hooks/useSaveSteps";
+import { useSelector } from "react-redux";
 
 export default function Author() {
   const [searchTerm, setSearchTerm] = useState("");
   const [hasSearched, setHasSearched] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [isSection, setIsSectionError] = useState(false);
+  const [queryParams] = useSearchParams();
+  const { articlePresections } = useSelector((state) => state.submission);
 
-  const [queryParams] = useSearchParams()
+  const { updateSaveSteps } = useSaveSteps({
+    saveObject: { authors: true },
+    nextHighlight: "articlemain",
+  });
 
   const [getAuthorWithEmail, { data, isSuccess }] = useToastLazyQuery(
     useLazyGetOneAuthorQuery(),
     { showLoading: true }
   );
 
-  const addedAuthors = useGetArticleAuthorsByArticleIdQuery({ article_id : queryParams.get('article_id') });
+  const addedAuthors = useGetArticleAuthorsByArticleIdQuery({
+    article_id: queryParams.get("article_id"),
+  });
 
   function handleSaveAndContinue() {
-    console.log(addedAuthors);
     if (addedAuthors && addedAuthors.data.data.length < 3) {
-      setIsSectionError(true);
+      return setIsSectionError(true);
     }
+
+    updateSaveSteps(
+      `/submission/article-sections/${articlePresections && articlePresections[0].link}`
+    );
   }
 
   const handleSearch = async () => {
     try {
-      console.log(searchTerm);
       await getAuthorWithEmail({ author_email: searchTerm.trim() });
       setHasSearched(true);
       setShowModal(true);
@@ -45,7 +56,7 @@ export default function Author() {
   return (
     <div className="max-w-4xl mx-auto">
       <Breadcrumb title="Author" content="Add Co-Author" />
-      {isSection && <SubmissionError />}
+      {isSection && <SubmissionError msg="Three or co authors must be there!" />}
 
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
         <div className="p-4">
@@ -96,7 +107,7 @@ export default function Author() {
         email={searchTerm}
         hasAuthor={hasSearched}
         author={isSuccess && data ? data : {}}
-        articleId={Number(queryParams.get('article_id'))}
+        articleId={Number(queryParams.get("article_id"))}
       />
     </div>
   );

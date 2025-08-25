@@ -10,7 +10,7 @@ export default function DecisonReviewer({ isOpen, onClose, reviewer_id, article_
   const initialValues = {
     reviewer_id: Number(reviewer_id),
     article_id: article_id,
-    is_completed: false,
+    is_completed: true,
     is_under_scope: "",
     is_need_revision: "",
     editor_comment: "",

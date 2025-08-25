@@ -81,18 +81,18 @@ const EditorDashBoard = () => {
   );
 
   const publisherTodoItems = [
-    { label: "New Invitaion", count: 0, priority: "green", link: 'manuscript?id=1&status=editorinvited' },
-    { label: "New Assignment", count: 23, priority: "orange", link: 'manuscript?id=1&editorStatus=accepted&completed=false' },
-    { label: "Submissions with required Review Completed", count: 23, priority: "red" },
-    { label: "Submissions requiring additional Reviewers", count: 6, priority: "yellow", link: 'manuscript?id=1&status=submissionneedadditionalreviewers&completed=false' },
+    { label: "New Invitaion", count: 0, priority: "green", link: 'manuscript?status=editorinvited&editorStatus=invited' },
+    { label: "New Assignment", count: 23, priority: "orange", link: 'manuscript?editorStatus=accepted&completed=false' },
+    { label: "Reviewers invited No Response", count: 6, priority: "red", link: 'manuscript?status=reviewerinvited' },
+    { label: "Submissions requiring additional Reviewers", count: 6, priority: "yellow", link: 'manuscript?status=submissionneedadditionalreviewers' },
+    { label: "Under Review", count: 6, priority: "green", link: 'manuscript?status=underreview' },
     { label: "Submissions with one or more late Reviews", count: 6, priority: "blue" },
-    { label: "Reviewers invited No Response", count: 6, priority: "red" },
-    { label: "Under Review", count: 6, priority: "green" }
+    { label: "Submissions with required Review Completed", count: 23, priority: "red", link: 'manuscript?status=submissionwithrequiredreviewerscompleted' },
   ];
 
   const revisionItems = [
-    { label: "My Assignments With Decision", count: 26, priority: "blue", link: 'manuscript?id=1&editorStatus=accepted&completed=true&disposal=false' },
-    { label: "My Assignments With Final Disposal ", count: 0, priority: "yellow", link: 'manuscript?id=1&completed=true&disposal=true' },
+    { label: "My Assignments With Decision", count: 26, priority: "blue", link: 'manuscript?editorStatus=accepted&completed=true&disposal=false' },
+    { label: "My Assignments With Final Disposal ", count: 0, priority: "yellow", link: 'manuscript?completed=true&disposal=true' },
   ];
 
   const [analytics, setAnalytics] = useState(false)

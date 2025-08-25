@@ -18,7 +18,7 @@ const ArticleDetailsForm = () => {
   const IntroDataObject =
     IntialObject.status === "fulfilled" ? IntialObject.data?.data : null;
 
-  console.log(IntroDataObject);
+  // console.log(IntroDataObject);
 
   const initialValues = {
     article_id: Number(queryparams.get("article_id")) || null,

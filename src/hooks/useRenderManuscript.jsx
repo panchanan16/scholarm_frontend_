@@ -32,7 +32,7 @@ function useRenderManuscript({
     } else {
       fetchForEditor({ userId, status, editorStatus, completed, disposal });
     }
-  }, [role, status, processed, type]);
+  }, [role, status, processed, type, completed]);
 
   if (role == "admin") {
     return {

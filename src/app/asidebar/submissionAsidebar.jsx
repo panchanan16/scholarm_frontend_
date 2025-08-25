@@ -2,6 +2,7 @@ import { useGetArticleSectionsQuery } from "@/services/features/submission/submi
 import {
   modifyExpand,
   modifyHighlight,
+  resetArticlePresection,
 } from "@/store/feature/submission/slice";
 import {
   Tag,
@@ -29,7 +30,7 @@ function SubmissionAsidebar() {
   const article_id = queryParams.get('article_id') || 0
   const location = useLocation();
 
-  const { data: articlePreSections } = useGetArticleSectionsQuery({
+  const { data: articlePreSections, isLoading } = useGetArticleSectionsQuery({
     article_id: article_id,
   });
 
@@ -42,6 +43,11 @@ function SubmissionAsidebar() {
         link: `${sec.section_title}-section?article_id=${article_id}`,
       };
     });
+
+
+  useEffect(()=> {
+    dispatch(resetArticlePresection(articleSection))
+  }, [isLoading])
 
   // State to manage expanded sub-items (for sub-subcategories)
   const [expandedSubItems, setExpandedSubItems] = useState(new Set());

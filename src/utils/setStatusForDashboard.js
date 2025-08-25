@@ -1,4 +1,29 @@
 export const roleBasedStatus = {
+    reviewer: [
+        {
+            id: 1,
+            urlParam: {
+                reviewerStatus: "invited",
+            },
+            status: "New Assignments"
+        },
+        {
+            id: 2,
+            urlParam: {
+                reviewerStatus: "accepted",
+                completed: "false"
+            },
+            status: "Pending Assignment"
+        },
+        {
+            id: 3,
+            urlParam: {
+                reviewerStatus: "accepted",
+                completed: "true"
+            },
+            status: "Completed Assignment"
+        },
+    ],
     editor: [
         {
             id: 1,
@@ -12,7 +37,7 @@ export const roleBasedStatus = {
             id: 2,
             urlParam: {
                 editorStatus: "accepted",
-                completed: "true",
+                completed: "false",
                 disposal: "false"
             },
             status: "New Assignment"
@@ -20,18 +45,14 @@ export const roleBasedStatus = {
         {
             id: 3,
             urlParam: {
-                editorStatus: "accepted",
-                completed: "true",
-                disposal: "false"
+                status: "submissionwithrequiredreviewerscompleted",
             },
             status: "Submission With Required Review Completed"
         },
         {
             id: 4,
             urlParam: {
-                editorStatus: "accepted",
-                completed: "true",
-                disposal: "false"
+                status: "submissionneedadditionalreviewers",
             },
             status: "Submission Need Additional Review"
         },
@@ -40,16 +61,14 @@ export const roleBasedStatus = {
             urlParam: {
                 editorStatus: "accepted",
                 completed: "true",
-                disposal: "false"
+                disposal: "t"
             },
             status: "Submission With One or More Review"
         },
         {
             id: 6,
             urlParam: {
-                editorStatus: "accepted",
-                completed: "true",
-                disposal: "false"
+                status: "reviewerinvited",
             },
             status: "Review Not Respond"
         },
@@ -248,7 +267,7 @@ export const roleBasedStatus = {
             },
             status: "Rejected"
         },
-         {
+        {
             id: 23,
             urlParam: {
                 status: "incomplete",

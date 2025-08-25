@@ -384,6 +384,7 @@ const JournalListTable = () => {
             isOpen={isOpenReviewerDecision}
             onClose={setIsOpenReviewerDecision}
             article_id={articleId}
+            reviewer_id={user.userId}
           />
 
           <DescisionAdmin

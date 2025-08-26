@@ -21,6 +21,11 @@ import { ValidatedJournalListTable } from "./validateRoute";
 import AuthorDashboard from "@/pages/dashboard/author/AuthorDashboard";
 import AdminLoginPage from "@/pages/loginPages/adminLogin/AdminLoginPage";
 import { AdminRoute } from "./protectedRoute";
+import SettingsPage from "@/pages/settings";
+import FieldTypePage from "@/pages/settings/modules/FieldTypePage";
+import MainSettings from "@/pages/settings/modules/MainSettings";
+import FieldsPageForm from "@/pages/settings/modules/templateFields";
+import EmailTemplatePage from "@/pages/settings/modules/EmailTemplate";
 
 const routes = [
   {
@@ -53,7 +58,7 @@ const routes = [
       //Editor Dashboard
       {
         path: "/editor-dashboard",
-        element: <EditorDashBoard />
+        element: <EditorDashBoard />,
       },
       {
         path: "editor-dashboard",
@@ -69,7 +74,6 @@ const routes = [
       },
       { path: "/:role/manuscript", element: <ValidatedJournalListTable /> },
 
-      
       // Author Dashboard
       {
         path: "author-dashboard",
@@ -108,6 +112,16 @@ const routes = [
           { path: "reffrences", element: <ReferenceManagerForm /> },
           { path: "summary", element: <SummaryForm /> },
           { path: "preview", element: <PreviewArticlePage /> },
+        ],
+      },
+      {
+        path: "/settings",
+        element: <SettingsPage />,
+        children: [
+          { index: true, element: <MainSettings /> },
+          { path: "email-template", element: <EmailTemplatePage /> },
+          { path: "fieldtype", element: <FieldTypePage /> },
+          { path: "fields", element: <FieldsPageForm /> },
         ],
       },
     ],

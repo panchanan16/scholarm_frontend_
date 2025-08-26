@@ -17,7 +17,7 @@ import {
   Send,
   TypeOutline,
 } from "lucide-react";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Link, useSearchParams, useLocation } from "react-router-dom";
 
@@ -26,33 +26,33 @@ function SubmissionAsidebar() {
     (state) => state["submission"]
   );
 
-  const [queryParams] = useSearchParams()
-  const article_id = queryParams.get('article_id') || 0
+  const [queryParams] = useSearchParams();
+  const article_id = queryParams.get("article_id") || 0;
   const location = useLocation();
+  const dispatch = useDispatch();
 
-  const { data: articlePreSections, isLoading } = useGetArticleSectionsQuery({
+  const {
+    data: articlePreSections,
+  } = useGetArticleSectionsQuery({
     article_id: article_id,
   });
 
-  const articleSection =
-    article_id && articlePreSections &&
-    articlePreSections?.data?.map((sec, ind) => {
-      return {
-        id: sec.section_title,
-        label: sec.section_title.toUpperCase(),
-        link: `${sec.section_title}-section?article_id=${article_id}`,
-      };
-    });
-
-
-  useEffect(()=> {
-    dispatch(resetArticlePresection(articleSection))
-  }, [isLoading])
+  const articleSection = useMemo(() => {
+    if (!article_id || !articlePreSections) return [];
+    return articlePreSections.data.map((sec) => ({
+      id: sec.section_title,
+      label: sec.section_title.toUpperCase(),
+      link: `${sec.section_title}-section?article_id=${article_id}`,
+    }));
+  }, [article_id, articlePreSections]);
+  useEffect(() => {
+    if (articleSection) {
+      dispatch(resetArticlePresection(articleSection));
+    }
+  }, [article_id, articleSection]);
 
   // State to manage expanded sub-items (for sub-subcategories)
   const [expandedSubItems, setExpandedSubItems] = useState(new Set());
-
-  const dispatch = useDispatch();
 
   const sidebarItems = [
     {
@@ -71,8 +71,18 @@ function SubmissionAsidebar() {
       id: "content",
       label: "Content",
       items: [
-        { id: "intro", label: "Title, etc.", icon: FileText, link: `article-title?article_id=${article_id}` },
-        { id: "articleDetails", label: "Article Details", icon: TypeOutline, link: `article-details?article_id=${article_id}` },
+        {
+          id: "intro",
+          label: "Title, etc.",
+          icon: FileText,
+          link: `article-title?article_id=${article_id}`,
+        },
+        {
+          id: "articleDetails",
+          label: "Article Details",
+          icon: TypeOutline,
+          link: `article-details?article_id=${article_id}`,
+        },
         {
           id: "authors",
           label: "Authors",
@@ -83,17 +93,30 @@ function SubmissionAsidebar() {
           id: "article",
           label: "Article",
           icon: FileText,
-          link: article_id && articlePreSections && `article-sections/${articlePreSections?.data[0]?.section_title}-section?article_id=${article_id}`,
+          link:
+            article_id &&
+            articlePreSections &&
+            `article-sections/${articlePreSections?.data[0]?.section_title}-section?article_id=${article_id}`,
           sub: articleSection ? articleSection : [],
         },
-        { id: "reviewers", label: "Reviewers", icon: User, link: `reviewers?article_id=${article_id}` },
+        {
+          id: "reviewers",
+          label: "Reviewers",
+          icon: User,
+          link: `reviewers?article_id=${article_id}`,
+        },
         {
           id: "refference",
           label: "References",
           icon: BookOpen,
           link: `reffrences?article_id=${article_id}`,
         },
-        { id: "summary", label: "Summary", icon: FileText, link: `summary?article_id=${article_id}` },
+        {
+          id: "summary",
+          label: "Summary",
+          icon: FileText,
+          link: `summary?article_id=${article_id}`,
+        },
         { id: "submit", label: "Submit", icon: Send },
       ],
     },
@@ -102,24 +125,26 @@ function SubmissionAsidebar() {
   // Function to check if current URL matches the link
   const isCurrentPath = (link) => {
     if (!link) return false;
-    
+
     // Extract the base path without query parameters
     const currentPath = location.pathname;
-    const linkPath = link.split('?')[0];
-    
+    const linkPath = link.split("?")[0];
+
     return currentPath.includes(linkPath) || currentPath === `/${linkPath}`;
   };
 
   // Function to check if any sub-item is active
   const hasActiveSubItem = (subItems) => {
     if (!subItems) return false;
-    return subItems.some(subItem => isCurrentPath(`article-sections/${subItem.link}`));
+    return subItems.some((subItem) =>
+      isCurrentPath(`article-sections/${subItem.link}`)
+    );
   };
 
   // Function to get the active item ID based on current URL
   const getActiveItemId = () => {
     const currentPath = location.pathname;
-    
+
     // Check all sections and items for matches
     for (const section of sidebarItems) {
       for (const item of section.items) {
@@ -127,7 +152,7 @@ function SubmissionAsidebar() {
         if (item.link && isCurrentPath(item.link)) {
           return item.id;
         }
-        
+
         // Check sub items
         if (item.sub) {
           for (const subItem of item.sub) {
@@ -138,7 +163,7 @@ function SubmissionAsidebar() {
         }
       }
     }
-    
+
     return hightLightedItem; // fallback to Redux state
   };
 
@@ -183,7 +208,8 @@ function SubmissionAsidebar() {
             <div className="w-2 h-2 bg-gray-300 rounded-full group-hover:bg-gray-400"></div>
             <span
               className={`text-xs ${
-                subsubItem.id === hightLightedItem || isCurrentPath(subsubItem.link)
+                subsubItem.id === hightLightedItem ||
+                isCurrentPath(subsubItem.link)
                   ? "text-blue-600 font-medium"
                   : "text-gray-500"
               }`}
@@ -202,46 +228,48 @@ function SubmissionAsidebar() {
   const renderSubItems = (subItems, parentId) => {
     return (
       <div className="ml-6 mt-1 space-y-1">
-        {subItems.length && subItems.map((subItem) => (
-          <div key={subItem.id}>
-            <div className="flex items-center">
-              {subItem.subsub && (
-                <button
-                  onClick={() => toggleSubItem(subItem.id)}
-                  className="p-1 hover:bg-gray-50 rounded"
-                >
-                  {expandedSubItems.has(subItem.id) ? (
-                    <ChevronDown className="w-3 h-3 text-gray-400" />
-                  ) : (
-                    <ChevronRight className="w-3 h-3 text-gray-400" />
-                  )}
-                </button>
-              )}
-              <Link
-                onClick={() => dispatch(modifyHighlight(subItem.id))}
-                to={`article-sections/${subItem.link}`}
-                className="flex items-center gap-2 p-1.5 hover:bg-gray-50 rounded-lg transition-colors cursor-pointer group flex-1"
-              >
-                <div className="w-2 h-2 bg-gray-400 rounded-full group-hover:bg-gray-600"></div>
-                <span
-                  className={`text-sm ${
-                    subItem.id === hightLightedItem || isCurrentPath(`article-sections/${subItem.link}`)
-                      ? "text-blue-600 font-medium"
-                      : "text-gray-600"
-                  }`}
-                >
-                  {subItem.label}
-                </span>
-                {savedSteps.some((obj) => obj[subItem.id] === true) && (
-                  <CircleCheckBigIcon className="w-4 h-4 text-green-500 ml-auto animate-in slide-in-from-right-2 duration-300" />
+        {subItems.length &&
+          subItems.map((subItem) => (
+            <div key={subItem.id}>
+              <div className="flex items-center">
+                {subItem.subsub && (
+                  <button
+                    onClick={() => toggleSubItem(subItem.id)}
+                    className="p-1 hover:bg-gray-50 rounded"
+                  >
+                    {expandedSubItems.has(subItem.id) ? (
+                      <ChevronDown className="w-3 h-3 text-gray-400" />
+                    ) : (
+                      <ChevronRight className="w-3 h-3 text-gray-400" />
+                    )}
+                  </button>
                 )}
-              </Link>
+                <Link
+                  onClick={() => dispatch(modifyHighlight(subItem.id))}
+                  to={`article-sections/${subItem.link}`}
+                  className="flex items-center gap-2 p-1.5 hover:bg-gray-50 rounded-lg transition-colors cursor-pointer group flex-1"
+                >
+                  <div className="w-2 h-2 bg-gray-400 rounded-full group-hover:bg-gray-600"></div>
+                  <span
+                    className={`text-sm ${
+                      subItem.id === hightLightedItem ||
+                      isCurrentPath(`article-sections/${subItem.link}`)
+                        ? "text-blue-600 font-medium"
+                        : "text-gray-600"
+                    }`}
+                  >
+                    {subItem.label}
+                  </span>
+                  {savedSteps.some((obj) => obj[subItem.id] === true) && (
+                    <CircleCheckBigIcon className="w-4 h-4 text-green-500 ml-auto animate-in slide-in-from-right-2 duration-300" />
+                  )}
+                </Link>
+              </div>
+              {subItem.subsub &&
+                expandedSubItems.has(subItem.id) &&
+                renderSubSubItems(subItem.subsub, subItem.id)}
             </div>
-            {subItem.subsub &&
-              expandedSubItems.has(subItem.id) &&
-              renderSubSubItems(subItem.subsub, subItem.id)}
-          </div>
-        ))}
+          ))}
       </div>
     );
   };
@@ -277,7 +305,9 @@ function SubmissionAsidebar() {
                       <item.icon className="w-4 h-4 text-gray-400 group-hover:text-gray-600" />
                       <span
                         className={`text-sm ${
-                          item.id === hightLightedItem || isCurrentPath(item.link) || hasActiveSubItem(item.sub)
+                          item.id === hightLightedItem ||
+                          isCurrentPath(item.link) ||
+                          hasActiveSubItem(item.sub)
                             ? "text-blue-600 font-medium"
                             : "text-gray-600"
                         }`}
@@ -288,7 +318,9 @@ function SubmissionAsidebar() {
                         <CircleCheckBigIcon className="w-4 h-4 text-green-500 ml-auto animate-in slide-in-from-right-2 duration-300" />
                       )}
                     </Link>
-                    {item.sub && item.sub.length > 0 && renderSubItems(item.sub, item.id)}
+                    {item.sub &&
+                      item.sub.length > 0 &&
+                      renderSubItems(item.sub, item.id)}
                   </div>
                 ))}
               </div>

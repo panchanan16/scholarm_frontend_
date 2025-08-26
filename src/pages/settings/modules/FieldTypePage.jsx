@@ -1,0 +1,309 @@
+import React, { useState } from 'react';
+import { 
+  Plus, 
+  Tag, 
+  Edit2, 
+  Trash2, 
+  Save,
+  X
+} from 'lucide-react';
+
+// Mock Formik implementation since it's not available
+const useFormik = (config) => {
+  const [values, setValues] = useState(config.initialValues);
+  const [errors, setErrors] = useState({});
+  const [touched, setTouched] = useState({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setValues(prev => ({ ...prev, [name]: value }));
+    
+    // Clear error when user starts typing
+    if (errors[name]) {
+      setErrors(prev => ({ ...prev, [name]: '' }));
+    }
+  };
+
+  const handleBlur = (e) => {
+    const { name } = e.target;
+    setTouched(prev => ({ ...prev, [name]: true }));
+    
+    // Run validation
+    if (config.validate) {
+      const validationErrors = config.validate(values);
+      setErrors(validationErrors);
+    }
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+    
+    // Mark all fields as touched
+    const touchedFields = {};
+    Object.keys(values).forEach(key => {
+      touchedFields[key] = true;
+    });
+    setTouched(touchedFields);
+    
+    // Validate
+    let validationErrors = {};
+    if (config.validate) {
+      validationErrors = config.validate(values);
+      setErrors(validationErrors);
+    }
+    
+    // If no errors, submit
+    if (Object.keys(validationErrors).length === 0) {
+      await config.onSubmit(values);
+      // Reset form on successful submission
+      setValues(config.initialValues);
+      setTouched({});
+      setErrors({});
+    }
+    
+    setIsSubmitting(false);
+  };
+
+  const resetForm = () => {
+    setValues(config.initialValues);
+    setTouched({});
+    setErrors({});
+  };
+
+  return {
+    values,
+    errors,
+    touched,
+    isSubmitting,
+    handleChange,
+    handleBlur,
+    handleSubmit,
+    resetForm
+  };
+};
+
+const FieldTypePage = ({ onSubmit, onEdit, onDelete }) => {
+  // Mock existing categories
+  const [categories, setCategories] = useState([
+    { id: 1, field_name: 'Technology', field_type: 'Primary Category', created_at: '2024-01-15' },
+    { id: 2, field_name: 'Business', field_type: 'Primary Category', created_at: '2024-01-14' },
+    { id: 3, field_name: 'Health', field_type: 'Secondary Category', created_at: '2024-01-13' },
+    { id: 4, field_name: 'Education', field_type: 'Primary Category', created_at: '2024-01-12' },
+    { id: 5, field_name: 'Sports', field_type: 'Secondary Category', created_at: '2024-01-11' }
+  ]);
+
+  const [editingId, setEditingId] = useState(null);
+
+  const formik = useFormik({
+    initialValues: {
+      field_name: '',
+      field_type: ''
+    },
+    validate: (values) => {
+      const errors = {};
+      if (!values.field_name.trim()) {
+        errors.field_name = 'Field name is required';
+      }
+      if (!values.field_type.trim()) {
+        errors.field_type = 'Field type is required';
+      }
+      return errors;
+    },
+    onSubmit: async (values) => {
+      // Simulate API call
+      await new Promise(resolve => setTimeout(resolve, 500));
+      
+      const newCategory = {
+        id: categories.length + 1,
+        ...values,
+        created_at: new Date().toISOString().split('T')[0]
+      };
+      
+      setCategories(prev => [newCategory, ...prev]);
+      
+      if (onSubmit) {
+        onSubmit(values);
+      }
+      
+      console.log('Form submitted:', values);
+    }
+  });
+
+  const handleEdit = (category) => {
+    setEditingId(category.id);
+    if (onEdit) {
+      onEdit(category);
+    }
+  };
+
+  const handleDelete = (category) => {
+    setCategories(prev => prev.filter(cat => cat.id !== category.id));
+    if (onDelete) {
+      onDelete(category);
+    }
+  };
+
+  const getFieldTypeColor = (type) => {
+    return type === 'Primary Category' 
+      ? 'bg-blue-100 text-blue-800' 
+      : 'bg-green-100 text-green-800';
+  };
+
+  return (
+    <div className="max-w-6xl mx-auto p-6 bg-white">
+      {/* Header */}
+      <div className="mb-8">
+        <div className="flex items-center gap-3 mb-2">
+          <div className="p-2 bg-blue-50 rounded-lg">
+            <Tag className="w-6 h-6 text-blue-600" />
+          </div>
+          <h1 className="text-2xl font-bold text-gray-900">Manage Categories</h1>
+        </div>
+        <p className="text-gray-600">Add new categories and manage existing ones</p>
+      </div>
+
+      {/* Form */}
+      <div className="bg-white border-2 border-gray-200 rounded-xl p-6 mb-8">
+        <h2 className="text-lg font-semibold text-gray-900 mb-6 flex items-center gap-2">
+          <Plus className="w-5 h-5" />
+          Add New Category
+        </h2>
+        
+        <div className="space-y-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Field Name */}
+            <div>
+              <label htmlFor="field_name" className="block text-sm font-medium text-gray-700 mb-2">
+                Field Name
+              </label>
+              <input
+                type="text"
+                id="field_name"
+                name="field_name"
+                value={formik.values.field_name}
+                onChange={formik.handleChange}
+                onBlur={formik.handleBlur}
+                className={`
+                  w-full px-4 py-3 border-2 rounded-lg transition-colors
+                  focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50
+                  ${formik.errors.field_name && formik.touched.field_name 
+                    ? 'border-red-300 focus:border-red-500' 
+                    : 'border-gray-300 focus:border-blue-500'
+                  }
+                `}
+                placeholder="Enter field name"
+              />
+              {formik.errors.field_name && formik.touched.field_name && (
+                <p className="mt-2 text-sm text-red-600">{formik.errors.field_name}</p>
+              )}
+            </div>
+
+            {/* Field Type */}
+            <div>
+              <label htmlFor="field_type" className="block text-sm font-medium text-gray-700 mb-2">
+                Field Type
+              </label>
+              <input
+                type="text"
+                id="field_type"
+                name="field_type"
+                value={formik.values.field_type}
+                onChange={formik.handleChange}
+                onBlur={formik.handleBlur}
+                className={`
+                  w-full px-4 py-3 border-2 rounded-lg transition-colors
+                  focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50
+                  ${formik.errors.field_type && formik.touched.field_type 
+                    ? 'border-red-300 focus:border-red-500' 
+                    : 'border-gray-300 focus:border-blue-500'
+                  }
+                `}
+                placeholder="Enter field type"
+              />
+              {formik.errors.field_type && formik.touched.field_type && (
+                <p className="mt-2 text-sm text-red-600">{formik.errors.field_type}</p>
+              )}
+            </div>
+          </div>
+
+          {/* Submit Button */}
+          <div className="flex justify-end">
+            <button
+              type="button"
+              onClick={formik.handleSubmit}
+              disabled={formik.isSubmitting}
+              className={`
+                flex items-center gap-2 px-6 py-3 rounded-lg font-medium transition-all
+                ${formik.isSubmitting
+                  ? 'bg-gray-400 cursor-not-allowed'
+                  : 'bg-blue-600 hover:bg-blue-700 hover:shadow-lg transform hover:scale-[1.02]'
+                }
+                text-white
+              `}
+            >
+              <Save className="w-4 h-4" />
+              {formik.isSubmitting ? 'Adding...' : 'Add Category'}
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Existing Categories List */}
+      <div className="bg-white border-2 border-gray-200 rounded-xl p-6">
+        <h2 className="text-lg font-semibold text-gray-900 mb-6">Existing Categories</h2>
+        
+        {categories.length === 0 ? (
+          <div className="text-center py-8">
+            <Tag className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+            <p className="text-gray-500">No categories found. Add your first category above.</p>
+          </div>
+        ) : (
+          <div className="space-y-3">
+            {categories.map((category) => (
+              <div
+                key={category.id}
+                className={`
+                  flex items-center justify-between p-4 border-2 rounded-lg transition-all
+                  ${editingId === category.id ? 'border-blue-300 bg-blue-50' : 'border-gray-200 hover:border-gray-300'}
+                `}
+              >
+                <div className="flex items-center space-x-4">
+                  <div className="p-2 bg-gray-100 rounded-lg">
+                    <Tag className="w-4 h-4 text-gray-600" />
+                  </div>
+                  <div>
+                    <h3 className="font-medium text-gray-900">{category.field_name}</h3>
+                    <div className="flex items-center gap-2 mt-1">                     
+                      <span className="text-xs text-gray-500">Created: {category.created_at}</span>
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="flex items-center space-x-2">
+                  <button
+                    onClick={() => handleEdit(category)}
+                    className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                    title="Edit category"
+                  >
+                    <Edit2 className="w-4 h-4" />
+                  </button>
+                  <button
+                    onClick={() => handleDelete(category)}
+                    className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                    title="Delete category"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
+export default FieldTypePage;

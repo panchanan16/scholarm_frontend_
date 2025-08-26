@@ -18,6 +18,9 @@ export default function Author() {
   const [queryParams] = useSearchParams();
   const { articlePresections } = useSelector((state) => state.submission);
 
+  console.log(articlePresections)
+
+
   const { updateSaveSteps } = useSaveSteps({
     saveObject: { authors: true },
     nextHighlight: "articlemain",

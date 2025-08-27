@@ -1,4 +1,6 @@
 import React, { useState } from "react";
+import { Formik, Form, Field, ErrorMessage } from "formik";
+import * as Yup from "yup";
 import {
   Plus,
   Settings,
@@ -12,74 +14,6 @@ import {
   Layers,
 } from "lucide-react";
 import { Link } from "react-router-dom";
-
-// Mock Formik implementation
-const useFormik = (config) => {
-  const [values, setValues] = useState(config.initialValues);
-  const [errors, setErrors] = useState({});
-  const [touched, setTouched] = useState({});
-  const [isSubmitting, setIsSubmitting] = useState(false);
-
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setValues((prev) => ({ ...prev, [name]: value }));
-
-    if (errors[name]) {
-      setErrors((prev) => ({ ...prev, [name]: "" }));
-    }
-  };
-
-  const handleBlur = (e) => {
-    const { name } = e.target;
-    setTouched((prev) => ({ ...prev, [name]: true }));
-
-    if (config.validate) {
-      const validationErrors = config.validate(values);
-      setErrors(validationErrors);
-    }
-  };
-
-  const handleSubmit = async (e) => {
-    if (e) e.preventDefault();
-    setIsSubmitting(true);
-
-    const touchedFields = {};
-    Object.keys(values).forEach((key) => {
-      touchedFields[key] = true;
-    });
-    setTouched(touchedFields);
-
-    let validationErrors = {};
-    if (config.validate) {
-      validationErrors = config.validate(values);
-      setErrors(validationErrors);
-    }
-
-    if (Object.keys(validationErrors).length === 0) {
-      await config.onSubmit(values);
-      setValues(config.initialValues);
-      setTouched({});
-      setErrors({});
-    }
-
-    setIsSubmitting(false);
-  };
-
-  const setFieldValue = (name, value) => {
-    setValues((prev) => ({ ...prev, [name]: value }));
-  };
-
-  return {
-    values,
-    errors,
-    touched,
-    isSubmitting,
-    handleChange,
-    handleBlur,
-    handleSubmit,
-    setFieldValue,
-  };
-};
 
 const FieldsPageForm = ({ onSubmit, onEdit, onDelete }) => {
   // Mock field types
@@ -158,55 +92,47 @@ const FieldsPageForm = ({ onSubmit, onEdit, onDelete }) => {
   const [selectedCategory, setSelectedCategory] = useState("Email Template");
   const [fields, setFields] = useState(existingFields);
 
-  const formik = useFormik({
-    initialValues: {
-      field_type: "",
-      field_name: "",
-      field_value: "",
-    },
-    validate: (values) => {
-      const errors = {};
-      if (!values.field_type) {
-        errors.field_type = "Field type is required";
-      }
-      if (!values.field_name.trim()) {
-        errors.field_name = "Field name is required";
-      }
-      if (!values.field_value.trim()) {
-        errors.field_value = "Field value is required";
-      }
-      return errors;
-    },
-    onSubmit: async (values) => {
-      await new Promise((resolve) => setTimeout(resolve, 500));
+  // Initial values for Formik
+  const initialValues = {
+    field_type: "",
+    field_name: "",
+    field_value: "",
+  };
 
-      const selectedType = fieldTypes.find(
-        (type) => type.id === parseInt(values.field_type)
-      );
-      const newField = {
-        id: Date.now(),
-        ...values,
-        field_type: parseInt(values.field_type),
-      };
-
-      if (selectedType) {
-        setFields((prev) => ({
-          ...prev,
-          [selectedType.name]: [...(prev[selectedType.name] || []), newField],
-        }));
-      }
-
-      if (onSubmit) {
-        onSubmit(values);
-      }
-
-      console.log("Field added:", values);
-    },
+  // Validation schema using Yup
+  const validationSchema = Yup.object({
+    field_type: Yup.string().required("Field type is required"),
+    field_name: Yup.string().trim().required("Field name is required"),
+    field_value: Yup.string().trim().required("Field value is required"),
   });
 
-  const handleTypeSelect = (typeId, typeName) => {
-    formik.setFieldValue("field_type", typeId);
-    setIsDropdownOpen(false);
+  // Handle form submission
+  const handleFieldSubmit = async (values, { setSubmitting, resetForm }) => {
+    await new Promise((resolve) => setTimeout(resolve, 500));
+
+    const selectedType = fieldTypes.find(
+      (type) => type.id === parseInt(values.field_type)
+    );
+    const newField = {
+      id: Date.now(),
+      ...values,
+      field_type: parseInt(values.field_type),
+    };
+
+    if (selectedType) {
+      setFields((prev) => ({
+        ...prev,
+        [selectedType.name]: [...(prev[selectedType.name] || []), newField],
+      }));
+    }
+
+    if (onSubmit) {
+      onSubmit(values);
+    }
+
+    console.log("Field added:", values);
+    resetForm();
+    setSubmitting(false);
   };
 
   const handleEdit = (field) => {
@@ -229,10 +155,6 @@ const FieldsPageForm = ({ onSubmit, onEdit, onDelete }) => {
       onDelete(field);
     }
   };
-
-  const selectedTypeName =
-    fieldTypes.find((type) => type.id === parseInt(formik.values.field_type))
-      ?.name || "Select field type";
 
   return (
     <div className="max-w-7xl mx-auto p-6 bg-white relative">
@@ -291,155 +213,135 @@ const FieldsPageForm = ({ onSubmit, onEdit, onDelete }) => {
               Add New Field
             </h2>
 
-            <div className="space-y-6">
-              {/* Field Type Dropdown */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Field Type
-                </label>
-                <div className="relative">
-                  <button
-                    type="button"
-                    onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                    className={`
-                      w-full px-4 py-3 border-2 rounded-lg transition-colors text-left flex items-center justify-between
-                      focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50
-                      ${
-                        formik.errors.field_type && formik.touched.field_type
-                          ? "border-red-300 focus:border-red-500"
-                          : "border-gray-300 focus:border-blue-500"
-                      }
-                      ${
-                        !formik.values.field_type
-                          ? "text-gray-500"
-                          : "text-gray-900"
-                      }
-                    `}
-                  >
-                    <span>{selectedTypeName}</span>
-                    <ChevronDown
-                      className={`w-4 h-4 transition-transform ${
-                        isDropdownOpen ? "rotate-180" : ""
-                      }`}
-                    />
-                  </button>
+            <Formik
+              initialValues={initialValues}
+              validationSchema={validationSchema}
+              onSubmit={handleFieldSubmit}
+            >
+              {({ isSubmitting, values, setFieldValue }) => {
+                const selectedTypeName =
+                  fieldTypes.find((type) => type.id === parseInt(values.field_type))
+                    ?.name || "Select field type";
 
-                  {isDropdownOpen && (
-                    <div className="absolute z-10 w-full mt-1 bg-white border-2 border-gray-200 rounded-lg shadow-lg">
-                      {fieldTypes.map((type) => (
-                        <button
-                          key={type.id}
-                          type="button"
-                          onClick={() => handleTypeSelect(type.id, type.name)}
-                          className="w-full px-4 py-3 text-left hover:bg-gray-50 first:rounded-t-lg last:rounded-b-lg transition-colors flex items-center justify-between"
-                        >
-                          <span className="text-gray-900">{type.name}</span>
-                          <span
-                            className={`px-2 py-1 text-xs font-medium rounded-full ${type.color}`}
+                return (
+                  <Form>
+                    <div className="space-y-6">
+                      {/* Field Type Dropdown */}
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          Field Type
+                        </label>
+                        <div className="relative">
+                          <button
+                            type="button"
+                            onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                            className={`
+                              w-full px-4 py-3 border-2 rounded-lg transition-colors text-left flex items-center justify-between
+                              focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50
+                              border-gray-300 focus:border-blue-500
+                              ${!values.field_type ? "text-gray-500" : "text-gray-900"}
+                            `}
                           >
-                            Type {type.id}
-                          </span>
+                            <span>{selectedTypeName}</span>
+                            <ChevronDown
+                              className={`w-4 h-4 transition-transform ${
+                                isDropdownOpen ? "rotate-180" : ""
+                              }`}
+                            />
+                          </button>
+
+                          {isDropdownOpen && (
+                            <div className="absolute z-10 w-full mt-1 bg-white border-2 border-gray-200 rounded-lg shadow-lg">
+                              {fieldTypes.map((type) => (
+                                <button
+                                  key={type.id}
+                                  type="button"
+                                  onClick={() => {
+                                    setFieldValue("field_type", type.id);
+                                    setIsDropdownOpen(false);
+                                  }}
+                                  className="w-full px-4 py-3 text-left hover:bg-gray-50 first:rounded-t-lg last:rounded-b-lg transition-colors flex items-center justify-between"
+                                >
+                                  <span className="text-gray-900">{type.name}</span>
+                                  <span
+                                    className={`px-2 py-1 text-xs font-medium rounded-full ${type.color}`}
+                                  >
+                                    Type {type.id}
+                                  </span>
+                                </button>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                        <ErrorMessage
+                          name="field_type"
+                          component="div"
+                          className="mt-2 text-sm text-red-600"
+                        />
+                      </div>
+
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        {/* Field Name */}
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-2">
+                            Field Name
+                          </label>
+                          <Field
+                            name="field_name"
+                            type="text"
+                            className="w-full px-4 py-3 border-2 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 border-gray-300 focus:border-blue-500"
+                            placeholder="e.g., user_email"
+                          />
+                          <ErrorMessage
+                            name="field_name"
+                            component="div"
+                            className="mt-2 text-sm text-red-600"
+                          />
+                        </div>
+
+                        {/* Field Value */}
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-2">
+                            Field Value
+                          </label>
+                          <Field
+                            name="field_value"
+                            type="text"
+                            className="w-full px-4 py-3 border-2 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 border-gray-300 focus:border-blue-500"
+                            placeholder="e.g., {user_email}"
+                          />
+                          <ErrorMessage
+                            name="field_value"
+                            component="div"
+                            className="mt-2 text-sm text-red-600"
+                          />
+                        </div>
+                      </div>
+
+                      {/* Submit Button */}
+                      <div className="flex justify-end">
+                        <button
+                          type="submit"
+                          disabled={isSubmitting}
+                          className={`
+                            flex items-center gap-2 px-6 py-3 rounded-lg font-medium transition-all
+                            ${
+                              isSubmitting
+                                ? "bg-gray-400 cursor-not-allowed"
+                                : "bg-blue-600 hover:bg-blue-700 hover:shadow-lg transform hover:scale-[1.02]"
+                            }
+                            text-white
+                          `}
+                        >
+                          <Save className="w-4 h-4" />
+                          {isSubmitting ? "Adding..." : "Add Field"}
                         </button>
-                      ))}
+                      </div>
                     </div>
-                  )}
-                </div>
-                {formik.errors.field_type && formik.touched.field_type && (
-                  <p className="mt-2 text-sm text-red-600">
-                    {formik.errors.field_type}
-                  </p>
-                )}
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {/* Field Name */}
-                <div>
-                  <label
-                    htmlFor="field_name"
-                    className="block text-sm font-medium text-gray-700 mb-2"
-                  >
-                    Field Name
-                  </label>
-                  <input
-                    type="text"
-                    id="field_name"
-                    name="field_name"
-                    value={formik.values.field_name}
-                    onChange={formik.handleChange}
-                    onBlur={formik.handleBlur}
-                    className={`
-                      w-full px-4 py-3 border-2 rounded-lg transition-colors
-                      focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50
-                      ${
-                        formik.errors.field_name && formik.touched.field_name
-                          ? "border-red-300 focus:border-red-500"
-                          : "border-gray-300 focus:border-blue-500"
-                      }
-                    `}
-                    placeholder="e.g., user_email"
-                  />
-                  {formik.errors.field_name && formik.touched.field_name && (
-                    <p className="mt-2 text-sm text-red-600">
-                      {formik.errors.field_name}
-                    </p>
-                  )}
-                </div>
-
-                {/* Field Value */}
-                <div>
-                  <label
-                    htmlFor="field_value"
-                    className="block text-sm font-medium text-gray-700 mb-2"
-                  >
-                    Field Value
-                  </label>
-                  <input
-                    type="text"
-                    id="field_value"
-                    name="field_value"
-                    value={formik.values.field_value}
-                    onChange={formik.handleChange}
-                    onBlur={formik.handleBlur}
-                    className={`
-                      w-full px-4 py-3 border-2 rounded-lg transition-colors
-                      focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50
-                      ${
-                        formik.errors.field_value && formik.touched.field_value
-                          ? "border-red-300 focus:border-red-500"
-                          : "border-gray-300 focus:border-blue-500"
-                      }
-                    `}
-                    placeholder="e.g., {user_email}"
-                  />
-                  {formik.errors.field_value && formik.touched.field_value && (
-                    <p className="mt-2 text-sm text-red-600">
-                      {formik.errors.field_value}
-                    </p>
-                  )}
-                </div>
-              </div>
-
-              {/* Submit Button */}
-              <div className="flex justify-end">
-                <button
-                  type="button"
-                  onClick={formik.handleSubmit}
-                  disabled={formik.isSubmitting}
-                  className={`
-                    flex items-center gap-2 px-6 py-3 rounded-lg font-medium transition-all
-                    ${
-                      formik.isSubmitting
-                        ? "bg-gray-400 cursor-not-allowed"
-                        : "bg-blue-600 hover:bg-blue-700 hover:shadow-lg transform hover:scale-[1.02]"
-                    }
-                    text-white
-                  `}
-                >
-                  <Save className="w-4 h-4" />
-                  {formik.isSubmitting ? "Adding..." : "Add Field"}
-                </button>
-              </div>
-            </div>
+                  </Form>
+                );
+              }}
+            </Formik>
           </div>
         </div>
 

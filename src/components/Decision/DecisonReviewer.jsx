@@ -2,7 +2,13 @@ import { useToastLazyQuery } from "@/hooks/useNotification";
 import { useUpdateReviewerRecommendationMutation } from "@/services/features/manuscript/slice";
 import { Field, Formik, Form } from "formik";
 
-export default function DecisonReviewer({ isOpen, onClose, reviewer_id, article_id }) {
+export default function DecisonReviewer({
+  isOpen,
+  onClose,
+  reviewer_id,
+  article_id,
+  round
+}) {
   const [updateReviewerRecommendation] = useToastLazyQuery(
     useUpdateReviewerRecommendationMutation()
   );
@@ -10,6 +16,7 @@ export default function DecisonReviewer({ isOpen, onClose, reviewer_id, article_
   const initialValues = {
     reviewer_id: Number(reviewer_id),
     article_id: article_id,
+    round: round,
     is_completed: true,
     is_under_scope: "",
     is_need_revision: "",

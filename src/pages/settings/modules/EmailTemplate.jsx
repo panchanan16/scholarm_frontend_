@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import { Formik, Form, Field, ErrorMessage } from 'formik';
+import * as Yup from 'yup';
 import { 
   Plus, 
   Mail, 
@@ -20,75 +22,6 @@ import {
   Image,
   Code
 } from 'lucide-react';
-
-// Mock Formik implementation
-const useFormik = (config) => {
-  const [values, setValues] = useState(config.initialValues);
-  const [errors, setErrors] = useState({});
-  const [touched, setTouched] = useState({});
-  const [isSubmitting, setIsSubmitting] = useState(false);
-
-  const handleChange = (e) => {
-    const { name, value, type, checked } = e.target;
-    const fieldValue = type === 'checkbox' ? checked : value;
-    setValues(prev => ({ ...prev, [name]: fieldValue }));
-    
-    if (errors[name]) {
-      setErrors(prev => ({ ...prev, [name]: '' }));
-    }
-  };
-
-  const handleBlur = (e) => {
-    const { name } = e.target;
-    setTouched(prev => ({ ...prev, [name]: true }));
-    
-    if (config.validate) {
-      const validationErrors = config.validate(values);
-      setErrors(validationErrors);
-    }
-  };
-
-  const handleSubmit = async (e) => {
-    if (e) e.preventDefault();
-    setIsSubmitting(true);
-    
-    const touchedFields = {};
-    Object.keys(values).forEach(key => {
-      touchedFields[key] = true;
-    });
-    setTouched(touchedFields);
-    
-    let validationErrors = {};
-    if (config.validate) {
-      validationErrors = config.validate(values);
-      setErrors(validationErrors);
-    }
-    
-    if (Object.keys(validationErrors).length === 0) {
-      await config.onSubmit(values);
-      setValues(config.initialValues);
-      setTouched({});
-      setErrors({});
-    }
-    
-    setIsSubmitting(false);
-  };
-
-  const setFieldValue = (name, value) => {
-    setValues(prev => ({ ...prev, [name]: value }));
-  };
-
-  return {
-    values,
-    errors,
-    touched,
-    isSubmitting,
-    handleChange,
-    handleBlur,
-    handleSubmit,
-    setFieldValue
-  };
-};
 
 const EmailTemplatePage = ({ onSubmit, onEdit, onDelete }) => {
   // Mock existing templates
@@ -140,73 +73,61 @@ const EmailTemplatePage = ({ onSubmit, onEdit, onDelete }) => {
   const templateTypes = ['general', 'security', 'notification', 'marketing', 'system'];
   const templateForOptions = ['editor', 'user', 'admin', 'reviewer', 'author'];
 
-  const formik = useFormik({
-    initialValues: {
-      template_type: 'general',
-      template_name: '',
-      template_for: 'editor',
-      is_active: true,
-      subject: '',
-      body: ''
-    },
-    validate: (values) => {
-      const errors = {};
-      if (!values.template_name.trim()) {
-        errors.template_name = 'Template name is required';
-      }
-      if (!values.subject.trim()) {
-        errors.subject = 'Subject is required';
-      }
-      if (!values.body.trim()) {
-        errors.body = 'Body content is required';
-      }
-      return errors;
-    },
-    onSubmit: async (values) => {
-      await new Promise(resolve => setTimeout(resolve, 500));
-      
-      if (editingTemplate) {
-        setTemplates(prev => prev.map(template => 
-          template.id === editingTemplate.id 
-            ? { ...template, ...values, updated_at: new Date().toISOString().split('T')[0] }
-            : template
-        ));
-        setEditingTemplate(null);
-      } else {
-        const newTemplate = {
-          id: templates.length + 1,
-          ...values,
-          created_at: new Date().toISOString().split('T')[0]
-        };
-        setTemplates(prev => [newTemplate, ...prev]);
-      }
-      
-      setShowForm(false);
-      
-      if (onSubmit) {
-        onSubmit(values);
-      }
-    }
+  // Initial values for Formik
+  const initialValues = {
+    template_type: 'general',
+    template_name: '',
+    template_for: 'editor',
+    is_active: true,
+    subject: '',
+    body: ''
+  };
+
+  // Validation schema using Yup
+  const validationSchema = Yup.object({
+    template_name: Yup.string().trim().required('Template name is required'),
+    subject: Yup.string().trim().required('Subject is required'),
+    body: Yup.string().trim().required('Body content is required'),
+    template_type: Yup.string().required('Template type is required'),
+    template_for: Yup.string().required('Template for is required')
   });
+
+  // Handle form submission
+  const handleTemplateSubmit = async (values, { setSubmitting, resetForm }) => {
+    await new Promise(resolve => setTimeout(resolve, 500));
+    
+    if (editingTemplate) {
+      setTemplates(prev => prev.map(template => 
+        template.id === editingTemplate.id 
+          ? { ...template, ...values, updated_at: new Date().toISOString().split('T')[0] }
+          : template
+      ));
+      setEditingTemplate(null);
+    } else {
+      const newTemplate = {
+        id: templates.length + 1,
+        ...values,
+        created_at: new Date().toISOString().split('T')[0]
+      };
+      setTemplates(prev => [newTemplate, ...prev]);
+    }
+    
+    setShowForm(false);
+    resetForm();
+    setSubmitting(false);
+    
+    if (onSubmit) {
+      onSubmit(values);
+    }
+  };
 
   const handleAddTemplate = () => {
     setEditingTemplate(null);
-    formik.setFieldValue('template_type', 'general');
-    formik.setFieldValue('template_name', '');
-    formik.setFieldValue('template_for', 'editor');
-    formik.setFieldValue('is_active', true);
-    formik.setFieldValue('subject', '');
-    formik.setFieldValue('body', '');
     setShowForm(true);
   };
 
   const handleEditTemplate = (template) => {
     setEditingTemplate(template);
-    Object.keys(template).forEach(key => {
-      if (formik.values.hasOwnProperty(key)) {
-        formik.setFieldValue(key, template[key]);
-      }
-    });
     setShowForm(true);
     if (onEdit) onEdit(template);
   };
@@ -216,11 +137,10 @@ const EmailTemplatePage = ({ onSubmit, onEdit, onDelete }) => {
     if (onDelete) onDelete(template);
   };
 
-  const insertField = (fieldName) => {
+  const insertField = (fieldName, setFieldValue, currentBody) => {
     const placeholder = `{{${fieldName.toLowerCase().replace(' ', '_')}}}`;
-    const currentBody = formik.values.body;
     const newBody = currentBody + ' ' + placeholder;
-    formik.setFieldValue('body', newBody);
+    setFieldValue('body', newBody);
   };
 
   const toggleTemplateStatus = (templateId) => {
@@ -251,209 +171,231 @@ const EmailTemplatePage = ({ onSubmit, onEdit, onDelete }) => {
           </button>
         </div>
 
-        <div className="flex gap-6">
-          {/* Left Sidebar - Select Fields */}
-          <div className="w-64 bg-gray-50 rounded-lg p-4">
-            <h3 className="font-semibold text-gray-900 mb-4">Select Fields</h3>
-            <div className="space-y-3">
-              {Object.entries(fieldCategories).map(([category, fields]) => (
-                <div key={category}>
-                  <div className="flex items-center gap-2 p-2 bg-white rounded border cursor-pointer">
-                    <ChevronDown className="w-4 h-4" />
-                    <span className="font-medium text-sm">{category}</span>
-                  </div>
-                  <div className="ml-6 mt-2 space-y-1">
-                    {fields.map(field => (
-                      <button
-                        key={field}
-                        onClick={() => insertField(field)}
-                        className="block text-sm text-gray-700 hover:text-blue-600 hover:bg-blue-50 px-2 py-1 rounded transition-colors w-full text-left"
-                      >
-                        {field}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Main Form */}
-          <div className="flex-1">
-            <div className="bg-white border border-gray-200 rounded-lg p-6">
-              <div className="space-y-6">
-                {/* Template Name */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Name
-                  </label>
-                  <input
-                    type="text"
-                    name="template_name"
-                    value={formik.values.template_name}
-                    onChange={formik.handleChange}
-                    onBlur={formik.handleBlur}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                    placeholder="Enter template name"
-                  />
-                  {formik.errors.template_name && formik.touched.template_name && (
-                    <p className="mt-1 text-sm text-red-600">{formik.errors.template_name}</p>
-                  )}
-                </div>
-
-                {/* Subject */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Subject
-                  </label>
-                  <input
-                    type="text"
-                    name="subject"
-                    value={formik.values.subject}
-                    onChange={formik.handleChange}
-                    onBlur={formik.handleBlur}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                    placeholder="Enter email subject"
-                  />
-                  {formik.errors.subject && formik.touched.subject && (
-                    <p className="mt-1 text-sm text-red-600">{formik.errors.subject}</p>
-                  )}
-                </div>
-
-                {/* Template Type and Role */}
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      TemplateType
-                    </label>
-                    <select
-                      name="template_type"
-                      value={formik.values.template_type}
-                      onChange={formik.handleChange}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                    >
-                      {templateTypes.map(type => (
-                        <option key={type} value={type}>
-                          {type.charAt(0).toUpperCase() + type.slice(1)}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Role
-                    </label>
-                    <select
-                      name="template_for"
-                      value={formik.values.template_for}
-                      onChange={formik.handleChange}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                    >
-                      {templateForOptions.map(option => (
-                        <option key={option} value={option}>
-                          {option.charAt(0).toUpperCase() + option.slice(1)}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                </div>
-
-                {/* Active Status */}
-                <div className="flex items-center gap-3">
-                  <input
-                    type="checkbox"
-                    id="is_active"
-                    name="is_active"
-                    checked={formik.values.is_active}
-                    onChange={formik.handleChange}
-                    className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500"
-                  />
-                  <label htmlFor="is_active" className="text-sm font-medium text-gray-700">
-                    Active Template
-                  </label>
-                </div>
-
-                {/* Rich Text Editor Toolbar */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Email Content
-                  </label>
-                  <div className="border border-gray-300 rounded-md">
-                    {/* Toolbar */}
-                    <div className="flex items-center gap-1 p-2 border-b border-gray-200 bg-gray-50">
-                      <button type="button" className="p-1.5 hover:bg-gray-200 rounded"><Bold className="w-4 h-4" /></button>
-                      <button type="button" className="p-1.5 hover:bg-gray-200 rounded"><Italic className="w-4 h-4" /></button>
-                      <button type="button" className="p-1.5 hover:bg-gray-200 rounded"><Underline className="w-4 h-4" /></button>
-                      <div className="w-px h-6 bg-gray-300 mx-1" />
-                      <button type="button" className="p-1.5 hover:bg-gray-200 rounded"><AlignLeft className="w-4 h-4" /></button>
-                      <button type="button" className="p-1.5 hover:bg-gray-200 rounded"><AlignCenter className="w-4 h-4" /></button>
-                      <button type="button" className="p-1.5 hover:bg-gray-200 rounded"><AlignRight className="w-4 h-4" /></button>
-                      <div className="w-px h-6 bg-gray-300 mx-1" />
-                      <button type="button" className="p-1.5 hover:bg-gray-200 rounded"><List className="w-4 h-4" /></button>
-                      <button type="button" className="p-1.5 hover:bg-gray-200 rounded"><Link className="w-4 h-4" /></button>
-                      <button type="button" className="p-1.5 hover:bg-gray-200 rounded"><Image className="w-4 h-4" /></button>
-                      <button type="button" className="p-1.5 hover:bg-gray-200 rounded"><Code className="w-4 h-4" /></button>
-                      
-                      <div className="ml-auto flex items-center gap-2">
-                        <select className="text-xs border border-gray-300 rounded px-2 py-1">
-                          <option>Format</option>
-                          <option>Paragraph</option>
-                          <option>Heading 1</option>
-                          <option>Heading 2</option>
-                        </select>
-                        <select className="text-xs border border-gray-300 rounded px-2 py-1">
-                          <option>(inherited font)</option>
-                          <option>Arial</option>
-                          <option>Georgia</option>
-                        </select>
-                        <select className="text-xs border border-gray-300 rounded px-2 py-1">
-                          <option>(inherited size)</option>
-                          <option>12px</option>
-                          <option>14px</option>
-                        </select>
+        <Formik
+          initialValues={editingTemplate ? {
+            template_type: editingTemplate.template_type || 'general',
+            template_name: editingTemplate.template_name || '',
+            template_for: editingTemplate.template_for || 'editor',
+            is_active: editingTemplate.is_active !== undefined ? editingTemplate.is_active : true,
+            subject: editingTemplate.subject || '',
+            body: editingTemplate.body || ''
+          } : initialValues}
+          validationSchema={validationSchema}
+          onSubmit={handleTemplateSubmit}
+          enableReinitialize={true}
+        >
+          {({ isSubmitting, values, setFieldValue }) => (
+            <div className="flex gap-6">
+              {/* Left Sidebar - Select Fields */}
+              <div className="w-64 bg-gray-50 rounded-lg p-4">
+                <h3 className="font-semibold text-gray-900 mb-4">Select Fields</h3>
+                <div className="space-y-3">
+                  {Object.entries(fieldCategories).map(([category, fields]) => (
+                    <div key={category}>
+                      <div className="flex items-center gap-2 p-2 bg-white rounded border cursor-pointer">
+                        <ChevronDown className="w-4 h-4" />
+                        <span className="font-medium text-sm">{category}</span>
+                      </div>
+                      <div className="ml-6 mt-2 space-y-1">
+                        {fields.map(field => (
+                          <button
+                            key={field}
+                            type="button"
+                            onClick={() => insertField(field, setFieldValue, values.body)}
+                            className="block text-sm text-gray-700 hover:text-blue-600 hover:bg-blue-50 px-2 py-1 rounded transition-colors w-full text-left"
+                          >
+                            {field}
+                          </button>
+                        ))}
                       </div>
                     </div>
-                    
-                    {/* Text Area */}
-                    <textarea
-                      name="body"
-                      value={formik.values.body}
-                      onChange={formik.handleChange}
-                      onBlur={formik.handleBlur}
-                      rows={10}
-                      className="w-full p-3 border-0 focus:outline-none focus:ring-0 resize-none"
-                      placeholder="Enter your email content here..."
-                    />
-                  </div>
-                  {formik.errors.body && formik.touched.body && (
-                    <p className="mt-1 text-sm text-red-600">{formik.errors.body}</p>
-                  )}
+                  ))}
                 </div>
+              </div>
 
-                {/* Action Buttons */}
-                <div className="flex gap-3 pt-4">
-                  <button
-                    type="button"
-                    onClick={formik.handleSubmit}
-                    disabled={formik.isSubmitting}
-                    className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 transition-colors"
-                  >
-                    <Save className="w-4 h-4" />
-                    {formik.isSubmitting ? 'Saving...' : 'Save Template'}
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setShowForm(false)}
-                    className="px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 transition-colors"
-                  >
-                    Cancel
-                  </button>
+              {/* Main Form */}
+              <div className="flex-1">
+                <div className="bg-white border border-gray-200 rounded-lg p-6">
+                  <Form>
+                    <div className="space-y-6">
+                      {/* Template Name */}
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          Name
+                        </label>
+                        <Field
+                          name="template_name"
+                          type="text"
+                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                          placeholder="Enter template name"
+                        />
+                        <ErrorMessage
+                          name="template_name"
+                          component="div"
+                          className="mt-1 text-sm text-red-600"
+                        />
+                      </div>
+
+                      {/* Subject */}
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          Subject
+                        </label>
+                        <Field
+                          name="subject"
+                          type="text"
+                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                          placeholder="Enter email subject"
+                        />
+                        <ErrorMessage
+                          name="subject"
+                          component="div"
+                          className="mt-1 text-sm text-red-600"
+                        />
+                      </div>
+
+                      {/* Template Type and Role */}
+                      <div className="grid grid-cols-2 gap-4">
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-2">
+                            Template Type
+                          </label>
+                          <Field
+                            as="select"
+                            name="template_type"
+                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                          >
+                            {templateTypes.map(type => (
+                              <option key={type} value={type}>
+                                {type.charAt(0).toUpperCase() + type.slice(1)}
+                              </option>
+                            ))}
+                          </Field>
+                          <ErrorMessage
+                            name="template_type"
+                            component="div"
+                            className="mt-1 text-sm text-red-600"
+                          />
+                        </div>
+
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-2">
+                            Role
+                          </label>
+                          <Field
+                            as="select"
+                            name="template_for"
+                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                          >
+                            {templateForOptions.map(option => (
+                              <option key={option} value={option}>
+                                {option.charAt(0).toUpperCase() + option.slice(1)}
+                              </option>
+                            ))}
+                          </Field>
+                          <ErrorMessage
+                            name="template_for"
+                            component="div"
+                            className="mt-1 text-sm text-red-600"
+                          />
+                        </div>
+                      </div>
+
+                      {/* Active Status */}
+                      <div className="flex items-center gap-3">
+                        <Field
+                          type="checkbox"
+                          id="is_active"
+                          name="is_active"
+                          className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500"
+                        />
+                        <label htmlFor="is_active" className="text-sm font-medium text-gray-700">
+                          Active Template
+                        </label>
+                      </div>
+
+                      {/* Rich Text Editor Toolbar */}
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          Email Content
+                        </label>
+                        <div className="border border-gray-300 rounded-md">
+                          {/* Toolbar */}
+                          <div className="flex items-center gap-1 p-2 border-b border-gray-200 bg-gray-50">
+                            <button type="button" className="p-1.5 hover:bg-gray-200 rounded"><Bold className="w-4 h-4" /></button>
+                            <button type="button" className="p-1.5 hover:bg-gray-200 rounded"><Italic className="w-4 h-4" /></button>
+                            <button type="button" className="p-1.5 hover:bg-gray-200 rounded"><Underline className="w-4 h-4" /></button>
+                            <div className="w-px h-6 bg-gray-300 mx-1" />
+                            <button type="button" className="p-1.5 hover:bg-gray-200 rounded"><AlignLeft className="w-4 h-4" /></button>
+                            <button type="button" className="p-1.5 hover:bg-gray-200 rounded"><AlignCenter className="w-4 h-4" /></button>
+                            <button type="button" className="p-1.5 hover:bg-gray-200 rounded"><AlignRight className="w-4 h-4" /></button>
+                            <div className="w-px h-6 bg-gray-300 mx-1" />
+                            <button type="button" className="p-1.5 hover:bg-gray-200 rounded"><List className="w-4 h-4" /></button>
+                            <button type="button" className="p-1.5 hover:bg-gray-200 rounded"><Link className="w-4 h-4" /></button>
+                            <button type="button" className="p-1.5 hover:bg-gray-200 rounded"><Image className="w-4 h-4" /></button>
+                            <button type="button" className="p-1.5 hover:bg-gray-200 rounded"><Code className="w-4 h-4" /></button>
+                            
+                            <div className="ml-auto flex items-center gap-2">
+                              <select className="text-xs border border-gray-300 rounded px-2 py-1">
+                                <option>Format</option>
+                                <option>Paragraph</option>
+                                <option>Heading 1</option>
+                                <option>Heading 2</option>
+                              </select>
+                              <select className="text-xs border border-gray-300 rounded px-2 py-1">
+                                <option>(inherited font)</option>
+                                <option>Arial</option>
+                                <option>Georgia</option>
+                              </select>
+                              <select className="text-xs border border-gray-300 rounded px-2 py-1">
+                                <option>(inherited size)</option>
+                                <option>12px</option>
+                                <option>14px</option>
+                              </select>
+                            </div>
+                          </div>
+                          
+                          {/* Text Area */}
+                          <Field
+                            as="textarea"
+                            name="body"
+                            rows={10}
+                            className="w-full p-3 border-0 focus:outline-none focus:ring-0 resize-none"
+                            placeholder="Enter your email content here..."
+                          />
+                        </div>
+                        <ErrorMessage
+                          name="body"
+                          component="div"
+                          className="mt-1 text-sm text-red-600"
+                        />
+                      </div>
+
+                      {/* Action Buttons */}
+                      <div className="flex gap-3 pt-4">
+                        <button
+                          type="submit"
+                          disabled={isSubmitting}
+                          className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 transition-colors"
+                        >
+                          <Save className="w-4 h-4" />
+                          {isSubmitting ? 'Saving...' : 'Save Template'}
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setShowForm(false)}
+                          className="px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 transition-colors"
+                        >
+                          Cancel
+                        </button>
+                      </div>
+                    </div>
+                  </Form>
                 </div>
               </div>
             </div>
-          </div>
-        </div>
+          )}
+        </Formik>
       </div>
     );
   }

@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import { Formik, Form, Field, ErrorMessage } from 'formik';
+import * as Yup from 'yup';
 import { 
   Plus, 
   Tag, 
@@ -7,82 +9,6 @@ import {
   Save,
   X
 } from 'lucide-react';
-
-// Mock Formik implementation since it's not available
-const useFormik = (config) => {
-  const [values, setValues] = useState(config.initialValues);
-  const [errors, setErrors] = useState({});
-  const [touched, setTouched] = useState({});
-  const [isSubmitting, setIsSubmitting] = useState(false);
-
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setValues(prev => ({ ...prev, [name]: value }));
-    
-    // Clear error when user starts typing
-    if (errors[name]) {
-      setErrors(prev => ({ ...prev, [name]: '' }));
-    }
-  };
-
-  const handleBlur = (e) => {
-    const { name } = e.target;
-    setTouched(prev => ({ ...prev, [name]: true }));
-    
-    // Run validation
-    if (config.validate) {
-      const validationErrors = config.validate(values);
-      setErrors(validationErrors);
-    }
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setIsSubmitting(true);
-    
-    // Mark all fields as touched
-    const touchedFields = {};
-    Object.keys(values).forEach(key => {
-      touchedFields[key] = true;
-    });
-    setTouched(touchedFields);
-    
-    // Validate
-    let validationErrors = {};
-    if (config.validate) {
-      validationErrors = config.validate(values);
-      setErrors(validationErrors);
-    }
-    
-    // If no errors, submit
-    if (Object.keys(validationErrors).length === 0) {
-      await config.onSubmit(values);
-      // Reset form on successful submission
-      setValues(config.initialValues);
-      setTouched({});
-      setErrors({});
-    }
-    
-    setIsSubmitting(false);
-  };
-
-  const resetForm = () => {
-    setValues(config.initialValues);
-    setTouched({});
-    setErrors({});
-  };
-
-  return {
-    values,
-    errors,
-    touched,
-    isSubmitting,
-    handleChange,
-    handleBlur,
-    handleSubmit,
-    resetForm
-  };
-};
 
 const FieldTypePage = ({ onSubmit, onEdit, onDelete }) => {
   // Mock existing categories
@@ -96,40 +22,39 @@ const FieldTypePage = ({ onSubmit, onEdit, onDelete }) => {
 
   const [editingId, setEditingId] = useState(null);
 
-  const formik = useFormik({
-    initialValues: {
-      field_name: '',
-      field_type: ''
-    },
-    validate: (values) => {
-      const errors = {};
-      if (!values.field_name.trim()) {
-        errors.field_name = 'Field name is required';
-      }
-      if (!values.field_type.trim()) {
-        errors.field_type = 'Field type is required';
-      }
-      return errors;
-    },
-    onSubmit: async (values) => {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 500));
-      
-      const newCategory = {
-        id: categories.length + 1,
-        ...values,
-        created_at: new Date().toISOString().split('T')[0]
-      };
-      
-      setCategories(prev => [newCategory, ...prev]);
-      
-      if (onSubmit) {
-        onSubmit(values);
-      }
-      
-      console.log('Form submitted:', values);
-    }
+  // Initial values for Formik
+  const initialValues = {
+    field_name: '',
+    field_type: ''
+  };
+
+  // Validation schema using Yup
+  const validationSchema = Yup.object({
+    field_name: Yup.string().trim().required('Field name is required'),
+    field_type: Yup.string().trim().required('Field type is required')
   });
+
+  // Handle form submission
+  const handleCategorySubmit = async (values, { setSubmitting, resetForm }) => {
+    // Simulate API call
+    await new Promise(resolve => setTimeout(resolve, 500));
+    
+    const newCategory = {
+      id: categories.length + 1,
+      ...values,
+      created_at: new Date().toISOString().split('T')[0]
+    };
+    
+    setCategories(prev => [newCategory, ...prev]);
+    
+    if (onSubmit) {
+      onSubmit(values);
+    }
+    
+    console.log('Form submitted:', values);
+    resetForm();
+    setSubmitting(false);
+  };
 
   const handleEdit = (category) => {
     setEditingId(category.id);
@@ -171,83 +96,74 @@ const FieldTypePage = ({ onSubmit, onEdit, onDelete }) => {
           Add New Category
         </h2>
         
-        <div className="space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* Field Name */}
-            <div>
-              <label htmlFor="field_name" className="block text-sm font-medium text-gray-700 mb-2">
-                Field Name
-              </label>
-              <input
-                type="text"
-                id="field_name"
-                name="field_name"
-                value={formik.values.field_name}
-                onChange={formik.handleChange}
-                onBlur={formik.handleBlur}
-                className={`
-                  w-full px-4 py-3 border-2 rounded-lg transition-colors
-                  focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50
-                  ${formik.errors.field_name && formik.touched.field_name 
-                    ? 'border-red-300 focus:border-red-500' 
-                    : 'border-gray-300 focus:border-blue-500'
-                  }
-                `}
-                placeholder="Enter field name"
-              />
-              {formik.errors.field_name && formik.touched.field_name && (
-                <p className="mt-2 text-sm text-red-600">{formik.errors.field_name}</p>
-              )}
-            </div>
+        <Formik
+          initialValues={initialValues}
+          validationSchema={validationSchema}
+          onSubmit={handleCategorySubmit}
+        >
+          {({ isSubmitting }) => (
+            <Form>
+              <div className="space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {/* Field Name */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Field Name
+                    </label>
+                    <Field
+                      name="field_name"
+                      type="text"
+                      className="w-full px-4 py-3 border-2 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 border-gray-300 focus:border-blue-500"
+                      placeholder="Enter field name"
+                    />
+                    <ErrorMessage
+                      name="field_name"
+                      component="div"
+                      className="mt-2 text-sm text-red-600"
+                    />
+                  </div>
 
-            {/* Field Type */}
-            <div>
-              <label htmlFor="field_type" className="block text-sm font-medium text-gray-700 mb-2">
-                Field Type
-              </label>
-              <input
-                type="text"
-                id="field_type"
-                name="field_type"
-                value={formik.values.field_type}
-                onChange={formik.handleChange}
-                onBlur={formik.handleBlur}
-                className={`
-                  w-full px-4 py-3 border-2 rounded-lg transition-colors
-                  focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50
-                  ${formik.errors.field_type && formik.touched.field_type 
-                    ? 'border-red-300 focus:border-red-500' 
-                    : 'border-gray-300 focus:border-blue-500'
-                  }
-                `}
-                placeholder="Enter field type"
-              />
-              {formik.errors.field_type && formik.touched.field_type && (
-                <p className="mt-2 text-sm text-red-600">{formik.errors.field_type}</p>
-              )}
-            </div>
-          </div>
+                  {/* Field Type */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Field Type
+                    </label>
+                    <Field
+                      name="field_type"
+                      type="text"
+                      className="w-full px-4 py-3 border-2 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 border-gray-300 focus:border-blue-500"
+                      placeholder="Enter field type"
+                    />
+                    <ErrorMessage
+                      name="field_type"
+                      component="div"
+                      className="mt-2 text-sm text-red-600"
+                    />
+                  </div>
+                </div>
 
-          {/* Submit Button */}
-          <div className="flex justify-end">
-            <button
-              type="button"
-              onClick={formik.handleSubmit}
-              disabled={formik.isSubmitting}
-              className={`
-                flex items-center gap-2 px-6 py-3 rounded-lg font-medium transition-all
-                ${formik.isSubmitting
-                  ? 'bg-gray-400 cursor-not-allowed'
-                  : 'bg-blue-600 hover:bg-blue-700 hover:shadow-lg transform hover:scale-[1.02]'
-                }
-                text-white
-              `}
-            >
-              <Save className="w-4 h-4" />
-              {formik.isSubmitting ? 'Adding...' : 'Add Category'}
-            </button>
-          </div>
-        </div>
+                {/* Submit Button */}
+                <div className="flex justify-end">
+                  <button
+                    type="submit"
+                    disabled={isSubmitting}
+                    className={`
+                      flex items-center gap-2 px-6 py-3 rounded-lg font-medium transition-all
+                      ${isSubmitting
+                        ? 'bg-gray-400 cursor-not-allowed'
+                        : 'bg-blue-600 hover:bg-blue-700 hover:shadow-lg transform hover:scale-[1.02]'
+                      }
+                      text-white
+                    `}
+                  >
+                    <Save className="w-4 h-4" />
+                    {isSubmitting ? 'Adding...' : 'Add Category'}
+                  </button>
+                </div>
+              </div>
+            </Form>
+          )}
+        </Formik>
       </div>
 
       {/* Existing Categories List */}
@@ -275,7 +191,10 @@ const FieldTypePage = ({ onSubmit, onEdit, onDelete }) => {
                   </div>
                   <div>
                     <h3 className="font-medium text-gray-900">{category.field_name}</h3>
-                    <div className="flex items-center gap-2 mt-1">                     
+                    <div className="flex items-center gap-2 mt-1">
+                      <span className={`px-2 py-1 text-xs font-medium rounded-full ${getFieldTypeColor(category.field_type)}`}>
+                        {category.field_type}
+                      </span>
                       <span className="text-xs text-gray-500">Created: {category.created_at}</span>
                     </div>
                   </div>

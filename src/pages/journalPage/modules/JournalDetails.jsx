@@ -9,7 +9,6 @@ import { filterbyUserRole } from "@/utils/filterByUserRole";
 import groupByRound from "@/utils/handleReviewRound";
 import {
   ChevronDown,
-  ChevronLeft,
   Clock,
   FileText,
   MessageSquare,
@@ -22,15 +21,17 @@ import {
   File,
 } from "lucide-react";
 import { useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 
 function JournalDetails() {
   const [expandedRounds, setExpandedRounds] = useState({});
   const [expandedReviewers, setExpandedReviewers] = useState({});
   const [expandedEditors, setExpandedEditors] = useState({});
   const [expandedPublisher, setExpandedPublisher] = useState({});
+  const [queryParams] = useSearchParams()
 
   const { article_id } = useParams();
+  const round = queryParams.get('round')
   const { user: userInfo } = useAuth();
   // console.log(userN?.[`${userN.role}_id`]);
 
@@ -50,7 +51,7 @@ function JournalDetails() {
       : [];
 
   const UserDataInfo =
-    user && filterbyUserRole(paramData, user?.role, user?.userId);
+    user && filterbyUserRole(paramData, user?.role, user?.userId, Number(round) + 1);
 
   // Status Update by Editor ---
   const [updateStatusEditor] = useToastMutation(
@@ -134,6 +135,7 @@ function JournalDetails() {
         editor_id: user.userId,
         article_id: Number(article_id),
         status: type === "accepted" ? "accepted" : "rejected",
+        round: Number(round) + 1
       });
     }
   };
@@ -144,6 +146,7 @@ function JournalDetails() {
       reviewer_id: user.userId,
       article_id: Number(article_id),
       is_accepted: type === "accepted" ? "accepted" : "rejected",
+      round: Number(round) + 1
     });
   };
 
@@ -461,7 +464,7 @@ function JournalDetails() {
           <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
             {manuscriptDetails &&
               manuscriptDetails.data?.AssignEditor?.map((editor, index) => (
-                <div key={index}>
+                <div key={index} className="mt-3">
                   {/* Editor Header - Clickable */}
                   <button
                     onClick={() => toggleEditor(index)}

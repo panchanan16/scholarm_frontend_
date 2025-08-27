@@ -21,11 +21,16 @@ const AssignReviewerPage = () => {
   const [availabilityFilter, setAvailabilityFilter] = useState("free");
   const [isAssignOpen, setIsAssignOpen] = useState(false);
   const [editorId, setEditorId] = useState(0);
-  const [searchParams, setSearchParams] = useSearchParams();
+  const [searchParams] = useSearchParams();
 
+  const round = searchParams.get('round')
   const { data: assignedReviewers } = useGetAssignedReviewersQuery(
-    searchParams.get("article_id") || 0
+    {
+      article_id: searchParams.get("article_id") || 0,
+      round: Number(round) + 1
+    }
   );
+
 
   // Multiple selection states
   const [selectedEditors, setSelectedEditors] = useState([]);
@@ -44,11 +49,11 @@ const AssignReviewerPage = () => {
 
   // Array 4 → Items in array2 that are in array1
   const alreadyAssignedReviewers = reviewerAll && reviewerAll.data.filter((item) =>
-    reviewerIdsInArray1.has(item.reviewer_id)
+    reviewerIdsInArray1.has(item.reviewer_id) 
   );
 
-  console.log("freeReviewers (Not in Array1):", freeReviewers);
-  console.log("alreadyAssignedReviewers (In Array1):", alreadyAssignedReviewers);
+  // console.log("freeReviewers (Not in Array1):", freeReviewers);
+  // console.log("alreadyAssignedReviewers (In Array1):", alreadyAssignedReviewers);
 
   const reviewesToRender = availabilityFilter === "free" ? freeReviewers : alreadyAssignedReviewers;
 

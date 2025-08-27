@@ -168,7 +168,7 @@ export const roleBasedStatus = {
         {
             id: 10,
             urlParam: {
-                type: "revison",
+                type: "revision",
                 status: "newsubmission",
             },
             status: "New Revision"
@@ -176,7 +176,7 @@ export const roleBasedStatus = {
         {
             id: 11,
             urlParam: {
-                type: "revison",
+                type: "revision",
                 status: "editorinvited",
             },
             status: "Editor Invited"
@@ -185,7 +185,7 @@ export const roleBasedStatus = {
         {
             id: 12,
             urlParam: {
-                type: "revison",
+                type: "revision",
                 status: "needtoassigneditor",
             },
             status: "Need to Assign Editor"
@@ -193,7 +193,7 @@ export const roleBasedStatus = {
         {
             id: 13,
             urlParam: {
-                type: "revison",
+                type: "revision",
                 status: "needtoassignreviewer",
             },
             status: "Need to Assign Reviewer"

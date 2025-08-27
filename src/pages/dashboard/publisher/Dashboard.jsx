@@ -112,25 +112,25 @@ const Dashboard = () => {
       label: "Reviewers Invited",
       count: 54,
       priority: "blue",
-      link: "manuscript?role=admin&status=newsubmission",
+      link: "manuscript?type=regular&status=reviewerinvited",
     },
     {
       label: "Submission Require Additional Reviews",
       count: 51,
       priority: "orange",
-      link: "manuscript?role=admin&status=newsubmission",
+      link: "manuscript?type=regular&status=submissionneedadditionalreviewers",
     },
     {
       label: "Submission With Required Reviews Completed",
       count: 3,
       priority: "green",
-      link: "manuscript?role=admin&status=newsubmission",
+      link: "manuscript?type=regular&status=submissionwithrequiredreviewerscompleted",
     },
     {
       label: "Under Review",
       count: 25,
       priority: "yellow",
-      link: "manuscript?role=admin&status=newsubmission",
+      link: "manuscript?type=regular&status=underreview",
     },
   ];
 
@@ -139,25 +139,25 @@ const Dashboard = () => {
       label: "New Revision Received",
       count: 26,
       priority: "blue",
-      link: "manuscript?role=admin&type=revision&status=newsubmission",
+      link: "manuscript?type=revision&status=newsubmission",
     },
     {
       label: "Editor Invited",
       count: 0,
       priority: "gray",
-      link: "manuscript?role=admin&type=revision&status=editorinvited",
+      link: "manuscript?type=revision&status=editorinvited",
     },
     {
       label: "Need To Assign Editor",
       count: 0,
       priority: "gray",
-      link: "manuscript?role=admin&type=revision&status=needtoassigneditor",
+      link: "manuscript?type=revision&status=needtoassigneditor",
     },
     {
       label: "Need To Assign Reviewers",
       count: 0,
       priority: "gray",
-      link: "manuscript?role=admin&&type=revision&status=needtoassignreviewer",
+      link: "manuscript?type=revision&status=needtoassignreviewer",
     },
   ];
 
@@ -166,25 +166,25 @@ const Dashboard = () => {
       label: "Reviewers Invited",
       count: 0,
       priority: "gray",
-      link: "manuscript?role=admin&type=revision&status=reviewerinvited",
+      link: "manuscript?type=revision&status=reviewerinvited",
     },
     {
       label: "Submission Require Additional Reviews",
       count: 0,
       priority: "gray",
-      link: "manuscript?role=admin&type=revision&status=submissionneedadditionalreviewers",
+      link: "manuscript?type=revision&status=submissionneedadditionalreviewers",
     },
     {
       label: "Submission With Required Reviews Completed",
       count: 0,
       priority: "gray",
-      link: "manuscript?role=admin&type=revision&status=submissionwithrequiredreviewerscompleted",
+      link: "manuscript?type=revision&status=submissionwithrequiredreviewerscompleted",
     },
     {
       label: "Under Review",
       count: 0,
       priority: "gray",
-      link: "manuscript?role=admin&type=revision&status=underreview",
+      link: "manuscript?type=revision&status=underreview",
     },
   ];
 

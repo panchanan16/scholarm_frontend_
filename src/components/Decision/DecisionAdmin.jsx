@@ -65,7 +65,8 @@ export default function DescisionAdmin({
     authorId,
     isSelected,
     setFieldValue,
-    currentToShow
+    currentToShow,
+    round
   ) => {
     let updatedToShow;
     if (isSelected) {

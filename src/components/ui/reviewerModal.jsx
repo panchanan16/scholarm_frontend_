@@ -44,7 +44,6 @@ export default function AddReviewerModal({
     city: "",
   };
 
-  console.log(initialValues);
 
   const handleReviewerSubmit = async (values, setSubmitting) => {
     if (data && initialValues.reviewer_id) {

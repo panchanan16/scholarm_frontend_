@@ -22,13 +22,13 @@ export const manuscriptApi = baseApi.injectEndpoints({
         }),
 
         // GET manuscript for preview---
-         getManuscriptForView: builder.query({
+        getManuscriptForView: builder.query({
             query: (article_id) => ({
                 url: '/manuscript/findArticleForView',
                 params: {
                     article_id
                 },
-            }),         
+            }),
         }),
 
         // Get manuscript API by status for publisher ---
@@ -165,11 +165,12 @@ export const manuscriptApi = baseApi.injectEndpoints({
 
         // get all assigned reviewers for a manuscript ---
         getAssignedReviewers: builder.query({
-            query: (article_id) => ({
+            query: (params) => ({
                 url: `/assignReviewer/readAll`,
                 method: 'GET',
                 params: {
-                    article_id: article_id,
+                    article_id: params.article_id,
+                    round: params.round
                 },
             }),
         }),
@@ -191,6 +192,18 @@ export const manuscriptApi = baseApi.injectEndpoints({
                 method: 'POST',
                 body: data,
             }),
+        }),
+
+        // Delete a manuscript ---
+        deleteManuscript: builder.mutation({
+            query: (article_id) => ({
+                url: '/introarticle/remove',
+                params: {
+                    intro_id: article_id
+                },
+                method: 'DELETE',
+            }),
+            invalidatesTags: ["ManuscriptList"]
         }),
 
 
@@ -216,5 +229,6 @@ export const {
     useUpdateAssignMentStatusReviewerMutation,
     useAddPublisherDescisionMutation,
     useLazyGetManuscriptForAuthorQuery,
-    useGetManuscriptForViewQuery
+    useGetManuscriptForViewQuery,
+    useDeleteManuscriptMutation
 } = manuscriptApi

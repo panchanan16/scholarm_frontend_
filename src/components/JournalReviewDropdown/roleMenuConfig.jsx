@@ -27,7 +27,7 @@ export const roleMenuConfigs = {
       icon: UserPlus,
       type: "link",
       status: ["newsubmission", "needtoassigneditor"],
-      url: (manuscript) => `assign-editor?article_id=${manuscript.intro_id}`,
+      url: (manuscript) => `assign-editor?article_id=${manuscript.intro_id}&round=${manuscript.revision_round}`,
     },
     {
       id: "edit-manuscript",
@@ -42,7 +42,8 @@ export const roleMenuConfigs = {
       label: "Invite Reviewer",
       icon: UserPlus,
       type: "link",
-      url: (manuscript) => `assign-reviewer?article_id=${manuscript.intro_id}`,
+      status: ["reviewerinvited", "needtoassignreviewer", "submissionneedadditionalreviewers", "underreview"],
+      url: (manuscript) => `assign-reviewer?article_id=${manuscript.intro_id}&round=${manuscript.revision_round}`,
     },
     {
       id: "publisher-decision",
@@ -91,7 +92,7 @@ export const roleMenuConfigs = {
       label: "Delete",
       icon: Trash2,
       type: "button",
-      action: "handleDelete",
+      action: "handleDeleteManuscript",
       className: "text-red-600 hover:bg-red-50",
     },
   ],
@@ -114,9 +115,10 @@ export const roleMenuConfigs = {
     {
       id: "invite-reviewer",
       label: "Invite Reviewer",
+      status: ["reviewerinvited", "needtoassignreviewer", "submissionneedadditionalreviewers", "underreview"],
       icon: UserPlus,
       type: "link",
-      url: (manuscript) => `assign-reviewer?article_id=${manuscript.intro_id}`,
+      url: (manuscript) => `assign-reviewer?article_id=${manuscript.intro_id}&round=${manuscript.revision_round}`,
     },
     {
       id: "editor-decision",

@@ -11,6 +11,7 @@ export default function DecisionEditor({
   onClose,
   editor_id,
   article_id,
+  round
 }) {
   const [selectedFile, setSelectedFile] = useState(null);
 
@@ -26,6 +27,7 @@ export default function DecisionEditor({
   const initialValues = {
     editor_id: Number(editor_id),
     article_id: Number(article_id),
+    round: round,
     is_completed: true,
     comments: "",
     editor_file: "",

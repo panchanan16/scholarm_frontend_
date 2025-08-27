@@ -7,9 +7,10 @@ import { useSearchParams } from "react-router-dom";
 const AssignEditorPopup = ({ isOpen, onClose, onSend, email, editor_id }) => {
   const [selectedTemplate, setSelectedTemplate] = useState("");
   const [numberOfDays, setNumberOfDays] = useState(10);
-  const [searchParams, setSearchParams] = useSearchParams();
+  const [searchParams] = useSearchParams();
 
   const article_id = searchParams.get("article_id") || 0;
+  const round = searchParams.get("round")
 
   const [subject, setSubject] = useState(
     "Assignment as Editor for Manuscript ID: JPMS148833"
@@ -49,6 +50,7 @@ This email and any attached information is only intended for individual/s or ent
     await assignEditorToArticle({
       article_id: Number(article_id),
       editor_id: editor_id,
+      round: Number(round) + 1,
       editor_email: email,
       email_subject: subject,
       email_body: emailContent,

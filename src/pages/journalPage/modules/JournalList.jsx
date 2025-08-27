@@ -21,9 +21,10 @@ import {
   setStatusForDashboard,
 } from "@/utils/setStatusForDashboard";
 import { useSearchParamIfExist } from "@/hooks/useSearchParamIfExist";
+import { useToastMutation } from "@/hooks/useNotification";
+import { useDeleteManuscriptMutation } from "@/services/features/manuscript/slice";
 
 const JournalListTable = () => {
-  const [queryParams, setQueryParams] = useSearchParams();
   const [searchTerm, setSearchTerm] = useState("");
   const [isOpenReviewerDecision, setIsOpenReviewerDecision] = useState(false);
   const [isOpenEditorDecision, setIsOpenEditorDecision] = useState(false);
@@ -31,6 +32,7 @@ const JournalListTable = () => {
   const [openDropdown, setOpenDropdown] = useState(null);
   const [searchParams, setQueryParamsIfTruthy] = useSearchParamIfExist();
   const [articleId, setArticleId] = useState(null);
+  const [revRound, setRevRound] = useState(null);
   const dropdownRef = useRef(null);
 
   // Page meta data ---
@@ -51,9 +53,12 @@ const JournalListTable = () => {
     type: searchParams.get("type"),
   });
 
-  const currentStatus = setStatusForDashboard(searchParams, user.role);
+  // Delete manuscript
+  const [deleteManuscript] = useToastMutation(useDeleteManuscriptMutation(), {
+    showLoading: true,
+  });
 
-  console.log(currentStatus);
+  const currentStatus = setStatusForDashboard(searchParams, user.role);
 
   // Handle outside click for dropdown
   useEffect(() => {
@@ -69,7 +74,6 @@ const JournalListTable = () => {
     };
   }, []);
 
-
   const handleChangeStatus = (e, role) => {
     const statusmap = role ? roleBasedStatus[role] : [];
     const selectedId = Number(e.target.value);
@@ -80,19 +84,25 @@ const JournalListTable = () => {
     }
   };
 
-  function handleReviewerDescision(article_id) {
+  function handleReviewerDescision(article_id, round) {
     setIsOpenReviewerDecision(true);
     setArticleId(article_id);
+    setRevRound(round);
   }
 
-  function handleEditorDescision(article_id) {
+  function handleEditorDescision(article_id, round) {
     setIsOpenEditorDecision(true);
     setArticleId(article_id);
+    setRevRound(round);
   }
 
   function handlePublisherDescision(article_id) {
     setIsOpenAdminDecision(true);
     setArticleId(article_id);
+  }
+
+  async function handleDeleteManuscript(article_id) {
+    deleteManuscript(article_id);
   }
 
   // handle actions ---
@@ -105,12 +115,18 @@ const JournalListTable = () => {
 
       case "handleEditorDescision":
         // Handle editor decision
-        handleEditorDescision(manuscript.intro_id);
+        handleEditorDescision(
+          manuscript.intro_id,
+          manuscript.revision_round + 1
+        );
         break;
 
       case "handleReviewerDecision":
         // Handle reviewer decision
-        handleReviewerDescision(manuscript.intro_id);
+        handleReviewerDescision(
+          manuscript.intro_id,
+          manuscript.revision_round + 1
+        );
         break;
 
       case "handlePublisherDecision":
@@ -133,12 +149,12 @@ const JournalListTable = () => {
         console.log("Flagging manuscript:", manuscript.intro_id);
         break;
 
-      case "handleDelete":
+      case "handleDeleteManuscript":
         // Handle delete with confirmation
         if (
           window.confirm("Are you sure you want to delete this manuscript?")
         ) {
-          console.log("Deleting manuscript:", manuscript.intro_id);
+          handleDeleteManuscript(manuscript.intro_id);
         }
         break;
 
@@ -317,7 +333,7 @@ const JournalListTable = () => {
 
                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                       <div className="flex items-center justify-end gap-2">
-                        <Link to={`${manuscript.intro_id}`}>
+                        <Link to={`${manuscript.intro_id}?round=${manuscript.revision_round}`}>
                           <button
                             className="text-blue-600 hover:text-blue-800 p-1 rounded-md hover:bg-blue-50 transition-colors"
                             title="View Details"
@@ -379,12 +395,14 @@ const JournalListTable = () => {
             onClose={setIsOpenEditorDecision}
             article_id={articleId}
             editor_id={user.userId}
+            round={revRound}
           />
           <DecisonReviewer
             isOpen={isOpenReviewerDecision}
             onClose={setIsOpenReviewerDecision}
             article_id={articleId}
             reviewer_id={user.userId}
+            round={revRound}
           />
 
           <DescisionAdmin

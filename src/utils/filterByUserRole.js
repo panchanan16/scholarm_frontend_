@@ -3,8 +3,10 @@ export function filterbyUserRole(data, role, userId, round) {
         const userInfo = data?.length && data.filter((userData) => userData.editor_id == userId && userData.round == round)
         return userInfo?.length ? userInfo[0] : null
     } else if (role === 'reviewer') {
-        const userInfo = data.filter((userData) => userData.reviewer_id == userId && userData.round == round)
-        return userInfo?.length ? userInfo[0] : null
+        console.log(data)
+        const userInfo = data.filter((userData) => userData.reviewer_id == userId)
+        console.log(userInfo)
+        return userInfo?.length > 0 ? userInfo : null
     } else {
         return null;
     }

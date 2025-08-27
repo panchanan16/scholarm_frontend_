@@ -28,10 +28,10 @@ function JournalDetails() {
   const [expandedReviewers, setExpandedReviewers] = useState({});
   const [expandedEditors, setExpandedEditors] = useState({});
   const [expandedPublisher, setExpandedPublisher] = useState({});
-  const [queryParams] = useSearchParams()
+  const [queryParams] = useSearchParams();
 
   const { article_id } = useParams();
-  const round = queryParams.get('round')
+  const round = queryParams.get("round");
   const { user: userInfo } = useAuth();
   // console.log(userN?.[`${userN.role}_id`]);
 
@@ -51,7 +51,8 @@ function JournalDetails() {
       : [];
 
   const UserDataInfo =
-    user && filterbyUserRole(paramData, user?.role, user?.userId, Number(round) + 1);
+    user &&
+    filterbyUserRole(paramData, user?.role, user?.userId, Number(round) + 1);
 
   // Status Update by Editor ---
   const [updateStatusEditor] = useToastMutation(
@@ -129,24 +130,24 @@ function JournalDetails() {
   };
 
   // Handler functions for Accept and Reject buttons for Editor
-  const handleEditorStatus = async (type) => {
+  const handleEditorStatus = async (type, roundRev) => {
     if (user) {
       await updateStatusEditor({
         editor_id: user.userId,
         article_id: Number(article_id),
         status: type === "accepted" ? "accepted" : "rejected",
-        round: Number(round) + 1
+        round: Number(round) + 1,
       });
     }
   };
 
   // Handler functions for Accept and Reject buttons for Reviewer
-  const handleReviewerStatus = async (type) => {
+  const handleReviewerStatus = async (type, roundRev) => {
     await updateStatusReviewer({
       reviewer_id: user.userId,
       article_id: Number(article_id),
       is_accepted: type === "accepted" ? "accepted" : "rejected",
-      round: Number(round) + 1
+      round: Number(roundRev),
     });
   };
 
@@ -202,27 +203,34 @@ function JournalDetails() {
                   </button>
                 </>
               )}
+            {/* ?.is_accepted === "invited" */}
 
             {/* Status For Reviewer */}
             {user.role === "reviewer" &&
-              UserDataInfo?.is_accepted === "invited" && (
-                <>
-                  <button
-                    onClick={() => handleReviewerStatus("accepted")}
-                    className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-medium transition-colors flex items-center gap-2 text-sm"
-                  >
-                    <Check className="h-4 w-4" />
-                    Accept
-                  </button>
-                  <button
-                    onClick={() => handleReviewerStatus("rejected")}
-                    className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg font-medium transition-colors flex items-center gap-2 text-sm"
-                  >
-                    <XCircle className="h-4 w-4" />
-                    Reject
-                  </button>
-                </>
-              )}
+              UserDataInfo?.length > 0 &&
+              UserDataInfo.map((userData) => {
+                if (userData?.is_accepted === "invited") {
+                  return (
+                    <div key={userData.id} className="flex gap-3 items-center">
+                      <span className="font-semibold">Revision Round - {userData.round}</span>
+                      <button
+                        onClick={() => handleReviewerStatus("accepted", userData.round)}
+                        className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-medium transition-colors flex items-center gap-2 text-sm"
+                      >
+                        <Check className="h-4 w-4" />
+                        Accept
+                      </button>
+                      <button
+                        onClick={() => handleReviewerStatus("rejected", userData.round)}
+                        className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg font-medium transition-colors flex items-center gap-2 text-sm"
+                      >
+                        <XCircle className="h-4 w-4" />
+                        Reject
+                      </button>
+                    </div>
+                  );
+                }
+              })}
             <button
               onClick={() => navigate(-1)}
               className="text-gray-400 hover:text-gray-600 p-1 rounded-md hover:bg-gray-100 transition-colors"
@@ -340,12 +348,13 @@ function JournalDetails() {
                   >
                     <h3 className="text-lg font-semibold text-yellow-600 flex items-center gap-2">
                       <User className="h-5 w-5" />
-                      Publisher <span className="text-xs">Round - {editor.round}</span>
+                      Publisher{" "}
+                      <span className="text-xs">Round - {editor.round}</span>
                     </h3>
                     <div className="flex items-center gap-4">
                       <p className="text-gray-700 font-medium">
                         {editor?.admin.admin_name}
-                      </p>                      
+                      </p>
                       <ChevronDown
                         className={`h-5 w-5 text-gray-500 transition-transform duration-200 ${
                           expandedPublisher[index] ? "rotate-180" : ""
@@ -367,7 +376,7 @@ function JournalDetails() {
                               </th>
                               <th className="border border-gray-300 px-3 py-2 text-left font-semibold text-gray-700">
                                 Descision
-                              </th>                              
+                              </th>
                             </tr>
                           </thead>
                           <tbody>
@@ -387,7 +396,7 @@ function JournalDetails() {
                                 >
                                   {editor?.main_decision || "Pending"}
                                 </span>
-                              </td>                              
+                              </td>
                             </tr>
                           </tbody>
                         </table>
@@ -453,7 +462,7 @@ function JournalDetails() {
                             </div>
                           </div>
                         </div>
-                      </div>                     
+                      </div>
                     </div>
                   )}
                 </div>
@@ -472,7 +481,8 @@ function JournalDetails() {
                   >
                     <h3 className="text-lg font-semibold text-violet-600 flex items-center gap-2">
                       <User className="h-5 w-5" />
-                      Editor <span className="text-xs">Round - {editor.round}</span>
+                      Editor{" "}
+                      <span className="text-xs">Round - {editor.round}</span>
                     </h3>
                     <div className="flex items-center gap-4">
                       <p className="text-gray-700 font-medium">
@@ -658,8 +668,8 @@ function JournalDetails() {
                   className="w-full flex items-center justify-between p-4 bg-gradient-to-r from-blue-50 to-indigo-50 hover:from-blue-100 hover:to-indigo-100 transition-colors"
                 >
                   <h3 className="text-lg font-semibold text-blue-600 flex items-center gap-2">
-                     <User className="h-5 w-5" />
-                      Reviewers <span className="text-xs">Round - {round}</span>
+                    <User className="h-5 w-5" />
+                    Reviewers <span className="text-xs">Round - {round}</span>
                   </h3>
                   <div className="flex items-center gap-4">
                     <ChevronDown
@@ -826,7 +836,7 @@ function JournalDetails() {
           ))}
 
           {/* Back Button */}
-          <div className="flex justify-end gap-5 pt-4 border-t border-gray-200 mb-10">            
+          <div className="flex justify-end gap-5 pt-4 border-t border-gray-200 mb-10">
             <button
               onClick={() => navigate(-1)}
               className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-medium transition-colors flex items-center gap-2"

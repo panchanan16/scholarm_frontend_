@@ -26,6 +26,9 @@ import FieldTypePage from "@/pages/settings/modules/FieldTypePage";
 import MainSettings from "@/pages/settings/modules/MainSettings";
 import FieldsPageForm from "@/pages/settings/modules/templateFields";
 import EmailTemplatePage from "@/pages/settings/modules/EmailTemplate";
+import AuthorPage from "@/components/users/authors";
+import EditorPage from "@/components/users/editors";
+import ReviewerPage from "@/components/users/reviewers";
 
 const routes = [
   {
@@ -51,6 +54,9 @@ const routes = [
             element: <AssignReviewerPage />,
           },
           { path: "manuscript/:article_id", element: <JournalDetails /> },
+          { path: "authors", element: <AuthorPage /> },
+          { path: "editors", element: <EditorPage /> },
+          { path: "reviewers", element: <ReviewerPage /> },
         ],
       },
       { path: "/:role/manuscript", element: <ValidatedJournalListTable /> },

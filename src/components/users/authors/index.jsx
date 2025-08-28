@@ -1,111 +1,70 @@
-import React, { useState } from 'react';
-import { Formik, Field, ErrorMessage } from 'formik';
-import * as Yup from 'yup';
-import { 
-  Plus, 
-  User, 
-  Edit2, 
-  Trash2, 
+import React, { useState } from "react";
+import { Formik, Field, ErrorMessage } from "formik";
+import * as Yup from "yup";
+import {
+  Plus,
+  User,
+  Edit2,
+  Trash2,
   Save,
   X,
   Mail,
   Users,
   Briefcase,
-  Lock
-} from 'lucide-react';
+  Lock,
+} from "lucide-react";
+import {
+  useCreateAuthorMutation,
+  useDeleteAuthorsMutation,
+  useGetAllAuthorsQuery,
+} from "@/services/features/authors/slice";
+import { useToastMutation } from "@/hooks/useNotification";
 
-const AuthorPage = ({ onSubmit, onEdit, onDelete }) => {
-  // Mock existing authors data
-  const [authors, setAuthors] = useState([
-    {
-      id: 1,
-      author_email: "dekapanchanan16@gmail.com",
-      author_fname: "Panchanan",
-      author_lname: "Deka",
-      author_designation: "Content Writer",
-      author_password: "password123",
-      created_at: "2024-01-15"
-    },
-    {
-      id: 2,
-      author_email: "john.doe@example.com",
-      author_fname: "John",
-      author_lname: "Doe",
-      author_designation: "Senior Editor",
-      author_password: "securepass456",
-      created_at: "2024-01-14"
-    },
-    {
-      id: 3,
-      author_email: "sarah.wilson@example.com",
-      author_fname: "Sarah",
-      author_lname: "Wilson",
-      author_designation: "Research Analyst",
-      author_password: "mypassword789",
-      created_at: "2024-01-13"
-    }
-  ]);
-
+const AuthorPage = () => {
   const [showForm, setShowForm] = useState(false);
   const [editingAuthor, setEditingAuthor] = useState(null);
+  const { data: AllAuthors } = useGetAllAuthorsQuery();
+  const [createAuthor] = useToastMutation(useCreateAuthorMutation(), {
+    showLoading: true,
+  });
+  const [deleteAuthor] = useToastMutation(useDeleteAuthorsMutation(), {
+    showLoading: true,
+  });
 
   // Initial values for Formik
   const initialValues = {
-    author_email: '',
-    author_fname: '',
-    author_lname: '',
-    author_designation: '',
-    author_password: ''
+    author_email: "",
+    author_fname: "",
+    author_lname: "",
+    author_designation: "",
+    author_password: "",
   };
 
   // Validation schema using Yup
   const validationSchema = Yup.object({
     author_email: Yup.string()
-      .email('Please enter a valid email address')
-      .required('Email is required'),
+      .email("Please enter a valid email address")
+      .required("Email is required"),
     author_fname: Yup.string()
       .trim()
-      .min(2, 'First name must be at least 2 characters')
-      .required('First name is required'),
+      .min(2, "First name must be at least 2 characters")
+      .required("First name is required"),
     author_lname: Yup.string()
       .trim()
-      .min(2, 'Last name must be at least 2 characters')
-      .required('Last name is required'),
-    author_designation: Yup.string()
-      .trim()
-      .required('Designation is required'),
+      .min(2, "Last name must be at least 2 characters")
+      .required("Last name is required"),
+    author_designation: Yup.string().trim().required("Designation is required"),
     author_password: Yup.string()
-      .min(6, 'Password must be at least 6 characters')
-      .required('Password is required')
+      .min(6, "Password must be at least 6 characters")
+      .required("Password is required"),
   });
 
   // Handle form submission
   const handleAuthorSubmit = async (values, { setSubmitting, resetForm }) => {
-    await new Promise(resolve => setTimeout(resolve, 500));
-    
-    if (editingAuthor) {
-      setAuthors(prev => prev.map(author => 
-        author.id === editingAuthor.id 
-          ? { ...author, ...values, updated_at: new Date().toISOString().split('T')[0] }
-          : author
-      ));
-      setEditingAuthor(null);
-    } else {
-      const newAuthor = {
-        id: authors.length + 1,
-        ...values,
-        created_at: new Date().toISOString().split('T')[0]
-      };
-      setAuthors(prev => [newAuthor, ...prev]);
-    }
-    
+    await createAuthor(values);
     setShowForm(false);
     resetForm();
     setSubmitting(false);
-    
-    if (onSubmit) {
-      onSubmit(values);
-    }
   };
 
   const handleAddAuthor = () => {
@@ -119,9 +78,10 @@ const AuthorPage = ({ onSubmit, onEdit, onDelete }) => {
     if (onEdit) onEdit(author);
   };
 
-  const handleDeleteAuthor = (author) => {
-    setAuthors(prev => prev.filter(a => a.id !== author.id));
-    if (onDelete) onDelete(author);
+  const handleDeleteAuthor = async (authorId) => {
+    if (window.confirm("Are you sure delete this Author ?")) {
+      await deleteAuthor(authorId);
+    }
   };
 
   if (showForm) {
@@ -133,7 +93,7 @@ const AuthorPage = ({ onSubmit, onEdit, onDelete }) => {
               <User className="w-6 h-6 text-blue-600" />
             </div>
             <h1 className="text-2xl font-bold text-gray-900">
-              {editingAuthor ? 'Edit Author' : 'Add New Author'}
+              {editingAuthor ? "Edit Author" : "Add New Author"}
             </h1>
           </div>
           <button
@@ -146,13 +106,17 @@ const AuthorPage = ({ onSubmit, onEdit, onDelete }) => {
 
         <div className="bg-white border border-gray-200 rounded-lg p-6">
           <Formik
-            initialValues={editingAuthor ? {
-              author_email: editingAuthor.author_email || '',
-              author_fname: editingAuthor.author_fname || '',
-              author_lname: editingAuthor.author_lname || '',
-              author_designation: editingAuthor.author_designation || '',
-              author_password: editingAuthor.author_password || ''
-            } : initialValues}
+            initialValues={
+              editingAuthor
+                ? {
+                    author_email: editingAuthor.author_email || "",
+                    author_fname: editingAuthor.author_fname || "",
+                    author_lname: editingAuthor.author_lname || "",
+                    author_designation: editingAuthor.author_designation || "",
+                    author_password: editingAuthor.author_password || "",
+                  }
+                : initialValues
+            }
             validationSchema={validationSchema}
             onSubmit={handleAuthorSubmit}
             enableReinitialize={true}
@@ -265,7 +229,11 @@ const AuthorPage = ({ onSubmit, onEdit, onDelete }) => {
                       className="flex items-center gap-2 px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                     >
                       <Save className="w-4 h-4" />
-                      {isSubmitting ? 'Saving...' : editingAuthor ? 'Update Author' : 'Save Author'}
+                      {isSubmitting
+                        ? "Saving..."
+                        : editingAuthor
+                        ? "Update Author"
+                        : "Save Author"}
                     </button>
                     <button
                       type="button"
@@ -293,11 +261,13 @@ const AuthorPage = ({ onSubmit, onEdit, onDelete }) => {
             <div className="p-2 bg-blue-50 rounded-lg">
               <Users className="w-6 h-6 text-blue-600" />
             </div>
-            <h1 className="text-2xl font-bold text-gray-900">Authors Management</h1>
+            <h1 className="text-2xl font-bold text-gray-900">
+              Authors Management
+            </h1>
           </div>
           <p className="text-gray-600">Manage authors and their information</p>
         </div>
-        
+
         <button
           onClick={handleAddAuthor}
           className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors shadow-sm"
@@ -309,11 +279,13 @@ const AuthorPage = ({ onSubmit, onEdit, onDelete }) => {
 
       {/* Authors Table */}
       <div className="bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm">
-        {authors.length === 0 ? (
+        {AllAuthors && AllAuthors?.data.length === 0 ? (
           <div className="text-center py-12">
             <Users className="w-12 h-12 text-gray-400 mx-auto mb-4" />
             <p className="text-gray-500 mb-2">No authors found</p>
-            <p className="text-sm text-gray-400">Add your first author to get started</p>
+            <p className="text-sm text-gray-400">
+              Add your first author to get started
+            </p>
           </div>
         ) : (
           <>
@@ -324,87 +296,92 @@ const AuthorPage = ({ onSubmit, onEdit, onDelete }) => {
                 <div className="col-span-3">Email</div>
                 <div className="col-span-2">Designation</div>
                 <div className="col-span-2">Password</div>
-                <div className="col-span-1">Created</div>
                 <div className="col-span-2">Actions</div>
               </div>
             </div>
 
             {/* Table Body */}
             <div className="divide-y divide-gray-200">
-              {authors.map((author) => (
-                <div key={author.id} className="px-6 py-4 hover:bg-gray-50 transition-colors">
-                  <div className="grid grid-cols-12 gap-4 items-center">
-                    {/* Name */}
-                    <div className="col-span-2">
-                      <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
-                          <User className="w-4 h-4 text-blue-600" />
+              {AllAuthors &&
+                AllAuthors?.data.map((author) => (
+                  <div
+                    key={author.id}
+                    className="px-6 py-4 hover:bg-gray-50 transition-colors"
+                  >
+                    <div className="grid grid-cols-12 gap-4 items-center">
+                      {/* Name */}
+                      <div className="col-span-2">
+                        <div className="flex items-center gap-3">
+                          <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+                            <User className="w-4 h-4 text-blue-600" />
+                          </div>
+                          <div>
+                            <p className="font-medium text-gray-900 text-sm">
+                              {author.author_fname} {author.author_lname}
+                            </p>
+                          </div>
                         </div>
-                        <div>
-                          <p className="font-medium text-gray-900 text-sm">
-                            {author.author_fname} {author.author_lname}
-                          </p>
+                      </div>
+
+                      {/* Email */}
+                      <div className="col-span-3">
+                        <div className="flex items-center gap-2">
+                          <Mail className="w-4 h-4 text-gray-400" />
+                          <span className="text-gray-900 text-sm">
+                            {author.author_email}
+                          </span>
                         </div>
                       </div>
-                    </div>
 
-                    {/* Email */}
-                    <div className="col-span-3">
-                      <div className="flex items-center gap-2">
-                        <Mail className="w-4 h-4 text-gray-400" />
-                        <span className="text-gray-900 text-sm">{author.author_email}</span>
+                      {/* Designation */}
+                      <div className="col-span-2">
+                        <div className="flex items-center gap-2">
+                          <Briefcase className="w-4 h-4 text-gray-400" />
+                          <span className="px-2 py-1 text-xs bg-purple-100 text-purple-800 rounded-full font-medium">
+                            {author.author_designation}
+                          </span>
+                        </div>
                       </div>
-                    </div>
 
-                    {/* Designation */}
-                    <div className="col-span-2">
-                      <div className="flex items-center gap-2">
-                        <Briefcase className="w-4 h-4 text-gray-400" />
-                        <span className="px-2 py-1 text-xs bg-purple-100 text-purple-800 rounded-full font-medium">
-                          {author.author_designation}
-                        </span>
+                      {/* Password Status */}
+                      <div className="col-span-2">
+                        <div className="flex items-center gap-2">
+                          <Lock className="w-4 h-4 text-gray-400" />
+                          <span className="px-2 py-1 text-xs bg-green-100 text-green-800 rounded-full font-medium">
+                            Set
+                          </span>
+                        </div>
                       </div>
-                    </div>
 
-                    {/* Password Status */}
-                    <div className="col-span-2">
-                      <div className="flex items-center gap-2">
-                        <Lock className="w-4 h-4 text-gray-400" />
-                        <span className="px-2 py-1 text-xs bg-green-100 text-green-800 rounded-full font-medium">
-                          Set
-                        </span>
+                      {/* Created Date */}
+                      <div className="col-span-1">
+                        <p className="text-xs text-gray-500">
+                          {author.created_at}
+                        </p>
                       </div>
-                    </div>
 
-                    {/* Created Date */}
-                    <div className="col-span-1">
-                      <p className="text-xs text-gray-500">
-                        {author.created_at}
-                      </p>
-                    </div>
-
-                    {/* Actions */}
-                    <div className="col-span-2">
-                      <div className="flex items-center space-x-2">
-                        <button
-                          onClick={() => handleEditAuthor(author)}
-                          className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
-                          title="Edit author"
-                        >
-                          <Edit2 className="w-4 h-4" />
-                        </button>
-                        <button
-                          onClick={() => handleDeleteAuthor(author)}
-                          className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                          title="Delete author"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
+                      {/* Actions */}
+                      <div className="col-span-2">
+                        <div className="flex items-center space-x-2">
+                          <button
+                            onClick={() => handleEditAuthor(author)}
+                            className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                            title="Edit author"
+                          >
+                            <Edit2 className="w-4 h-4" />
+                          </button>
+                          <button
+                            onClick={() => handleDeleteAuthor(author.author_id)}
+                            className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                            title="Delete author"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </div>
                       </div>
                     </div>
                   </div>
-                </div>
-              ))}
+                ))}
             </div>
           </>
         )}
@@ -413,8 +390,7 @@ const AuthorPage = ({ onSubmit, onEdit, onDelete }) => {
       {/* Stats Footer */}
       <div className="mt-6 bg-gray-50 rounded-lg p-4">
         <div className="flex items-center justify-between text-sm text-gray-600">
-          <span>Total Authors: {authors.length}</span>
-          <span>Last updated: {new Date().toLocaleDateString()}</span>
+          <span>Total Authors: {AllAuthors && AllAuthors?.data.length}</span>
         </div>
       </div>
     </div>

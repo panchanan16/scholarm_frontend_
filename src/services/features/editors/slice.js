@@ -8,7 +8,7 @@ export const editorsApi = baseApi.injectEndpoints({
             query: (params = {}) => ({
                 url: '/editor/readAll',
                 params: {
-                  
+
                 },
             }),
             providesTags: ['Editors'],
@@ -33,7 +33,22 @@ export const editorsApi = baseApi.injectEndpoints({
                 body: data,
             }),
             invalidatesTags: ['Editors'],
+        }),
+
+        // Delete a editors ---
+        deleteEditors: builder.mutation({
+            query: (editor_id) => ({
+                url: '/editor/remove',
+                method: 'DELETE',
+                params: {
+                    editor_id
+                }
+            }),
+            invalidatesTags: ['Editors'],
         })
+
+
+
 
 
     }),
@@ -43,5 +58,6 @@ export const editorsApi = baseApi.injectEndpoints({
 export const {
     useGetAllEditorsQuery,
     useCreateEditorsMutation,
-    useUpdateEditorsMutation
+    useUpdateEditorsMutation,
+    useDeleteEditorsMutation
 } = editorsApi

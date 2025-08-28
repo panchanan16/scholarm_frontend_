@@ -45,6 +45,18 @@ export const reviewerApi = baseApi.injectEndpoints({
                 body: data,
             }),
             invalidatesTags: ['Reviewers'],
+        }),
+
+        //delete a Reviewer ---
+        deleteReviewer: builder.mutation({
+            query: (reviewer_id) => ({
+                url: '/reviewer/remove',
+                method: 'DELETE',
+                params: {
+                    reviewer_id
+                },
+            }),
+            invalidatesTags: ['Reviewers'],
         })
 
 
@@ -56,5 +68,6 @@ export const {
     useLazyGetOneReviewerQuery,
     useCreateReviewerMutation,
     useGetAllReviewersQuery,
-    useUpdateReviewerMutation
+    useUpdateReviewerMutation,
+    useDeleteReviewerMutation
 } = reviewerApi

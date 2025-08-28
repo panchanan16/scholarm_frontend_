@@ -15,6 +15,13 @@ export const authorApi = baseApi.injectEndpoints({
             providesTags: ['Authors'],
         }),
 
+        getAllAuthors: builder.query({
+            query: () => ({
+                url: '/author/readAll',
+            }),
+            providesTags: ['Authors'],
+        }),
+
         //Create article typor meta data ---
         createAuthor: builder.mutation({
             query: (data) => ({
@@ -26,12 +33,25 @@ export const authorApi = baseApi.injectEndpoints({
         }),
 
 
-        //Update a author ---
+        // Update a author ---
         updateAuthor: builder.mutation({
             query: (data) => ({
                 url: '/author/update',
                 method: 'PUT',
                 body: data,
+            }),
+            invalidatesTags: ['Authors'],
+        }),
+
+
+        // Delete a author ---
+        deleteAuthors: builder.mutation({
+            query: (author_id) => ({
+                url: '/author/remove',
+                method: 'DELETE',
+                params: {
+                    author_id
+                }
             }),
             invalidatesTags: ['Authors'],
         })
@@ -44,5 +64,7 @@ export const authorApi = baseApi.injectEndpoints({
 export const {
     useLazyGetOneAuthorQuery,
     useUpdateAuthorMutation,
-    useCreateAuthorMutation
+    useCreateAuthorMutation,
+    useGetAllAuthorsQuery,
+    useDeleteAuthorsMutation
 } = authorApi

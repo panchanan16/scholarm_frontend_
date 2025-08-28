@@ -14,35 +14,13 @@ import {
   Power,
   UserCheck
 } from 'lucide-react';
+import { useCreateEditorsMutation, useDeleteEditorsMutation, useGetAllEditorsQuery } from '@/services/features/editors/slice';
+import { useToastMutation } from '@/hooks/useNotification';
 
-const EditorPage = ({ onSubmit, onEdit, onDelete }) => {
-  // Mock existing editors data
-  const [editors, setEditors] = useState([
-    {
-      id: 1,
-      editor_name: "Miami Nath",
-      editor_email: "miami@gmail.com",
-      is_active: true,
-      editor_password: "password123",
-      created_at: "2024-01-15"
-    },
-    {
-      id: 2,
-      editor_name: "John Smith",
-      editor_email: "john.smith@example.com",
-      is_active: true,
-      editor_password: "securepass456",
-      created_at: "2024-01-14"
-    },
-    {
-      id: 3,
-      editor_name: "Sarah Johnson",
-      editor_email: "sarah.j@example.com",
-      is_active: false,
-      editor_password: "mypassword789",
-      created_at: "2024-01-13"
-    }
-  ]);
+const EditorPage = () => {
+  const {data: AllEditors} = useGetAllEditorsQuery()
+  const [createEditor] = useToastMutation(useCreateEditorsMutation(), {showLoading: true})
+  const [deleteEditor] = useToastMutation(useDeleteEditorsMutation(), {showLoading: true})
 
   const [showForm, setShowForm] = useState(false);
   const [editingEditor, setEditingEditor] = useState(null);
@@ -72,31 +50,10 @@ const EditorPage = ({ onSubmit, onEdit, onDelete }) => {
 
   // Handle form submission
   const handleEditorSubmit = async (values, { setSubmitting, resetForm }) => {
-    await new Promise(resolve => setTimeout(resolve, 500));
-    
-    if (editingEditor) {
-      setEditors(prev => prev.map(editor => 
-        editor.id === editingEditor.id 
-          ? { ...editor, ...values, updated_at: new Date().toISOString().split('T')[0] }
-          : editor
-      ));
-      setEditingEditor(null);
-    } else {
-      const newEditor = {
-        id: editors.length + 1,
-        ...values,
-        created_at: new Date().toISOString().split('T')[0]
-      };
-      setEditors(prev => [newEditor, ...prev]);
-    }
-    
+    await createEditor(values)
     setShowForm(false);
     resetForm();
     setSubmitting(false);
-    
-    if (onSubmit) {
-      onSubmit(values);
-    }
   };
 
   const handleAddEditor = () => {
@@ -107,20 +64,12 @@ const EditorPage = ({ onSubmit, onEdit, onDelete }) => {
   const handleEditEditor = (editor) => {
     setEditingEditor(editor);
     setShowForm(true);
-    if (onEdit) onEdit(editor);
   };
 
-  const handleDeleteEditor = (editor) => {
-    setEditors(prev => prev.filter(e => e.id !== editor.id));
-    if (onDelete) onDelete(editor);
-  };
-
-  const toggleEditorStatus = (editorId) => {
-    setEditors(prev => prev.map(editor => 
-      editor.id === editorId 
-        ? { ...editor, is_active: !editor.is_active }
-        : editor
-    ));
+  const handleDeleteEditor = async (editorId) => {
+    if (window.confirm("Are you sure delete this Editor ?")) {
+      await deleteEditor(editorId)
+    }
   };
 
   if (showForm) {
@@ -285,7 +234,7 @@ const EditorPage = ({ onSubmit, onEdit, onDelete }) => {
 
       {/* Editors Table */}
       <div className="bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm">
-        {editors.length === 0 ? (
+        {AllEditors && AllEditors?.data.length === 0 ? (
           <div className="text-center py-12">
             <Users className="w-12 h-12 text-gray-400 mx-auto mb-4" />
             <p className="text-gray-500 mb-2">No editors found</p>
@@ -306,7 +255,7 @@ const EditorPage = ({ onSubmit, onEdit, onDelete }) => {
 
             {/* Table Body */}
             <div className="divide-y divide-gray-200">
-              {editors.map((editor) => (
+              {AllEditors && AllEditors?.data.map((editor) => (
                 <div key={editor.id} className="px-6 py-4 hover:bg-gray-50 transition-colors">
                   <div className="grid grid-cols-12 gap-4 items-center">
                     {/* Editor Name */}
@@ -377,7 +326,7 @@ const EditorPage = ({ onSubmit, onEdit, onDelete }) => {
                           <Edit2 className="w-4 h-4" />
                         </button>
                         <button
-                          onClick={() => handleDeleteEditor(editor)}
+                          onClick={() => handleDeleteEditor(editor.editor_id)}
                           className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
                           title="Delete editor"
                         >
@@ -396,8 +345,8 @@ const EditorPage = ({ onSubmit, onEdit, onDelete }) => {
       {/* Stats Footer */}
       <div className="mt-6 bg-gray-50 rounded-lg p-4">
         <div className="flex items-center justify-between text-sm text-gray-600">
-          <span>Total Editors: {editors.length}</span>
-          <span>Active Editors: {editors.filter(e => e.is_active).length}</span>
+          <span>Total Editors: {AllEditors && AllEditors?.data.length}</span>
+          <span>Active Editors: {AllEditors && AllEditors?.data.filter(e => e.is_active).length}</span>
           <span>Last updated: {new Date().toLocaleDateString()}</span>
         </div>
       </div>

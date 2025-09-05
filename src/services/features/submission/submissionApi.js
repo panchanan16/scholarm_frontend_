@@ -111,6 +111,18 @@ export const submissionApi = baseApi.injectEndpoints({
         }),
 
 
+        // Author Contribution ---
+        createAuthorContribution: builder.mutation({
+            query: (data) => ({
+                url: '/authorcontribution/update',
+                method: 'PUT',
+                body: data,
+            }),
+            invalidatesTags: ['ArticleAuthors'],
+        }),
+
+
+
         //get Reffrences by articleId---
         getReffencesByArticleId: builder.query({
             query: (params = {}) => ({
@@ -247,5 +259,6 @@ export const {
     useCreateArticleSectionMutation,
     useCreateArticleMainDetailsMutation,
     useLazyGetArticleDetailsByIdQuery,
-    useConfirmAndSubmitManuscriptMutation
+    useConfirmAndSubmitManuscriptMutation,
+    useCreateAuthorContributionMutation
 } = submissionApi

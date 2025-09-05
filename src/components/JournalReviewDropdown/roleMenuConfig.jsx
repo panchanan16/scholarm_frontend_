@@ -50,7 +50,6 @@ export const roleMenuConfigs = {
       label: "Publisher Decision",
       icon: ClipboardCheck,
       type: "button",
-      role: [],
       status: [],
       action: "handlePublisherDecision",
     },

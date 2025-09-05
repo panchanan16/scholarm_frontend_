@@ -7,6 +7,7 @@ import {
   LayoutDashboardIcon,
   Settings,
   ChartNoAxesCombined,
+  BookAIcon,
 } from "lucide-react";
 import { Link } from "react-router-dom";
 
@@ -61,10 +62,10 @@ export default function DashboardSideBar() {
                 Editor Dashboard
               </Link>
             )}
-            <button className="w-full flex items-center gap-3 p-3 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-700 rounded-lg transition-colors">
-              <Search className="w-4 h-4" />
-              Search People
-            </button>
+            <Link to={'/dashboard/journals'} className="w-full flex items-center gap-3 p-3 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-700 rounded-lg transition-colors">
+              <BookAIcon className="w-4 h-4" />
+              Our Journals
+            </Link>
             <button className="w-full flex items-center gap-3 p-3 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-700 rounded-lg transition-colors">
               <Users className="w-4 h-4" />
               Activate User

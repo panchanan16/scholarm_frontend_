@@ -17,10 +17,7 @@ import {
 import { Link, Outlet, useSearchParams } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import useRenderManuscript from "@/hooks/useRenderManuscript";
-import {
-  roleBasedStatus,
-  setStatusForDashboard,
-} from "@/utils/setStatusForDashboard";
+
 
 const AuthorDashboard = () => {
   const [currentPage, setCurrentPage] = useState(1);
@@ -453,7 +450,7 @@ const AuthorDashboard = () => {
 
                       <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                         <div className="flex items-center justify-end space-x-2">
-                          <Link to={`${manuscript.intro_id}`}>
+                          <Link to={`/submission/preview?article_id=${manuscript.intro_id}`}>
                             <button
                               className="text-blue-600 hover:text-blue-900 p-1 hover:bg-blue-50 rounded transition-colors"
                               title="View Details"

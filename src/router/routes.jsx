@@ -29,6 +29,9 @@ import EmailTemplatePage from "@/pages/settings/modules/EmailTemplate";
 import AuthorPage from "@/components/users/authors";
 import EditorPage from "@/components/users/editors";
 import ReviewerPage from "@/components/users/reviewers";
+import JournalManagement from "@/pages/journal/JournalManagement";
+import AuthorContributionForm from "@/pages/submission/modules/AuthorContribution";
+import JournalDetailPage from "@/pages/journal/JournalManagement/JournalDetails";
 
 const routes = [
   {
@@ -57,6 +60,8 @@ const routes = [
           { path: "authors", element: <AuthorPage /> },
           { path: "editors", element: <EditorPage /> },
           { path: "reviewers", element: <ReviewerPage /> },
+          { path: "journals", element: <JournalManagement /> },
+          { path: "journals/:journalId", element: <JournalDetailPage /> }
         ],
       },
       { path: "/:role/manuscript", element: <ValidatedJournalListTable /> },
@@ -103,6 +108,7 @@ const routes = [
           { path: "intro-section", element: <IntroForm /> },
           { path: "article-details", element: <ArticleDetailsForm /> },
           { path: "authors", element: <Author /> },
+          { path: "author-contribution", element: <AuthorContributionForm /> },
           { path: "reviewers", element: <AddReviewersForm /> },
           {
             path: "article-sections",

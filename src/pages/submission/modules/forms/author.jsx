@@ -16,9 +16,6 @@ export default function Author() {
   const [showModal, setShowModal] = useState(false);
   const [isSection, setIsSectionError] = useState(false);
   const [queryParams] = useSearchParams();
-  const { articlePresections } = useSelector((state) => state.submission);
-
-  console.log(articlePresections)
 
 
   const { updateSaveSteps } = useSaveSteps({
@@ -41,7 +38,9 @@ export default function Author() {
     }
 
     updateSaveSteps(
-      `/submission/article-sections/${articlePresections && articlePresections[0].link}`
+      `/submission/author-contribution?article_id=${queryParams.get(
+        "article_id"
+      )}`
     );
   }
 

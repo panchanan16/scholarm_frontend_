@@ -31,9 +31,7 @@ function SubmissionAsidebar() {
   const location = useLocation();
   const dispatch = useDispatch();
 
-  const {
-    data: articlePreSections,
-  } = useGetArticleSectionsQuery({
+  const { data: articlePreSections } = useGetArticleSectionsQuery({
     article_id: article_id,
   });
 
@@ -88,6 +86,12 @@ function SubmissionAsidebar() {
           label: "Authors",
           icon: Users,
           link: `authors?article_id=${article_id}`,
+        },
+        {
+          id: "authorsContribution",
+          label: "Authors Contribution",
+          icon: Users,
+          link: `author-contribution?article_id=${article_id}`,
         },
         {
           id: "article",

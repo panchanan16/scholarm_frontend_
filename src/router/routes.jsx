@@ -24,7 +24,7 @@ import { AdminRoute } from "./protectedRoute";
 import SettingsPage from "@/pages/settings";
 import FieldTypePage from "@/pages/settings/modules/FieldTypePage";
 import MainSettings from "@/pages/settings/modules/MainSettings";
-import FieldsPageForm from "@/pages/settings/modules/templateFields";
+import FieldsPageForm from "@/pages/settings/modules/TemplateFields";
 import EmailTemplatePage from "@/pages/settings/modules/EmailTemplate";
 import AuthorPage from "@/components/users/authors";
 import EditorPage from "@/components/users/editors";

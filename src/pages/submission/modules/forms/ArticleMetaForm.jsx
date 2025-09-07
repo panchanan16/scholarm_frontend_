@@ -7,17 +7,16 @@ import { useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
 
 const ArticleMetaForm = () => {
-  const [queryparams] = useSearchParams()
+  const [queryparams] = useSearchParams();
 
-  const [getArticleIntro, IntroData] = useLazyGetArticleIntroByIdQuery()
+  const [getArticleIntro, IntroData] = useLazyGetArticleIntroByIdQuery();
 
-  useEffect(()=> {
-     getArticleIntro(queryparams.get('article_id'))
-    
-  }, [queryparams.get('article_id')])
+  useEffect(() => {
+    getArticleIntro(queryparams.get("article_id"));
+  }, [queryparams.get("article_id")]);
 
-  
-  const IntroDataObject = IntroData.status === 'fulfilled' ? IntroData.data?.data : null
+  const IntroDataObject =
+    IntroData.status === "fulfilled" ? IntroData.data?.data : null;
 
   // Special issue options - modify these according to your needs
   const specialIssueOptions = [
@@ -25,17 +24,25 @@ const ArticleMetaForm = () => {
     { value: 2, label: "Special Issue 2 - Climate Change Research" },
     { value: 3, label: "Special Issue 3 - Medical Innovations" },
     { value: 4, label: "Special Issue 4 - Technology Advances" },
-    { value: 5, label: "Special Issue 5 - Social Sciences" }
+    { value: 5, label: "Special Issue 5 - Social Sciences" },
   ];
 
   const intitialValues = {
-    intro_id: Number(queryparams.get('article_id')) || null,
+    intro_id: Number(queryparams.get("article_id")) || null,
     title: IntroDataObject ? IntroDataObject.title : "",
     abstract: IntroDataObject ? IntroDataObject.abstract : "",
     keywords: IntroDataObject ? IntroDataObject.keywords : "",
     pages: IntroDataObject ? IntroDataObject.pages : "",
-    specialIssue: IntroDataObject ? IntroDataObject.specialIssue ? IntroDataObject.specialIssue : null : null,
-    issueType: IntroDataObject ? (IntroDataObject.issueType ? IntroDataObject.issueType : "regular") : "regular"
+    specialIssue: IntroDataObject
+      ? IntroDataObject.specialIssue
+        ? IntroDataObject.specialIssue
+        : null
+      : null,
+    issueType: IntroDataObject
+      ? IntroDataObject.issueType
+        ? IntroDataObject.issueType
+        : "regular"
+      : "regular",
   };
 
   const { updateSaveSteps } = useSaveSteps({
@@ -43,20 +50,24 @@ const ArticleMetaForm = () => {
     nextHighlight: "articleDetails",
   });
 
-  const [addMetaData] = useToastMutation(useAddArticleMetaDataMutation(), {showLoading: true})
+  const [addMetaData] = useToastMutation(useAddArticleMetaDataMutation(), {
+    showLoading: true,
+  });
 
   const SubmitAndContinueHandler = async (values, setSubmitting) => {
-    //  await addMetaData(values)
-    //  updateSaveSteps(`/submission/article-details?article_id=${queryparams.get('article_id')}`);
-    console.log(values)
-     setSubmitting(false)
+    await addMetaData(values);
+    updateSaveSteps(
+      `/submission/article-details?article_id=${queryparams.get("article_id")}`
+    );
+    // console.log(values)
+    setSubmitting(false);
   };
 
   const handleIssueTypeChange = (value, setFieldValue) => {
     if (value === "regular") {
       setFieldValue("specialIssue", null);
     } else if (value === "special") {
-      setFieldValue("specialIssue", ""); // Reset to empty string for dropdown
+      setFieldValue("specialIssue", null); // Reset to empty string for dropdown
     }
     setFieldValue("issueType", value);
   };
@@ -141,7 +152,8 @@ const ArticleMetaForm = () => {
                     <Field
                       type="radio"
                       name="issueType"
-                      value="regular"                     
+                      value="regular"
+                      onChange={(e)=> handleIssueTypeChange(e.target.value, setFieldValue)}
                       className="form-radio text-blue-700 focus:ring-blue-500"
                     />
                     <span className="ml-2 text-gray-900">Regular</span>
@@ -152,6 +164,7 @@ const ArticleMetaForm = () => {
                       type="radio"
                       name="issueType"
                       value="special"
+                      onChange={(e)=> handleIssueTypeChange(e.target.value, setFieldValue)}
                       className="form-radio text-blue-700 focus:ring-blue-500"
                     />
                     <span className="ml-2 text-gray-900">Special</span>
@@ -188,7 +201,7 @@ const ArticleMetaForm = () => {
                 disabled={isSubmitting}
                 className="px-4 py-2 text-white bg-gray-800 rounded-md hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:cursor-not-allowed"
               >
-                {isSubmitting ? 'Submitting...' : 'Save & Continue'}
+                {isSubmitting ? "Submitting..." : "Save & Continue"}
               </button>
             </div>
           </Form>

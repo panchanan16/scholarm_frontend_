@@ -32,6 +32,7 @@ import ReviewerPage from "@/components/users/reviewers";
 import JournalManagement from "@/pages/journal/JournalManagement";
 import AuthorContributionForm from "@/pages/submission/modules/AuthorContribution";
 import JournalDetailPage from "@/pages/journal/JournalManagement/JournalDetails";
+import JournalFinder from "@/pages/JournalFinder";
 
 const routes = [
   {
@@ -39,6 +40,10 @@ const routes = [
     element: <App />,
     children: [
       { index: true, element: <AdminLoginPage /> },
+      {
+        path: "/find-journal",
+        element: <JournalFinder />,
+      },
       {
         path: "/dashboard",
         element: (

@@ -186,6 +186,7 @@ export const submissionApi = baseApi.injectEndpoints({
                 url: '/assignReviewer/readAll',
                 params: {
                     article_id: params.article_id || 0,
+                    round: params.round || 1,
                 },
             }),
             providesTags: ['ArticleReviewers'],

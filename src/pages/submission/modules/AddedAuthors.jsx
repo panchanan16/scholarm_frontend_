@@ -10,7 +10,7 @@ import { useSearchParams } from "react-router-dom";
 export default function AddedAuthors() {
   const [queryParams] = useSearchParams()
   const { data: authorsList } = useGetArticleAuthorsByArticleIdQuery({
-    article_id: queryParams.get('article_id') ,
+    article_id: queryParams.get('article_id'),
   });
 
   const [setCorrespondingAuthor, { data }] = useToastMutation(

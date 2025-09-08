@@ -32,6 +32,7 @@ const AddReviewersForm = () => {
 
   const { data: addedReviewers } = useGetArticleReviewersQuery({
     article_id: articleId,
+    round: 1
   })
 
   const suggestedReviewers =

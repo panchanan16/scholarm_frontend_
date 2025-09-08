@@ -42,7 +42,7 @@ export const roleMenuConfigs = {
       label: "Invite Reviewer",
       icon: UserPlus,
       type: "link",
-      status: ["reviewerinvited", "needtoassignreviewer", "submissionneedadditionalreviewers", "underreview"],
+      status: ["reviewerinvited","newsubmission", "needtoassignreviewer", "submissionneedadditionalreviewers", "underreview"],
       url: (manuscript) => `assign-reviewer?article_id=${manuscript.intro_id}&round=${manuscript.revision_round}`,
     },
     {
@@ -50,7 +50,6 @@ export const roleMenuConfigs = {
       label: "Publisher Decision",
       icon: ClipboardCheck,
       type: "button",
-      status: [],
       action: "handlePublisherDecision",
     },
     {

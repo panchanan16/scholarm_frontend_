@@ -21,7 +21,7 @@ import {
   File,
 } from "lucide-react";
 import { useState } from "react";
-import { useNavigate, useParams, useSearchParams } from "react-router-dom";
+import { Link, useNavigate, useParams, useSearchParams } from "react-router-dom";
 
 function JournalDetails() {
   const [expandedRounds, setExpandedRounds] = useState({});
@@ -837,18 +837,14 @@ function JournalDetails() {
 
           {/* Back Button */}
           <div className="flex justify-end gap-5 pt-4 border-t border-gray-200 mb-10">
-            <button
-              onClick={() => navigate(-1)}
+            <Link
+              to={`/submission/preview?article_id=${article_id}`}
+              target="_blank" rel="noopener noreferrer"
               className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-medium transition-colors flex items-center gap-2"
             >
-              Post Decision
-            </button>
-            <button
-              onClick={() => navigate(-1)}
-              className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-medium transition-colors flex items-center gap-2"
-            >
-              Assign Reviewer
-            </button>
+              View Article
+            </Link>
+            
           </div>
         </div>
       </div>

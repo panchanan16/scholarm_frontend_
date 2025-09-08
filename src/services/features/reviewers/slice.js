@@ -59,15 +59,7 @@ export const reviewerApi = baseApi.injectEndpoints({
             invalidatesTags: ['Reviewers'],
         }),
 
-        // Update password ---
-        updateReviewerPassword: builder.mutation({
-            query: (data) => ({
-                url: '/reviewer/updatepassword',
-                method: 'PUT',
-                body: data,
-            }),
-            invalidatesTags: ['Reviewers'],
-        }),
+        
 
 
     }),
@@ -80,5 +72,4 @@ export const {
     useGetAllReviewersQuery,
     useUpdateReviewerMutation,
     useDeleteReviewerMutation,
-    useUpdateReviewerPasswordMutation
 } = reviewerApi

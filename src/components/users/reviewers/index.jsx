@@ -455,9 +455,9 @@ import {
   useCreateReviewerMutation,
   useDeleteReviewerMutation,
   useGetAllReviewersQuery,
-  useUpdateReviewerPasswordMutation,
 } from "@/services/features/reviewers/slice";
 import { useToastMutation } from "@/hooks/useNotification";
+import { useUpdateReviewerPasswordMutation } from "@/services/features/auth/slice";
 
 const ReviewerPage = () => {
   const [showForm, setShowForm] = useState(false);

@@ -68,6 +68,16 @@ export const authApiSlice = authApi.injectEndpoints({
                 body: { email },
             }),
         }),
+
+        // Update password ---
+        updateReviewerPassword: builder.mutation({
+            query: (data) => ({
+                url: '/reviewer/updatepassword',
+                method: 'PUT',
+                body: data,
+            }),
+            invalidatesTags: ['Reviewers'],
+        }),
     }),
 })
 
@@ -76,4 +86,5 @@ export const {
     useLogoutMutation,
     useGetProfileQuery,
     useForgotPasswordMutation,
+    useUpdateReviewerPasswordMutation
 } = authApiSlice;

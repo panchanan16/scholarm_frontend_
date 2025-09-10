@@ -33,6 +33,9 @@ import JournalManagement from "@/pages/journal/JournalManagement";
 import AuthorContributionForm from "@/pages/submission/modules/AuthorContribution";
 import JournalDetailPage from "@/pages/journal/JournalManagement/JournalDetails";
 import JournalFinder from "@/pages/JournalFinder";
+import PublisherPage from "@/components/users/publisher";
+import SystemAdminLoginPage from "@/pages/loginPages/systemAdminLogin/SystemAdminLoginPage";
+import SuperAdminDashboard from "@/pages/dashboard/superadmin/SuperadminDashboard";
 
 const routes = [
   {
@@ -66,6 +69,7 @@ const routes = [
           { path: "editors", element: <EditorPage /> },
           { path: "reviewers", element: <ReviewerPage /> },
           { path: "journals", element: <JournalManagement /> },
+          { path: "publishers", element: <PublisherPage /> },
           { path: "journals/:journalId", element: <JournalDetailPage /> }
         ],
       },
@@ -141,6 +145,15 @@ const routes = [
           { path: "fields", element: <FieldsPageForm /> },
         ],
       },
+      {
+        path: "/admin",
+        element: <SystemAdminLoginPage />
+      },
+      {
+        path: "/admin/dashboard",
+        element: <SuperAdminDashboard />
+      }
+
     ],
   },
 ];

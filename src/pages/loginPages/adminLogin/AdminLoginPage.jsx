@@ -112,15 +112,6 @@ export default function AdminLoginPage() {
     } catch (err) {
       console.error("Login failed:", err);
     }
-
-    // alert(
-    //   JSON.stringify({
-    //     email: formData.email,
-    //     password: formData.password,
-    //     role: formData.role,
-    //     rememberMe: formData.rememberMe,
-    //   })
-    // );
   };
 
   if (isAuthenticated) {

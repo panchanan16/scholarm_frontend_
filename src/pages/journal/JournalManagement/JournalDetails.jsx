@@ -73,6 +73,14 @@ const JournalDetailPage = () => {
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             <div className="bg-gray-50 p-4 rounded-lg">
               <h3 className="text-sm font-medium text-gray-500 mb-1">
+                Journal Code
+              </h3>
+              <p className="text-lg font-semibold text-gray-900">
+                {journalDetails && journalDetails.data.journal_code}
+              </p>
+            </div>
+            <div className="bg-gray-50 p-4 rounded-lg">
+              <h3 className="text-sm font-medium text-gray-500 mb-1">
                 Journal Type
               </h3>
               <p className="text-lg font-semibold text-gray-900">

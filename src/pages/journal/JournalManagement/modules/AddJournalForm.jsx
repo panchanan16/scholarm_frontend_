@@ -1,11 +1,11 @@
-import { useState } from "react";
 import { Field, Form, Formik } from "formik";
 import { useToastMutation } from "@/hooks/useNotification";
 import { useCreateJournalMutation } from "@/services/features/journal/journalApi";
 
 export default function AddJournalModal({ isOpen, onClose }) {
   const initialValues = {
-    journal_type: "",
+    journal_type: [], // Changed to array for multiple selection
+    journal_code: "",
     journal_issn: "",
     journal_eissn: "",
     publication_type: "",
@@ -18,13 +18,35 @@ export default function AddJournalModal({ isOpen, onClose }) {
   });
 
   const handleJournalSubmit = async (values, setSubmitting) => {
-    await createJournal(values);
+    // Create a copy of values and stringify the journal_type array
+    const submissionData = {
+      ...values,
+      journal_type: JSON.stringify(values.journal_type)
+    };
+    
+    await createJournal(submissionData);
     setSubmitting(false);
     onClose();
   };
 
   const handleCancel = () => {
     onClose();
+  };
+
+  // Handle multiple selection change
+  const handleJournalTypeChange = (event, setFieldValue, currentValues) => {
+    const value = event.target.value;
+    const isChecked = event.target.checked;
+    
+    if (isChecked) {
+      // Add the value if it's not already in the array
+      if (!currentValues.includes(value)) {
+        setFieldValue('journal_type', [...currentValues, value]);
+      }
+    } else {
+      // Remove the value from the array
+      setFieldValue('journal_type', currentValues.filter(item => item !== value));
+    }
   };
 
   if (!isOpen) return null;
@@ -79,14 +101,7 @@ export default function AddJournalModal({ isOpen, onClose }) {
                     <div className="space-y-6">
                       {/* Journal Name */}
                       <div>
-                        <div className="flex items-center mb-3">
-                          <svg
-                            className="w-5 h-5 text-blue-600 mr-2"
-                            fill="currentColor"
-                            viewBox="0 0 20 20"
-                          >
-                            <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                          </svg>
+                        <div className="flex items-center mb-3">                          
                           <label className="text-lg font-medium text-gray-900">
                             Journal Name *
                           </label>
@@ -101,56 +116,58 @@ export default function AddJournalModal({ isOpen, onClose }) {
                         />
                       </div>
 
-                      {/* Journal Type */}
+                       {/* Journal Code */}
                       <div>
-                        <div className="flex items-center mb-3">
-                          <svg
-                            className="w-5 h-5 text-blue-600 mr-2"
-                            fill="currentColor"
-                            viewBox="0 0 20 20"
-                          >
-                            <path
-                              fillRule="evenodd"
-                              d="M3 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z"
-                              clipRule="evenodd"
-                            />
-                          </svg>
+                        <div className="flex items-center mb-3">                          
                           <label className="text-lg font-medium text-gray-900">
-                            Journal Type *
+                            Journal Code *
                           </label>
                         </div>
                         <Field
-                          name="journal_type"
-                          as="select"
+                          name="journal_code"
+                          type="text"
                           className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 text-sm"
-                          placeholder="e.g., Academic, Technical, Scientific"
-                          maxLength="300"
+                          placeholder="Enter journal Unique code"
+                          maxLength="500"
                           required
-                        >
-                          <option value="" disabled>
-                            -- select type ---
-                          </option>
-                          <option value="Academic">Academic</option>
-                          <option value="Non-Academic">Non Academic</option>
-                          <option value="Technical">Technical</option>
-                          <option value="Research">Research</option>
-                        </Field>
+                        />
+                      </div>
+
+                      {/* Journal Type - Multiple Selection */}
+                      <div>
+                        <div className="flex items-center mb-3">                         
+                          <label className="text-lg font-medium text-gray-900">
+                            Journal Type * (Select Multiple)
+                          </label>
+                        </div>
+                        <div className="border border-gray-300 rounded-md p-3 space-y-2 bg-white">
+                          {['Academic', 'Non-Academic', 'Technical', 'Research'].map((type) => (
+                            <label key={type} className="flex items-center cursor-pointer group">
+                              <input
+                                type="checkbox"
+                                value={type}
+                                checked={values.journal_type.includes(type)}
+                                onChange={(e) => handleJournalTypeChange(e, setFieldValue, values.journal_type)}
+                                className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                              />
+                              <span className="ml-3 text-sm text-gray-700 group-hover:text-gray-900">
+                                {type}
+                              </span>
+                            </label>
+                          ))}
+                        </div>
+                        {values.journal_type.length > 0 && (
+                          <div className="mt-2">
+                            <p className="text-xs text-gray-500">
+                              Selected: {values.journal_type.join(', ')}
+                            </p>
+                          </div>
+                        )}
                       </div>
 
                       {/* Publication Type */}
                       <div>
-                        <div className="flex items-center mb-3">
-                          <svg
-                            className="w-5 h-5 text-blue-600 mr-2"
-                            fill="currentColor"
-                            viewBox="0 0 20 20"
-                          >
-                            <path
-                              fillRule="evenodd"
-                              d="M4 4a2 2 0 012-2h8a2 2 0 012 2v12a1 1 0 110 2h-3a1 1 0 01-1-1v-1H8v1a1 1 0 01-1 1H4a1 1 0 110-2V4zm3 1h2v4H7V5zm2 6H7v2h2v-2zm2-6h2v4h-2V5zm2 6h-2v2h2v-2z"
-                              clipRule="evenodd"
-                            />
-                          </svg>
+                        <div className="flex items-center mb-3">                          
                           <label className="text-lg font-medium text-gray-900">
                             Publication Type *
                           </label>
@@ -179,18 +196,7 @@ export default function AddJournalModal({ isOpen, onClose }) {
                     <div className="space-y-6">
                       {/* Journal ISSN */}
                       <div>
-                        <div className="flex items-center mb-3">
-                          <svg
-                            className="w-5 h-5 text-blue-600 mr-2"
-                            fill="currentColor"
-                            viewBox="0 0 20 20"
-                          >
-                            <path
-                              fillRule="evenodd"
-                              d="M3 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z"
-                              clipRule="evenodd"
-                            />
-                          </svg>
+                        <div className="flex items-center mb-3">                          
                           <label className="text-lg font-medium text-gray-900">
                             ISSN
                           </label>
@@ -206,18 +212,7 @@ export default function AddJournalModal({ isOpen, onClose }) {
 
                       {/* Journal eISSN */}
                       <div>
-                        <div className="flex items-center mb-3">
-                          <svg
-                            className="w-5 h-5 text-blue-600 mr-2"
-                            fill="currentColor"
-                            viewBox="0 0 20 20"
-                          >
-                            <path
-                              fillRule="evenodd"
-                              d="M12.316 3.051a1 1 0 01.633 1.265l-4 12a1 1 0 11-1.898-.632l4-12a1 1 0 011.265-.633zM5.707 6.293a1 1 0 010 1.414L3.414 10l2.293 2.293a1 1 0 11-1.414 1.414l-3-3a1 1 0 010-1.414l3-3a1 1 0 011.414 0zm8.586 0a1 1 0 011.414 0l3 3a1 1 0 010 1.414l-3 3a1 1 0 11-1.414-1.414L16.586 10l-2.293-2.293a1 1 0 010-1.414z"
-                              clipRule="evenodd"
-                            />
-                          </svg>
+                        <div className="flex items-center mb-3">                          
                           <label className="text-lg font-medium text-gray-900">
                             eISSN
                           </label>
@@ -233,18 +228,7 @@ export default function AddJournalModal({ isOpen, onClose }) {
 
                       {/* Is Active */}
                       <div>
-                        <div className="flex items-center mb-3">
-                          <svg
-                            className="w-5 h-5 text-blue-600 mr-2"
-                            fill="currentColor"
-                            viewBox="0 0 20 20"
-                          >
-                            <path
-                              fillRule="evenodd"
-                              d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-                              clipRule="evenodd"
-                            />
-                          </svg>
+                        <div className="flex items-center mb-3">                         
                           <label className="text-lg font-medium text-gray-900">
                             Status
                           </label>

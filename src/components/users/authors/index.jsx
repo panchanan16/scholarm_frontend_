@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Formik, Field, ErrorMessage } from "formik";
+import { Formik, Field, ErrorMessage, Form } from "formik";
 import * as Yup from "yup";
 import {
   Plus,
@@ -19,11 +19,14 @@ import {
   useGetAllAuthorsQuery,
 } from "@/services/features/authors/slice";
 import { useToastMutation } from "@/hooks/useNotification";
+import { useSelector } from "react-redux";
+import { selectJournal } from "@/store/feature/auth/authSlice";
 
 const AuthorPage = () => {
+  const journal = useSelector(selectJournal);
   const [showForm, setShowForm] = useState(false);
   const [editingAuthor, setEditingAuthor] = useState(null);
-  const { data: AllAuthors } = useGetAllAuthorsQuery();
+  const { data: AllAuthors } = useGetAllAuthorsQuery(journal?.journal_id);
   const [createAuthor] = useToastMutation(useCreateAuthorMutation(), {
     showLoading: true,
   });
@@ -33,6 +36,7 @@ const AuthorPage = () => {
 
   // Initial values for Formik
   const initialValues = {
+    journal_id: journal?.journal_id || "",
     author_email: "",
     author_fname: "",
     author_lname: "",
@@ -42,6 +46,9 @@ const AuthorPage = () => {
 
   // Validation schema using Yup
   const validationSchema = Yup.object({
+    journal_id: Yup.number("Invalid Submission").required(
+      "Invalid Submission!"
+    ),
     author_email: Yup.string()
       .email("Please enter a valid email address")
       .required("Email is required"),
@@ -109,6 +116,7 @@ const AuthorPage = () => {
             initialValues={
               editingAuthor
                 ? {
+                    journal_id: journal?.journal_id,
                     author_email: editingAuthor.author_email || "",
                     author_fname: editingAuthor.author_fname || "",
                     author_lname: editingAuthor.author_lname || "",
@@ -122,7 +130,7 @@ const AuthorPage = () => {
             enableReinitialize={true}
           >
             {({ isSubmitting, handleSubmit }) => (
-              <div onSubmit={handleSubmit}>
+              <Form onSubmit={handleSubmit}>
                 <div className="space-y-6">
                   {/* First Name and Last Name Row */}
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -221,30 +229,37 @@ const AuthorPage = () => {
                   </div>
 
                   {/* Action Buttons */}
-                  <div className="flex gap-3 pt-4 border-t border-gray-200">
-                    <button
-                      type="submit"
-                      disabled={isSubmitting}
-                      onClick={handleSubmit}
-                      className="flex items-center gap-2 px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                    >
-                      <Save className="w-4 h-4" />
-                      {isSubmitting
-                        ? "Saving..."
-                        : editingAuthor
-                        ? "Update Author"
-                        : "Save Author"}
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setShowForm(false)}
-                      className="px-6 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 transition-colors"
-                    >
-                      Cancel
-                    </button>
+                  <div className="pt-4 border-t border-gray-200">
+                    <ErrorMessage
+                      name="journal_id"
+                      component="div"
+                      className="mt-1 mb-3 ml-2 text-sm text-red-600"
+                    />
+                    <div className="flex gap-3 mt-2">
+                      <button
+                        type="submit"
+                        disabled={isSubmitting}
+                        onClick={handleSubmit}
+                        className="flex items-center gap-2 px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                      >
+                        <Save className="w-4 h-4" />
+                        {isSubmitting
+                          ? "Saving..."
+                          : editingAuthor
+                          ? "Update Author"
+                          : "Save Author"}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setShowForm(false)}
+                        className="px-6 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 transition-colors"
+                      >
+                        Cancel
+                      </button>
+                    </div>
                   </div>
                 </div>
-              </div>
+              </Form>
             )}
           </Formik>
         </div>

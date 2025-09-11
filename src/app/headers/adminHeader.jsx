@@ -11,26 +11,17 @@ import {
   User,
 } from "lucide-react";
 import { useState } from "react";
-import { Link } from "react-router-dom";
 
 export function AdminHeader() {
-  const [showProfileDropdown, setShowProfileDropdown] = useState(false);
+  const [showProfileDropdown, setShowProfileDropdown] = useState(false)
 
   // Page meta data ---
-  // const user = {
-  //   role: "author",
-  //   userId: 1,
-  //   name: "Dr. John Smith",
-  //   email: "john.smith@journal.com",
-  //   avatar: null,
-  // };
-
-  // Page meta data ---
-  const { user: userInfo, logout } = useAuth();
+  const { user: userInfo, logout, journal } = useAuth();
   const user = userInfo
     ? { role: userInfo?.["role"], userId: userInfo?.[`${userInfo.role}_id`], name: userInfo?.[`${userInfo.role}_name`] }
     : null;
 
+    console.log(journal)
   return (
     <>
       <header className="bg-white border-b border-gray-200 px-6 py-4 shadow-sm">
@@ -42,10 +33,10 @@ export function AdminHeader() {
               </div>
               <div>
                 <h1 className="text-xl font-bold text-gray-900">
-                  ScholarManuscript
+                  ScholarM
                 </h1>
                 <p className="text-sm text-blue-600">
-                  Journal of Pioneering Medical Sciences
+                  {journal && journal.journal_name}
                 </p>
               </div>
             </div>

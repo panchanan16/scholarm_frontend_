@@ -15,7 +15,8 @@ function useRenderManuscript({
   type,
   processed,
   userId,
-  disposal
+  disposal,
+  journal
 }) {
   const [fetchForAdmin, adminData] = useLazyGetManuscriptByStatusQuery();
   const [fetchForEditor, editorData] = useLazyGetManuscriptForEditorQuery();
@@ -24,7 +25,7 @@ function useRenderManuscript({
 
   useEffect(() => {
     if (role == "admin") {
-      fetchForAdmin({ status, type });
+      fetchForAdmin({ status, type, journal });
     } else if (role == "reviewer") {
       fetchForReviewer({ userId, status, reviewerStatus, completed });
     } else if (role == "author") {

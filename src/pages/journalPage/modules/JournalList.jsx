@@ -23,6 +23,8 @@ import {
 import { useSearchParamIfExist } from "@/hooks/useSearchParamIfExist";
 import { useToastMutation } from "@/hooks/useNotification";
 import { useDeleteManuscriptMutation } from "@/services/features/manuscript/slice";
+import { useSelector } from "react-redux";
+import { selectJournal } from "@/store/feature/auth/authSlice";
 
 const JournalListTable = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -41,6 +43,8 @@ const JournalListTable = () => {
     ? { role: userInfo?.["role"], userId: userInfo?.[`${userInfo.role}_id`] }
     : null;
 
+  const journal = useSelector(selectJournal)
+
   // Call data ---
   const { manuscriptsData } = useRenderManuscript({
     role: user.role,
@@ -51,6 +55,7 @@ const JournalListTable = () => {
     reviewerStatus: searchParams.get("reviewerStatus"),
     disposal: searchParams.get("disposal"),
     type: searchParams.get("type"),
+    journal: journal?.journal_id
   });
 
   // Delete manuscript

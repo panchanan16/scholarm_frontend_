@@ -8,70 +8,27 @@ import {
   Filter,
 } from "lucide-react";
 import { Link } from "react-router-dom";
+import { useGetFilteredJournalMutation } from "@/services/features/journal/journalApi";
 
 const JournalFinder = () => {
   const [selectedSpecializations, setSelectedSpecializations] = useState([]);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [searchTriggered, setSearchTriggered] = useState(false);
+  const [filteredJournals, setFilteredJournals] = useState([])
+
+  const [getFilteredJournals] = useGetFilteredJournalMutation();
 
   const specializations = [
-    "Neurosurgery",
+    "Nurology",
     "Community Medicine",
-    "Yoga",
+    "yoga",
     "Laboratory Physicians",
     "Clinical Practice",
-    "Science",
+    "Pathology",
     "Cardiology",
     "Dermatology",
     "Orthopedics",
     "Pediatrics",
-  ];
-
-  const mockJournals = [
-    {
-      id: 1,
-      title: "International Journal of Community Medicine",
-      shortName: "ijcm",
-      issn: "1970-0218",
-      eissn: "1998-3581",
-      publicationType: "Subscription",
-      specializations: ["Community Medicine", "Yoga"],
-      impact: "2.4",
-      frequency: "Quarterly",
-    },
-    {
-      id: 2,
-      title: "Journal of Family and Community Medicine",
-      shortName: "jfcm",
-      issn: "2230-8229",
-      eissn: "2229-340X",
-      publicationType: "Subscription",
-      specializations: ["Community Medicine"],
-      impact: "1.8",
-      frequency: "Bi-monthly",
-    },
-    {
-      id: 3,
-      title: "Advanced Neurosurgical Research",
-      shortName: "anr",
-      issn: "2456-7890",
-      eissn: "2456-7891",
-      publicationType: "Open Access",
-      specializations: ["Neurosurgery"],
-      impact: "3.2",
-      frequency: "Monthly",
-    },
-    {
-      id: 4,
-      title: "Modern Yoga Studies",
-      shortName: "mys",
-      issn: "2345-6789",
-      eissn: "2345-6790",
-      publicationType: "Hybrid",
-      specializations: ["Yoga"],
-      impact: "1.2",
-      frequency: "Quarterly",
-    },
   ];
 
   const handleSpecializationToggle = (specialization) => {
@@ -82,17 +39,14 @@ const JournalFinder = () => {
     );
   };
 
-  const handleFindJournal = () => {
+  const handleFindJournal = async () => {
     setSearchTriggered(true);
+    const journals = await getFilteredJournals({
+      journal_type: selectedSpecializations,
+    }).unwrap();
+    setFilteredJournals(journals && journals.data ? journals.data : []);
+    console.log(journals)
   };
-
-  const filteredJournals = searchTriggered
-    ? mockJournals.filter((journal) =>
-        journal.specializations.some((spec) =>
-          selectedSpecializations.includes(spec)
-        )
-      )
-    : [];
 
   const getPublicationTypeColor = (type) => {
     switch (type) {
@@ -245,16 +199,16 @@ const JournalFinder = () => {
               <div className="grid gap-6">
                 {filteredJournals.map((journal) => (
                   <div
-                    key={journal.id}
+                    key={journal.journal_id}
                     className="bg-white rounded-2xl shadow-md border border-gray-100 p-6 hover:shadow-lg transition-shadow duration-200"
                   >
                     <div className="flex items-start justify-between mb-4">
                       <div className="flex-1">
                         <h3 className="text-xl font-bold text-gray-900 mb-2">
-                          {journal.title}
+                          {journal.journal_name}
                         </h3>
                         <p className="text-gray-600 mb-3">
-                          ({journal.shortName})
+                          ({journal.journal_code})
                         </p>
 
                         {/* Specializations */}
@@ -263,7 +217,7 @@ const JournalFinder = () => {
                             Specializations:
                           </span>
                           <div className="flex flex-wrap gap-2">
-                            {journal.specializations.map((spec, index) => (
+                            {journal.journal_type.map((spec, index) => (
                               <span
                                 key={`${journal.id}-${spec}-${index}`}
                                 className={`px-3 py-1 rounded-full text-sm font-medium border ${
@@ -283,7 +237,7 @@ const JournalFinder = () => {
                       </div>
 
                       <Link
-                        to={"/"}
+                        to={`/journal/${journal.journal_code}`}
                         className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors font-medium"
                       >
                         Go to Journal

@@ -16,8 +16,9 @@ export const authorApi = baseApi.injectEndpoints({
         }),
 
         getAllAuthors: builder.query({
-            query: () => ({
+            query: (journal) => ({
                 url: '/author/readAll',
+                params: { journal }
             }),
             providesTags: ['Authors'],
         }),

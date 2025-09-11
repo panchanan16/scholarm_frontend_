@@ -5,8 +5,12 @@ import { useToastMutation } from "@/hooks/useNotification";
 import useSaveSteps from "@/hooks/useSaveSteps";
 import { useGetStartedArticleMutation } from "@/services/features/manuscript/slice";
 import { useAuth } from "@/hooks/useAuth";
+import { useSelector } from "react-redux";
+import { selectJournal } from "@/store/feature/auth/authSlice";
 
 export default function IntroForm() {
+  const journal = useSelector(selectJournal);
+  console.log(journal);
   const [type, setType] = useState("");
   const [subClass, setSubClass] = useState([]);
   const { updateSaveSteps } = useSaveSteps({
@@ -19,6 +23,7 @@ export default function IntroForm() {
 
   const initialValues = {
     articleDetails: {
+      journal_id: journal?.journal_id || "",
       type: "",
       sub_class: "",
       main_author: user && user.author_id,
@@ -37,14 +42,23 @@ export default function IntroForm() {
   };
 
   async function SubmitAndContinueHandler(values, setSubmitting) {
-    if (userRole === "author" && user && isAuthenticated && initialValues.articleDetails.main_author) {
-      const article = await getArticleStart(values);
-      const article_id = article.data[0]?.intro_id;
-      article &&
-        updateSaveSteps(`/submission/article-title?article_id=${article_id}`);
-      setSubmitting(false);
+    if (
+      userRole === "author" &&
+      user &&
+      isAuthenticated &&
+      initialValues.articleDetails.main_author
+    ) {
+      if (journal && journal.journal_id && values.articleDetails.journal_id) {
+        const article = await getArticleStart(values);
+        const article_id = article.data[0]?.intro_id;
+        article &&
+          updateSaveSteps(`/submission/article-title?article_id=${article_id}`);
+        setSubmitting(false);
+      } else {
+        return alert("Invalid Submission!");
+      }
     } else {
-      alert("You must login as author to submit")
+      alert("You must login as author to submit");
     }
   }
 
@@ -126,6 +140,3 @@ export default function IntroForm() {
     </div>
   );
 }
-
-
-

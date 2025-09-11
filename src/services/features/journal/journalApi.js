@@ -38,6 +38,26 @@ export const journalApi = baseApi.injectEndpoints({
         }),
 
 
+        // Fileter journal by category ----
+        getFilteredJournal: builder.mutation({
+            query: (data) => ({
+                url: '/journal/findByfilter',
+                method: 'POST',
+                body: data,
+            }),
+        }),
+
+        // readOne by code ----
+        getJournalByCode: builder.query({
+            query: (params = {}) => ({
+                url: '/journal/findOneByCode',
+                params: {
+                    journal_code: params.journal_code,
+                },
+            }),
+        }),
+
+
         //Update a journal ---
         updateJournal: builder.mutation({
             query: (data) => ({
@@ -94,5 +114,7 @@ export const {
     useUpdateJournalMutation,
     useDeleteJournalMutation,
     useCreateVolumeMutation,
-    useCreateIssueMutation
+    useCreateIssueMutation,
+    useGetFilteredJournalMutation,
+    useGetJournalByCodeQuery
 } = journalApi

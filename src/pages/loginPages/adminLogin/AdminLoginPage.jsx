@@ -1,6 +1,11 @@
 import { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { Navigate, useLocation, useNavigate } from "react-router-dom";
+import {
+  Navigate,
+  useLocation,
+  useNavigate,
+  useParams,
+} from "react-router-dom";
 import { Eye, EyeOff, Mail, Lock } from "lucide-react";
 import { useLoginMutation } from "@/services/features/auth/slice";
 import {
@@ -8,15 +13,21 @@ import {
   selectIsAuthenticated,
 } from "@/store/feature/auth/authSlice";
 import { useAuth } from "@/hooks/useAuth";
+import { useGetJournalByCodeQuery } from "@/services/features/journal/journalApi";
 
 export default function AdminLoginPage() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const location = useLocation();
+  const { jcode } = useParams();
   const isAuthenticated = useSelector(selectIsAuthenticated);
   const { userRole } = useAuth();
 
   const [login, { isLoading, error }] = useLoginMutation();
+  const { data: journalDetails } = useGetJournalByCodeQuery({
+    journal_code: jcode,
+  });
+
+  console.log(journalDetails)
 
   const [formData, setFormData] = useState({
     email: "",
@@ -89,9 +100,13 @@ export default function AdminLoginPage() {
     e.preventDefault();
 
     if (!formData.role) {
-      return alert("Select a fole first!")
+      return alert("Select a fole first!");
     }
     if (!validateForm()) return;
+
+    if (!journalDetails && !journalDetails?.data.journal_id) {
+      return alert("Invalid journal selection");
+    }
 
     try {
       const result = await login({
@@ -99,12 +114,16 @@ export default function AdminLoginPage() {
         password: formData.password,
         role: formData.role,
         rememberMe: formData.rememberMe,
+        journal_id: journalDetails.data.journal_id,
       }).unwrap();
+
+      console.log(result)
 
       dispatch(
         setCredentials({
           user: result.user,
           token: result.token,
+          journal: result.journal,
         })
       );
 
@@ -289,7 +308,7 @@ export default function AdminLoginPage() {
                   Signing in...
                 </div>
               ) : (
-                `Sign in as ${selectedRole?.value ? selectedRole.value : "" }`
+                `Sign in as ${selectedRole?.value ? selectedRole.value : ""}`
               )}
             </button>
           </form>

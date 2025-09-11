@@ -46,6 +46,7 @@ export const authApiSlice = authApi.injectEndpoints({
                 user: response.data.user,
                 token: response.data.accessToken,
                 refreshToken: response.data.refreshToken,
+                journal: response.data.user && response.data.user.Journal ? response.data.user.Journal : null,
             }),
         }),
 

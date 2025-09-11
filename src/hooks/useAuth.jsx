@@ -1,7 +1,7 @@
-import { useSelector, useDispatch } from 'react-redux';
-import { useNavigate } from 'react-router-dom';
-import { useLogoutMutation } from '@/services/features/auth/slice';
-import { 
+import { useSelector, useDispatch } from "react-redux";
+import { useNavigate } from "react-router-dom";
+import { useLogoutMutation } from "@/services/features/auth/slice";
+import {
   clearCredentials,
   selectCurrentUser,
   selectCurrentToken,
@@ -9,25 +9,26 @@ import {
   selectUserRole,
   selectHasRole,
   USER_ROLES,
-} from '@/store/feature/auth/authSlice';
+  selectJournal,
+} from "@/store/feature/auth/authSlice";
 
 export const useAuth = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  
   const user = useSelector(selectCurrentUser);
+  const journal = useSelector(selectJournal);
   const token = useSelector(selectCurrentToken);
   const isAuthenticated = useSelector(selectIsAuthenticated);
   const userRole = useSelector(selectUserRole);
-  
+
   const [logoutMutation] = useLogoutMutation();
 
-  const logout = async (redirectTo = '/') => {
+  const logout = async (redirectTo = "/") => {
     try {
-      await logoutMutation({role: userRole}).unwrap();
+      await logoutMutation({ role: userRole }).unwrap();
     } catch (error) {
-      console.error('Logout API call failed:', error);
+      console.error("Logout API call failed:", error);
     } finally {
       dispatch(clearCredentials());
       navigate(redirectTo, { replace: true });
@@ -40,6 +41,7 @@ export const useAuth = () => {
 
   return {
     user,
+    journal,
     token,
     userRole,
     isAuthenticated,

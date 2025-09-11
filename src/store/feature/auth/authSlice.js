@@ -2,7 +2,7 @@ import { createSlice } from '@reduxjs/toolkit';
 
 export const USER_ROLES = {
   USER: 'user',
-  EMPLOYEE: 'employee', 
+  EMPLOYEE: 'employee',
   MANAGER: 'manager',
   ADMIN: 'admin',
 };
@@ -18,10 +18,12 @@ const getInitialState = () => {
   try {
     const token = localStorage.getItem('token');
     const user = localStorage.getItem('user');
-    
+    const journal = localStorage.getItem('journal');
+
     if (token && user) {
       return {
         user: JSON.parse(user),
+        ...(journal && { journal: JSON.parse(journal) }),
         token,
         isAuthenticated: true,
         isLoading: false,
@@ -31,8 +33,9 @@ const getInitialState = () => {
     console.error('Error parsing stored auth data:', error);
     localStorage.removeItem('token');
     localStorage.removeItem('user');
+    localStorage.removeItem('journal');
   }
-  
+
   return {
     user: null,
     token: null,
@@ -46,31 +49,34 @@ const authSlice = createSlice({
   initialState: getInitialState(),
   reducers: {
     setCredentials: (state, action) => {
-      const { user, token } = action.payload;
-      
+      const { user, token, journal } = action.payload;
+
       state.user = user;
       state.token = token;
       state.isAuthenticated = true;
       state.isLoading = false;
-      
+      state.journal = journal || null;
+
+      localStorage.setItem('journal', JSON.stringify(journal));
       localStorage.setItem('token', token);
       localStorage.setItem('user', JSON.stringify(user));
     },
-    
+
     clearCredentials: (state) => {
       state.user = null;
       state.token = null;
       state.isAuthenticated = false;
       state.isLoading = false;
-      
+      state.journal = null;
+
       localStorage.removeItem('token');
       localStorage.removeItem('user');
     },
-    
+
     setLoading: (state, action) => {
       state.isLoading = action.payload;
     },
-    
+
     updateUser: (state, action) => {
       if (state.user) {
         state.user = { ...state.user, ...action.payload };
@@ -87,6 +93,7 @@ export const selectCurrentToken = (state) => state.auth.token;
 export const selectIsAuthenticated = (state) => state.auth.isAuthenticated;
 export const selectIsLoading = (state) => state.auth.isLoading;
 export const selectUserRole = (state) => state.auth.user?.role;
+export const selectJournal = (state) => state.auth.journal;
 
 export const selectHasRole = (requiredRole) => (state) => {
   const userRole = selectUserRole(state);
@@ -103,7 +110,7 @@ export const selectHasAnyRole = (requiredRoles) => (state) => {
 export const selectCanAccess = (requiredPermissions) => (state) => {
   const user = selectCurrentUser(state);
   if (!user || !user.permissions) return false;
-  return requiredPermissions.every(permission => 
+  return requiredPermissions.every(permission =>
     user.permissions.includes(permission)
   );
 };

@@ -4,7 +4,7 @@ import { useCreateJournalMutation } from "@/services/features/journal/journalApi
 
 export default function AddJournalModal({ isOpen, onClose }) {
   const initialValues = {
-    journal_type: [], // Changed to array for multiple selection
+    journal_type: [], 
     journal_code: "",
     journal_issn: "",
     journal_eissn: "",
@@ -17,14 +17,9 @@ export default function AddJournalModal({ isOpen, onClose }) {
     showLoading: true,
   });
 
-  const handleJournalSubmit = async (values, setSubmitting) => {
-    // Create a copy of values and stringify the journal_type array
-    const submissionData = {
-      ...values,
-      journal_type: JSON.stringify(values.journal_type)
-    };
-    
-    await createJournal(submissionData);
+  const handleJournalSubmit = async (values, setSubmitting) => {    
+    await createJournal(values);
+    console.log(values)
     setSubmitting(false);
     onClose();
   };
@@ -141,7 +136,7 @@ export default function AddJournalModal({ isOpen, onClose }) {
                           </label>
                         </div>
                         <div className="border border-gray-300 rounded-md p-3 space-y-2 bg-white">
-                          {['Academic', 'Non-Academic', 'Technical', 'Research'].map((type) => (
+                          {['Nurology', 'Yoga', 'Pathology', 'Chemistry'].map((type) => (
                             <label key={type} className="flex items-center cursor-pointer group">
                               <input
                                 type="checkbox"

@@ -157,6 +157,8 @@ const SystemAdminLoginPage = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
+   const from = '/admin/dashboard' || "/";
+
   useEffect(() => {
     if (isAuthenticated) {
       navigate(from, { replace: true });

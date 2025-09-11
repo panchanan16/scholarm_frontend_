@@ -38,6 +38,7 @@ export const manuscriptApi = baseApi.injectEndpoints({
                 params: {
                     status: params.status,
                     ...(params.type && { type: params.type }),
+                    journal: params.journal
                 },
             }),
             providesTags: ['ManuscriptList'],
@@ -53,7 +54,8 @@ export const manuscriptApi = baseApi.injectEndpoints({
                     ...(params.status && { status: params.status }),
                     ...(params.editorStatus && { editorStatus: params.editorStatus }),
                     ...(params.completed && { completed: params.completed }),
-                    ...(params.disposal && { completed: params.disposal })
+                    ...(params.disposal && { completed: params.disposal }),
+                    journal: params.journal
 
                 },
             }),
@@ -68,7 +70,8 @@ export const manuscriptApi = baseApi.injectEndpoints({
                     userId: params.userId,
                     ...(params.status && { status: params.status }),
                     ...(params.reviewerStatus && { reviewerStatus: params.reviewerStatus }),
-                    ...(params.completed && { completed: params.completed })
+                    ...(params.completed && { completed: params.completed }),
+                    journal: params.journal
 
                 },
             }),

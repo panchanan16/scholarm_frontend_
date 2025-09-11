@@ -81,10 +81,10 @@ const JournalDetailPage = () => {
             </div>
             <div className="bg-gray-50 p-4 rounded-lg">
               <h3 className="text-sm font-medium text-gray-500 mb-1">
-                Journal Type
+                Journal Specialization
               </h3>
-              <p className="text-lg font-semibold text-gray-900">
-                {journalDetails && journalDetails.data.journal_type}
+              <p className="text-lg font-semibold text-gray-900 flex gap-1">
+                {journalDetails && journalDetails.data.journal_type.map((type)=> (<span className="bg-purple-100 p-1 px-2 rounded-2xl text-xs text-purple-500 inline-block">{type}</span>))}
               </p>
             </div>
             <div className="bg-gray-50 p-4 rounded-lg">

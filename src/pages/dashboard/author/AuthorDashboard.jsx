@@ -28,7 +28,7 @@ const AuthorDashboard = () => {
   const itemsPerPage = 5;
 
   // Page meta data ---
-  const { user: userInfo, logout } = useAuth();
+  const { user: userInfo, logout, journal } = useAuth();
   const user = userInfo
     ? {
         role: userInfo?.["role"],
@@ -44,6 +44,7 @@ const AuthorDashboard = () => {
       statusFilter !== "processed" && { status: statusFilter }),
     userId: user.userId,
     processed: statusFilter === "processed",
+    journal: journal?.journal_id
     // completed: queryParams.get("completed"),
   });
 
@@ -178,8 +179,9 @@ const AuthorDashboard = () => {
               </div>
               <div>
                 <h1 className="text-2xl font-bold text-gray-900">
-                  Manuscripts
+                  ScholarM
                 </h1>
+                <span className="text-blue-800">{journal?.journal_name}</span>
                 <p className="text-sm text-gray-500">
                   {manuscriptsData ? manuscriptsData.data.length : 0} total
                   manuscripts
@@ -289,7 +291,7 @@ const AuthorDashboard = () => {
                       </button>
 
                       <button
-                        onClick={() => logout("/")}
+                        onClick={() => logout(`/journal/${journal?.journal_code}`)}
                         className="flex items-center w-full px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors duration-200"
                       >
                         <LogOut className="w-4 h-4 mr-3 text-red-500" />

@@ -226,7 +226,9 @@ export const submissionApi = baseApi.injectEndpoints({
                     article_id: params.article_id || 0,
                 },
             }),
-            providesTags: ['ArticleSummary'],
+            keepUnusedDataFor: 0,
+            refetchOnMountOrArgChange: true,
+            providesTags: (result, error, arg) => [{ type: 'ArticleSummary', id: arg.article_id }],
         }),
 
         // Confirm and Submit manuscript
@@ -235,7 +237,10 @@ export const submissionApi = baseApi.injectEndpoints({
                 url: `/entireSubmit/create`,
                 method: 'POST',
                 body: data,
-            })
+            }),
+            invalidatesTags: (result, error, arg) => [
+                { type: 'ArticleSummary', id: arg.article_id }
+            ],
         }),
     }),
 })

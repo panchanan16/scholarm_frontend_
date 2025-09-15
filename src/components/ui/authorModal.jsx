@@ -7,6 +7,7 @@ import {
 } from "@/services/features/authors/slice";
 import { useAddAuthorsToArticleMutation } from "@/services/features/submission/submissionApi";
 import { useToastMutation } from "@/hooks/useNotification";
+import { useAuth } from "@/hooks/useAuth";
 
 const validationSchema = Yup.object().shape({
   author_fname: Yup.string().required("Required"),
@@ -22,8 +23,9 @@ export default function AddAuthorModal({
   email,
   hasAuthor,
   author,
-  articleId
+  articleId,
 }) {
+  const {journal} = useAuth()
   const [createAuthor] = useCreateAuthorMutation();
   const [updateAuthor, updateData] = useUpdateAuthorMutation();
   const [addAuthorToArtcle] = useToastMutation(
@@ -36,6 +38,7 @@ export default function AddAuthorModal({
   const { data = null } = author || {};
 
   const initialValues = {
+    journal_id: journal?.journal_id || "",
     author_id: data ? data.author_id : "",
     author_fname: data ? data.author_fname : "",
     author_lname: data ? data.author_lname : "",
@@ -44,8 +47,6 @@ export default function AddAuthorModal({
     country: "",
     city: "",
   };
-
-  console.log(initialValues);
 
   const handleAuthorSubmit = async (values, setSubmitting) => {
     if (data && initialValues.author_id) {
@@ -57,12 +58,19 @@ export default function AddAuthorModal({
         });
       }
     } else {
-      const createdAuthor = await createAuthor(values);
-      if (createdAuthor && createdAuthor.data.status) {
-        addAuthorToArtcle({
-          article_id: articleId,
-          author_id: createdAuthor.data.status ? createdAuthor.data.data.author_id : "",
-        });
+      try {
+        const createdAuthor = await createAuthor(values);
+        if (createdAuthor && createdAuthor.data.status) {
+          addAuthorToArtcle({
+            article_id: articleId,
+            author_id: createdAuthor.data.status
+              ? createdAuthor.data.data.author_id
+              : "",
+          });
+        }
+      } catch (error) {
+        console.log(error)
+        return alert("Error adding author. Please try again.");
       }
     }
   };
@@ -97,6 +105,7 @@ export default function AddAuthorModal({
 
         <Formik
           initialValues={initialValues}
+          enableReinitialize={true}
           validationSchema={validationSchema}
           onSubmit={(values, { setSubmitting }) =>
             handleAuthorSubmit(values, setSubmitting)

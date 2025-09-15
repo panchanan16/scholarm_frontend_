@@ -27,11 +27,11 @@ function useRenderManuscript({
     if (role == "admin") {
       fetchForAdmin({ status, type, journal });
     } else if (role == "reviewer") {
-      fetchForReviewer({ userId, status, reviewerStatus, completed });
+      fetchForReviewer({ userId, status, reviewerStatus, completed, journal });
     } else if (role == "author") {
-      fetchForAuthor({ userId, status, processed });
+      fetchForAuthor({ userId, status, processed, journal });
     } else {
-      fetchForEditor({ userId, status, editorStatus, completed, disposal });
+      fetchForEditor({ userId, status, editorStatus, completed, disposal, journal });
     }
   }, [role, status, processed, type, completed]);
 

@@ -527,9 +527,27 @@ const SummaryForm = ({
           icon={FileText}
           sectionKey="funding"
         >
-          <p className="text-gray-700 text-sm leading-relaxed">
-            {submissionData.fundingInfo}
-          </p>
+          <div>
+            <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">
+              Funding
+            </label>
+            <p className="text-gray-700 text-xs mt-1">
+              {articleSummary && articleSummary.data.isFunded
+                ? articleSummary.data.funding_info
+                : "No"}
+            </p>
+          </div>
+
+           <div>
+            <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">
+              Clinical Info
+            </label>
+            <p className="text-gray-700 text-xs mt-1">
+              {articleSummary && articleSummary.data.isClinical
+                ? articleSummary.data.clinical_info
+                : "N / A"}
+            </p>
+          </div>
         </InfoCard>
 
         <InfoCard
@@ -543,7 +561,9 @@ const SummaryForm = ({
                 Conflict of Interest
               </label>
               <p className="text-gray-700 text-xs mt-1">
-                {submissionData.conflictOfInterest}
+                {articleSummary && articleSummary.data.isConflictInterest
+                  ? articleSummary.data.conflict
+                  : "No"}
               </p>
             </div>
             <div>
@@ -551,7 +571,9 @@ const SummaryForm = ({
                 Ethics Approval
               </label>
               <p className="text-gray-700 text-xs mt-1">
-                {submissionData.ethicsApproval}
+                {articleSummary && articleSummary.data.isEthical
+                  ? articleSummary.data.ethical_info
+                  : "No"}
               </p>
             </div>
           </div>
@@ -559,9 +581,11 @@ const SummaryForm = ({
       </div>
 
       <div className="mt-6">
-        <InfoCard title="Data Availability" icon={FileText} sectionKey="data">
+        <InfoCard title="Copyright" icon={FileText} sectionKey="data">
           <p className="text-gray-700 text-sm leading-relaxed">
-            {submissionData.dataAvailability}
+            {articleSummary && articleSummary.data.copyright
+              ? articleSummary.data.copyright
+              : "N / A"}
           </p>
         </InfoCard>
       </div>

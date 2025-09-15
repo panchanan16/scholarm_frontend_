@@ -7,6 +7,7 @@ import {
   useCreateReviewerMutation,
   useUpdateReviewerMutation,
 } from "@/services/features/reviewers/slice";
+import { useAuth } from "@/hooks/useAuth";
 
 const validationSchema = Yup.object().shape({
   reviewer_name: Yup.string().required("Required"),
@@ -21,8 +22,9 @@ export default function AddReviewerModal({
   email,
   hasAuthor,
   reviewer,
-  articleId
+  articleId,
 }) {
+  const { journal } = useAuth();
   const [createReviewer] = useCreateReviewerMutation();
   const [updateReviewer, updateData] = useUpdateReviewerMutation();
   const [addReviewerToArtcle] = useToastMutation(
@@ -35,6 +37,7 @@ export default function AddReviewerModal({
   const { data = null } = reviewer || {};
 
   const initialValues = {
+    journal_id: journal?.journal_id || "",
     reviewer_id: data ? data.reviewer_id : "",
     reviewer_name: data ? data.reviewer_name : "",
     reviewer_type: "",
@@ -43,7 +46,6 @@ export default function AddReviewerModal({
     country: "",
     city: "",
   };
-
 
   const handleReviewerSubmit = async (values, setSubmitting) => {
     if (data && initialValues.reviewer_id) {
@@ -55,18 +57,22 @@ export default function AddReviewerModal({
           reviewer_type: values.reviewer_type,
         });
       }
-      setSubmitting(false)
+      setSubmitting(false);
     } else {
-      const createdReviewer = await createReviewer(values);
-      if (createdReviewer && createdReviewer.data.status) {
-        addReviewerToArtcle({
-          article_id: articleId,
-          reviewer_id: createdReviewer.data.status
-            ? createdReviewer.data.data.reviewer_id
-            : "",
-          reviewer_type: values.reviewer_type,
-        });
-        setSubmitting(false)
+      try {
+        const createdReviewer = await createReviewer(values);
+        if (createdReviewer && createdReviewer.data.status) {
+          addReviewerToArtcle({
+            article_id: articleId,
+            reviewer_id: createdReviewer.data.status
+              ? createdReviewer.data.data.reviewer_id
+              : "",
+            reviewer_type: values.reviewer_type,
+          });
+          setSubmitting(false);
+        }
+      } catch (error) {
+        return alert("Error adding reviewer. Please try again.");
       }
     }
   };

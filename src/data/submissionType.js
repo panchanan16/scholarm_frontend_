@@ -15,7 +15,17 @@
         { value: "mixed", label: "Mixed Methods" },
         { value: "experimental", label: "Experimental" },
       ],
-      section: ["abstract", "methodology", "findings", "discussion"],
+      section: ["abstract", "methodology", "result", "discussion", "conclusion"],
+    },
+    // Original research 
+    orginalResearch: {
+      subclass: [
+        { value: "experimentalStudies", label: "Experimental Studies" },
+        { value: "observationalStudies", label: "Observational Studies" },
+        { value: "surveyResearch", label: "Survey Research" },
+        { value: "qualitativeStudies", label: "Qualitative Studies" },
+      ],
+      section: ["abstract", "methodology", "result", "discussion", "conclusion"],
     },
     review: {
       subclass: [

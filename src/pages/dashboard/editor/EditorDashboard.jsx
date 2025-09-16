@@ -82,10 +82,10 @@ const EditorDashBoard = () => {
 
   const publisherTodoItems = [
     { label: "New Invitaion", count: 0, priority: "green", link: 'manuscript?status=editorinvited&editorStatus=invited' },
-    { label: "New Assignment", count: 23, priority: "orange", link: 'manuscript?editorStatus=accepted&completed=false' },
+    { label: "New Assignment", count: 23, priority: "orange", link: 'manuscript?editorStatus=accepted&completed=false&disposal=false' },
     { label: "Reviewers invited No Response", count: 6, priority: "red", link: 'manuscript?status=reviewerinvited' },
     { label: "Submissions requiring additional Reviewers", count: 6, priority: "yellow", link: 'manuscript?status=submissionneedadditionalreviewers' },
-    { label: "Under Review", count: 6, priority: "green", link: 'manuscript?status=underreview' },
+    { label: "Under Review", count: 6, priority: "green", link: 'manuscript?status=underreview&editorStatus=accepted' },
     { label: "Submissions with one or more late Reviews", count: 6, priority: "blue" },
     { label: "Submissions with required Review Completed", count: 23, priority: "red", link: 'manuscript?status=submissionwithrequiredreviewerscompleted' },
   ];

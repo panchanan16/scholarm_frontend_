@@ -98,6 +98,7 @@
 //   );
 // }
 
+import BackButton from "@/components/BackBtn/BackButton";
 import Logout from "@/components/logout/Logout";
 import { useAuth } from "@/hooks/useAuth";
 import {
@@ -115,10 +116,9 @@ export default function DashboardSideBar() {
   const { user, isAuthenticated } = useAuth();
 
   // Common links that all authenticated users can see
-  const commonLinks = [    
-  ];
+  const commonLinks = [];
 
-    // Super Admin-specific links
+  // Super Admin-specific links
   const superAdminLinks = [
     {
       to: "/dashboard/journals",
@@ -154,7 +154,7 @@ export default function DashboardSideBar() {
       to: "/dashboard/reviewers",
       icon: Plus,
       label: "Add New Reviewer",
-    }
+    },
   ];
 
   // Editor-specific links

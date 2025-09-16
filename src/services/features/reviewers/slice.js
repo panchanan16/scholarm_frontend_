@@ -21,6 +21,7 @@ export const reviewerApi = baseApi.injectEndpoints({
             query: (params = {}) => ({
                 url: '/reviewer/readAll',
                 params: {
+                    journal_id: params.journal_id,
                 },
             }),
             providesTags: ['Reviewers'],

@@ -91,19 +91,19 @@ const Dashboard = () => {
       label: "Editor Invited",
       count: 23,
       priority: "orange",
-      link: "manuscript?role=admin&id=1&status=editorinvited",
+      link: "manuscript?type=regular&status=editorinvited",
     },
     {
       label: "Need To Assign Editor",
       count: 23,
       priority: "red",
-      link: "manuscript?role=admin&id=1&status=newsubmission",
+      link: "manuscript?type=regular&status=needtoassigneditor",
     },
     {
       label: "Need To Assign Reviewers",
       count: 6,
       priority: "yellow",
-      link: "manuscript?role=admin&id=1&status=needtoassignreviewer",
+      link: "manuscript?type=regular&status=needtoassignreviewer",
     },
   ];
 

@@ -36,6 +36,7 @@ import JournalFinder from "@/pages/JournalFinder";
 import PublisherPage from "@/components/users/publisher";
 import SystemAdminLoginPage from "@/pages/loginPages/systemAdminLogin/SystemAdminLoginPage";
 import SuperAdminDashboard from "@/pages/dashboard/superadmin/SuperadminDashboard";
+import PublishArticlePage from "@/pages/publishPage";
 
 const routes = [
   {
@@ -43,7 +44,7 @@ const routes = [
     element: <App />,
     children: [
       { index: true, element: <AdminLoginPage /> },
-      { path: 'journal/:jcode', element: <AdminLoginPage /> },
+      { path: "journal/:jcode", element: <AdminLoginPage /> },
       {
         path: "/find-journal",
         element: <JournalFinder />,
@@ -71,7 +72,8 @@ const routes = [
           { path: "reviewers", element: <ReviewerPage /> },
           { path: "journals", element: <JournalManagement /> },
           { path: "publishers", element: <PublisherPage /> },
-          { path: "journals/:journalId", element: <JournalDetailPage /> }
+          { path: "manuscript/publish", element: <PublishArticlePage /> },
+          { path: "journals/:journalId", element: <JournalDetailPage /> },
         ],
       },
       { path: "/:role/manuscript", element: <ValidatedJournalListTable /> },
@@ -148,13 +150,12 @@ const routes = [
       },
       {
         path: "/admin",
-        element: <SystemAdminLoginPage />
+        element: <SystemAdminLoginPage />,
       },
       {
         path: "/admin/dashboard",
-        element: <SuperAdminDashboard />
-      }
-
+        element: <SuperAdminDashboard />,
+      },
     ],
   },
 ];

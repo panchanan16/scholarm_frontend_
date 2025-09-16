@@ -25,7 +25,7 @@ import { selectJournal } from "@/store/feature/auth/authSlice";
 
 const EditorPage = () => {
   const journal = useSelector(selectJournal);
-  const { data: AllEditors } = useGetAllEditorsQuery();
+  const { data: AllEditors } = useGetAllEditorsQuery({journal_id: journal?.journal_id});
   const [createEditor] = useToastMutation(useCreateEditorsMutation(), {
     showLoading: true,
   });
@@ -66,6 +66,7 @@ const EditorPage = () => {
   // Handle form submission
   const handleEditorSubmit = async (values, { setSubmitting, resetForm }) => {
     await createEditor(values);
+    console.log(values)
     setShowForm(false);
     resetForm();
     setSubmitting(false);

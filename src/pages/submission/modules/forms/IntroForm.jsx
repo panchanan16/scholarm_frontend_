@@ -10,7 +10,6 @@ import { selectJournal } from "@/store/feature/auth/authSlice";
 
 export default function IntroForm() {
   const journal = useSelector(selectJournal);
-  console.log(journal);
   const [type, setType] = useState("");
   const [subClass, setSubClass] = useState([]);
   const { updateSaveSteps } = useSaveSteps({
@@ -95,7 +94,7 @@ export default function IntroForm() {
                   >
                     <option value="">Select type</option>
                     <option value="article">Article</option>
-                    <option value="research">Research</option>
+                    <option value="orginalResearch">Orginal Research</option>
                     <option value="review">Review</option>
                     <option value="report">Report</option>
                   </Field>

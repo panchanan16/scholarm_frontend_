@@ -8,7 +8,7 @@ export const editorsApi = baseApi.injectEndpoints({
             query: (params = {}) => ({
                 url: '/editor/readAll',
                 params: {
-
+                    journal_id: params.journal_id,
                 },
             }),
             providesTags: ['Editors'],
@@ -46,9 +46,6 @@ export const editorsApi = baseApi.injectEndpoints({
             }),
             invalidatesTags: ['Editors'],
         })
-
-
-
 
 
     }),

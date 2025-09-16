@@ -33,7 +33,7 @@ const ReviewerPage = () => {
   const [selectedReviewerForPassword, setSelectedReviewerForPassword] =
     useState(null);
 
-  const { data: AllReviewers } = useGetAllReviewersQuery();
+  const { data: AllReviewers } = useGetAllReviewersQuery({journal_id: journal?.journal_id});
   const [createReviewer] = useToastMutation(useCreateReviewerMutation(), {
     showLoading: true,
   });

@@ -21,7 +21,12 @@ import {
   File,
 } from "lucide-react";
 import { useState } from "react";
-import { Link, useNavigate, useParams, useSearchParams } from "react-router-dom";
+import {
+  Link,
+  useNavigate,
+  useParams,
+  useSearchParams,
+} from "react-router-dom";
 
 function JournalDetails() {
   const [expandedRounds, setExpandedRounds] = useState({});
@@ -212,16 +217,22 @@ function JournalDetails() {
                 if (userData?.is_accepted === "invited") {
                   return (
                     <div key={userData.id} className="flex gap-3 items-center">
-                      <span className="font-semibold">Revision Round - {userData.round}</span>
+                      <span className="font-semibold">
+                        Revision Round - {userData.round}
+                      </span>
                       <button
-                        onClick={() => handleReviewerStatus("accepted", userData.round)}
+                        onClick={() =>
+                          handleReviewerStatus("accepted", userData.round)
+                        }
                         className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-medium transition-colors flex items-center gap-2 text-sm"
                       >
                         <Check className="h-4 w-4" />
                         Accept
                       </button>
                       <button
-                        onClick={() => handleReviewerStatus("rejected", userData.round)}
+                        onClick={() =>
+                          handleReviewerStatus("rejected", userData.round)
+                        }
                         className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg font-medium transition-colors flex items-center gap-2 text-sm"
                       >
                         <XCircle className="h-4 w-4" />
@@ -837,14 +848,21 @@ function JournalDetails() {
 
           {/* Back Button */}
           <div className="flex justify-end gap-5 pt-4 border-t border-gray-200 mb-10">
+            {manuscriptDetails && manuscriptDetails.data.article_status == 'needtoassignreviewer' ? ( <Link
+              to={`/dashboard/manuscript/assign-reviewer?article_id=${article_id}&round=${manuscriptDetails.data.revision_round}`}
+              className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-medium transition-colors flex items-center gap-2"
+            >
+              Assign More Reviewer
+            </Link> ) : null}
+           
             <Link
               to={`/submission/preview?article_id=${article_id}`}
-              target="_blank" rel="noopener noreferrer"
+              target="_blank"
+              rel="noopener noreferrer"
               className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-medium transition-colors flex items-center gap-2"
             >
               View Article
             </Link>
-            
           </div>
         </div>
       </div>

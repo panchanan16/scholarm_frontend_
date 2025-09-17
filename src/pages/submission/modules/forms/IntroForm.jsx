@@ -93,10 +93,11 @@ export default function IntroForm() {
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white text-gray-900"
                   >
                     <option value="">Select type</option>
-                    <option value="article">Article</option>
                     <option value="orginalResearch">Orginal Research</option>
-                    <option value="review">Review</option>
-                    <option value="report">Report</option>
+                    <option value="reviewArticle">Review Article</option>
+                    <option value="caseBasedArticle">Case-Based Article</option>
+                    <option value="methodologicalArticle">Methodological Article</option>
+                    <option value="shortCommunication">Short Communication</option>
                   </Field>
                 </div>
 

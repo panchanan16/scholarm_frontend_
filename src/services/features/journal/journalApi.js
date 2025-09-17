@@ -102,6 +102,18 @@ export const journalApi = baseApi.injectEndpoints({
             invalidatesTags: ['Journals'],
         }),
 
+        // Get All issue by journal id and is_special ----
+        getAllIssueByJournalId: builder.query({
+            query: (params = {}) => ({
+                url: '/issue/readAll',
+                params: {
+                    ...(params.journal_id && { journal_id: params.journal_id }),
+                    ...(params.is_special && { is_special: params.is_special }),
+                },
+            }),
+            providesTags: ['Journals'],
+        }),
+
 
     }),
 })
@@ -116,5 +128,6 @@ export const {
     useCreateVolumeMutation,
     useCreateIssueMutation,
     useGetFilteredJournalMutation,
-    useGetJournalByCodeQuery
+    useGetJournalByCodeQuery,
+    useGetAllIssueByJournalIdQuery,
 } = journalApi

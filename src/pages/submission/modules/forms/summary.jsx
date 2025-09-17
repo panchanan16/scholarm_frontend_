@@ -118,24 +118,16 @@ const SummaryForm = ({
   const [isReviewersError, setIsReviewersError] = useState(false);
 
   function checkReffrenceError() {
-    const reffCount = articleSummary?.data?.Reffences.length || 0;
-    const sectionCount = articleSummary?.data?.ArticleSection.reduce(
-      (total, section) => {
-        if (typeof section.refCount === "number") {
-          return total + section.refCount;
-        }
-        return total;
-      },
-      0
-    );
+    const reffs = articleSummary ? articleSummary?.data?.Reffences.map((ref) => ref.reffrence_html_id) : [];
+    const sectionReffs = articleSummary ?  articleSummary?.data?.ArticleSection.map((ref)=> ref.refCount).flat().filter(x => x !== null) : [];
 
-    // console.log(`ReffCount: ${reffCount}, SectionCount: ${sectionCount}`);
-    if (reffCount !== sectionCount) {
-      setIsReferenceError(true);
-      return true; // Error: Reffrence count does not match section count
-    }
-    setIsReferenceError(false);
-    return false; // No error
+    const uniqueSectionReff = new Set(sectionReffs);
+    const isReffOk = reffs.every(num => uniqueSectionReff.has(num));
+
+    console.log(isReffOk)
+
+    setIsReferenceError(!isReffOk)
+    return !isReffOk
   }
 
   function checkAuthors() {
@@ -532,19 +524,20 @@ const SummaryForm = ({
               Funding
             </label>
             <p className="text-gray-700 text-xs mt-1">
-              {articleSummary && articleSummary.data.isFunded
-                ? articleSummary.data.funding_info
+              {articleSummary && articleSummary.data.ArticleDetails[0]?.isFunded
+                ? articleSummary.data.ArticleDetails[0]?.funding_info
                 : "No"}
             </p>
           </div>
 
-           <div>
+          <div>
             <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">
               Clinical Info
             </label>
             <p className="text-gray-700 text-xs mt-1">
-              {articleSummary && articleSummary.data.isClinical
-                ? articleSummary.data.clinical_info
+              {articleSummary &&
+              articleSummary.data.ArticleDetails[0]?.isClinical
+                ? articleSummary.data.ArticleDetails[0]?.clinical_info
                 : "N / A"}
             </p>
           </div>
@@ -561,8 +554,9 @@ const SummaryForm = ({
                 Conflict of Interest
               </label>
               <p className="text-gray-700 text-xs mt-1">
-                {articleSummary && articleSummary.data.isConflictInterest
-                  ? articleSummary.data.conflict
+                {articleSummary &&
+                articleSummary.data.ArticleDetails[0]?.isConflictInterest
+                  ? articleSummary.data.ArticleDetails[0]?.conflict
                   : "No"}
               </p>
             </div>
@@ -571,8 +565,9 @@ const SummaryForm = ({
                 Ethics Approval
               </label>
               <p className="text-gray-700 text-xs mt-1">
-                {articleSummary && articleSummary.data.isEthical
-                  ? articleSummary.data.ethical_info
+                {articleSummary &&
+                articleSummary.data.ArticleDetails[0]?.isEthical
+                  ? articleSummary.data.ArticleDetails[0]?.ethical_info
                   : "No"}
               </p>
             </div>
@@ -583,8 +578,8 @@ const SummaryForm = ({
       <div className="mt-6">
         <InfoCard title="Copyright" icon={FileText} sectionKey="data">
           <p className="text-gray-700 text-sm leading-relaxed">
-            {articleSummary && articleSummary.data.copyright
-              ? articleSummary.data.copyright
+            {articleSummary && articleSummary.data.ArticleDetails[0]?.copyright
+              ? articleSummary.data.ArticleDetails[0]?.copyright
               : "N / A"}
           </p>
         </InfoCard>

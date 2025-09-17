@@ -205,8 +205,7 @@ const AuthorDashboard = () => {
               {/* User Profile Dropdown */}
               <div className="relative">
                 <button
-                  onMouseEnter={() => setShowProfileDropdown(true)}
-                  onMouseLeave={() => setShowProfileDropdown(false)}
+                  onClick={() => setShowProfileDropdown(true)}
                   className="flex items-center space-x-3 p-2 rounded-lg hover:bg-gray-50 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
                   {/* Avatar */}

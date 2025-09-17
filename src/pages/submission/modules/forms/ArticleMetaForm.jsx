@@ -1,31 +1,29 @@
 import { useToastMutation } from "@/hooks/useNotification";
 import useSaveSteps from "@/hooks/useSaveSteps";
+import { useGetAllIssueByJournalIdQuery } from "@/services/features/journal/journalApi";
 import { useAddArticleMetaDataMutation } from "@/services/features/manuscript/slice";
 import { useLazyGetArticleIntroByIdQuery } from "@/services/features/submission/submissionApi";
+import { selectJournal } from "@/store/feature/auth/authSlice";
 import { Formik, Form, Field } from "formik";
 import { useEffect } from "react";
+import { useSelector } from "react-redux";
 import { useSearchParams } from "react-router-dom";
 
 const ArticleMetaForm = () => {
   const [queryparams] = useSearchParams();
-
+  const journal = useSelector(selectJournal);
   const [getArticleIntro, IntroData] = useLazyGetArticleIntroByIdQuery();
+  const { data: specialIssueOptions } = useGetAllIssueByJournalIdQuery({
+    journal_id: journal?.journal_id,
+    is_special: "true",
+  });
 
   useEffect(() => {
     getArticleIntro(queryparams.get("article_id"));
   }, [queryparams.get("article_id")]);
 
   const IntroDataObject =
-    IntroData.status === "fulfilled" ? IntroData.data?.data : null;
-
-  // Special issue options - modify these according to your needs
-  const specialIssueOptions = [
-    { value: 1, label: "Special Issue 1 - AI and Machine Learning" },
-    { value: 2, label: "Special Issue 2 - Climate Change Research" },
-    { value: 3, label: "Special Issue 3 - Medical Innovations" },
-    { value: 4, label: "Special Issue 4 - Technology Advances" },
-    { value: 5, label: "Special Issue 5 - Social Sciences" },
-  ];
+    IntroData.status === "fulfilled" ? IntroData.data?.data : null
 
   const intitialValues = {
     intro_id: Number(queryparams.get("article_id")) || null,
@@ -153,7 +151,9 @@ const ArticleMetaForm = () => {
                       type="radio"
                       name="issueType"
                       value="regular"
-                      onChange={(e)=> handleIssueTypeChange(e.target.value, setFieldValue)}
+                      onChange={(e) =>
+                        handleIssueTypeChange(e.target.value, setFieldValue)
+                      }
                       className="form-radio text-blue-700 focus:ring-blue-500"
                     />
                     <span className="ml-2 text-gray-900">Regular</span>
@@ -164,7 +164,9 @@ const ArticleMetaForm = () => {
                       type="radio"
                       name="issueType"
                       value="special"
-                      onChange={(e)=> handleIssueTypeChange(e.target.value, setFieldValue)}
+                      onChange={(e) =>
+                        handleIssueTypeChange(e.target.value, setFieldValue)
+                      }
                       className="form-radio text-blue-700 focus:ring-blue-500"
                     />
                     <span className="ml-2 text-gray-900">Special</span>
@@ -173,7 +175,8 @@ const ArticleMetaForm = () => {
               </div>
 
               {/* Special Issue Dropdown - Only shown when Special is selected */}
-              {values.issueType === "special" && (
+              {values.issueType === "special" ?  specialIssueOptions &&
+                      specialIssueOptions.data?.length > 0 ? (
                 <div className="mb-6">
                   <label className="block text-sm font-medium text-gray-700 mb-3">
                     Select Special Issue
@@ -184,14 +187,16 @@ const ArticleMetaForm = () => {
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white text-gray-900"
                   >
                     <option value="">Select a special issue...</option>
-                    {specialIssueOptions.map((option) => (
-                      <option key={option.value} value={option.value}>
-                        {option.label}
-                      </option>
-                    ))}
+                    {specialIssueOptions &&
+                      specialIssueOptions.data.map((option) => (
+                        <option key={option.iss_id} value={option.iss_id}>
+                          {option.iss_name} ({option.volRef?.vol_name})
+                        </option>
+                      ))}
                   </Field>
                 </div>
-              )}
+              ) : <p className="text-xs bg-gray-100 max-w-fit px-3 py-1 rounded-xl">No Special Issue Available</p> : null
+            }            
             </div>
 
             {/* Buttons */}

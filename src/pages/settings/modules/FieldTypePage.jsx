@@ -9,8 +9,12 @@ import {
   Save,
   X
 } from 'lucide-react';
+import { useToastMutation } from '@/hooks/useNotification';
+import { useCreateFieldTypeMutation, useGetAllFieldTypeQuery } from '@/services/features/template/templateApi';
 
 const FieldTypePage = ({ onSubmit, onEdit, onDelete }) => {
+  const [createFieldType] = useToastMutation(useCreateFieldTypeMutation(), {showLoading: true});
+  const {data: templateFields} = useGetAllFieldTypeQuery();
   // Mock existing categories
   const [categories, setCategories] = useState([
     { id: 1, field_name: 'Technology', field_type: 'Primary Category', created_at: '2024-01-15' },
@@ -24,34 +28,17 @@ const FieldTypePage = ({ onSubmit, onEdit, onDelete }) => {
 
   // Initial values for Formik
   const initialValues = {
-    field_name: '',
     field_type: ''
   };
 
   // Validation schema using Yup
   const validationSchema = Yup.object({
-    field_name: Yup.string().trim().required('Field name is required'),
     field_type: Yup.string().trim().required('Field type is required')
   });
 
   // Handle form submission
-  const handleCategorySubmit = async (values, { setSubmitting, resetForm }) => {
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 500));
-    
-    const newCategory = {
-      id: categories.length + 1,
-      ...values,
-      created_at: new Date().toISOString().split('T')[0]
-    };
-    
-    setCategories(prev => [newCategory, ...prev]);
-    
-    if (onSubmit) {
-      onSubmit(values);
-    }
-    
-    console.log('Form submitted:', values);
+  const handleCategorySubmit = async (values, { setSubmitting, resetForm }) => { 
+    await createFieldType(values)   
     resetForm();
     setSubmitting(false);
   };
@@ -104,25 +91,7 @@ const FieldTypePage = ({ onSubmit, onEdit, onDelete }) => {
           {({ isSubmitting }) => (
             <Form>
               <div className="space-y-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {/* Field Name */}
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Field Name
-                    </label>
-                    <Field
-                      name="field_name"
-                      type="text"
-                      className="w-full px-4 py-3 border-2 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 border-gray-300 focus:border-blue-500"
-                      placeholder="Enter field name"
-                    />
-                    <ErrorMessage
-                      name="field_name"
-                      component="div"
-                      className="mt-2 text-sm text-red-600"
-                    />
-                  </div>
-
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">                
                   {/* Field Type */}
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -170,16 +139,16 @@ const FieldTypePage = ({ onSubmit, onEdit, onDelete }) => {
       <div className="bg-white border-2 border-gray-200 rounded-xl p-6">
         <h2 className="text-lg font-semibold text-gray-900 mb-6">Existing Categories</h2>
         
-        {categories.length === 0 ? (
+        {templateFields && templateFields.data.length === 0 ? (
           <div className="text-center py-8">
             <Tag className="w-12 h-12 text-gray-400 mx-auto mb-4" />
             <p className="text-gray-500">No categories found. Add your first category above.</p>
           </div>
         ) : (
           <div className="space-y-3">
-            {categories.map((category) => (
+            {templateFields && templateFields.data.map((category, ind) => (
               <div
-                key={category.id}
+                key={ind}
                 className={`
                   flex items-center justify-between p-4 border-2 rounded-lg transition-all
                   ${editingId === category.id ? 'border-blue-300 bg-blue-50' : 'border-gray-200 hover:border-gray-300'}
@@ -190,12 +159,9 @@ const FieldTypePage = ({ onSubmit, onEdit, onDelete }) => {
                     <Tag className="w-4 h-4 text-gray-600" />
                   </div>
                   <div>
-                    <h3 className="font-medium text-gray-900">{category.field_name}</h3>
-                    <div className="flex items-center gap-2 mt-1">
-                      <span className={`px-2 py-1 text-xs font-medium rounded-full ${getFieldTypeColor(category.field_type)}`}>
-                        {category.field_type}
-                      </span>
-                      <span className="text-xs text-gray-500">Created: {category.created_at}</span>
+                    <h3 className="font-medium text-gray-900">{category.field_type}</h3>
+                    <div className="flex items-center gap-2 mt-1">                     
+                      {/* <span className="text-xs text-gray-500">Created: {category.created_at}</span> */}
                     </div>
                   </div>
                 </div>

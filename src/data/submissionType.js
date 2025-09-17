@@ -1,48 +1,42 @@
- export const typeSubtypes = {
-    article: {
-      subclass: [
-        { value: "news", label: "News Article" },
-        { value: "opinion", label: "Opinion Article" },
-        { value: "feature", label: "Feature Article" },
-        { value: "editorial", label: "Editorial" },
-      ],
-      section: ["introduction", "body", "conclusion"],
-    },
-    research: {
-      subclass: [
-        { value: "quantitative", label: "Quantitative Research" },
-        { value: "qualitative", label: "Qualitative Research" },
-        { value: "mixed", label: "Mixed Methods" },
-        { value: "experimental", label: "Experimental" },
-      ],
-      section: ["abstract", "methodology", "result", "discussion", "conclusion"],
-    },
-    // Original research 
-    orginalResearch: {
-      subclass: [
-        { value: "experimentalStudies", label: "Experimental Studies" },
-        { value: "observationalStudies", label: "Observational Studies" },
-        { value: "surveyResearch", label: "Survey Research" },
-        { value: "qualitativeStudies", label: "Qualitative Studies" },
-      ],
-      section: ["abstract", "methodology", "result", "discussion", "conclusion"],
-    },
-    review: {
-      subclass: [
-        { value: "systematic", label: "Systematic Review" },
-        { value: "literature", label: "Literature Review" },
-        { value: "meta", label: "Meta-analysis" },
-        { value: "narrative", label: "Narrative Review" },
-      ],
-      section: ["overview", "criteria", "analysis", "conclusion"],
-    },
-    report: {
-      subclass: [
-        { value: "technical", label: "Technical Report" },
-        { value: "financial", label: "Financial Report" },
-        { value: "progress", label: "Progress Report" },
-        { value: "annual", label: "Annual Report" },
-      ],
-      section: ["executive Summary", "details", "results", "recommendations"],
-    },
-  };
+export const typeSubtypes = {
+  // Original research 
+  orginalResearch: {
+    subclass: [
+      { value: "Experimental Studies", label: "Experimental Studies" },
+      { value: "Observational Studies", label: "Observational Studies" },
+      { value: "Survey Research", label: "Survey Research" },
+      { value: "Qualitative Studies", label: "Qualitative Studies" },
+    ],
+    section: ["introduction", "methodology", "results", "discussion", "conclusion"],
+  },
+  reviewArticle: {
+    subclass: [
+      { value: "Narrative Reviews", label: "Narrative Reviews" },
+      { value: "Systematic Reviews", label: "Systematic Reviews" },
+      { value: "Meta Analysis", label: "Meta-analysis" },
+      { value: "Scoping Reviews", label: "Scoping Reviews" },
+    ],
+    section: ["introduction", "methods", "results", "discussion", "conclusion"],
+  },
+  caseBasedArticle: {
+    subclass: [
+      { value: "Case Report", label: "Case Report" },
+      { value: "Case Series", label: "Case Series" },
+    ],
+    section: ["introduction", "case presentation", "discussion", "conclusion"],
+  },
+  methodologicalArticle: {
+    subclass: [
+      { value: "Case Report", label: "Case Report" },
+      { value: "Case Series", label: "Case Series" },
+    ],
+    section: ["introduction", "method description", "validation", "application", "conclusion"],
+  },
+  shortCommunication: {
+    subclass: [
+      { value: "Pilot Studies", label: "Pilot Studies" },
+      { value: "Preliminary findings", label: "Preliminary findings" },
+    ],
+    section: ["introduction", "methods", "results", "discussion"],
+  },
+};

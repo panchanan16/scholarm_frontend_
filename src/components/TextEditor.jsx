@@ -33,8 +33,8 @@ function TextEditor({ name, setInForm, initialContent, editorRef }) {
               const currentHtml =
                 currentElement.innerHTML || currentElement.textContent;
 
-              // Check if there's a [number] pattern that's not already a link
-              const hasPattern = /\[(\d+)\](?![^<]*<\/a>)/.test(currentHtml);
+              // Check if there's a [number] or [number-number] pattern that's not already a link
+              const hasPattern = /\[(\d+)(-\d+)?\](?![^<]*<\/a>)/.test(currentHtml);
 
               if (hasPattern) {
                 // Save cursor position relative to the current element
@@ -44,9 +44,14 @@ function TextEditor({ name, setInForm, initialContent, editorRef }) {
                 const startOffset = range.startOffset;
 
                 // Replace patterns in this element only
+                // Updated regex to match both [number] and [number-number] patterns
                 const newHtml = currentHtml.replace(
-                  /\[(\d+)\](?![^<]*<\/a>)/g,
-                  '<a href="#ref-$1">[$1]</a>'
+                  /\[(\d+)(-\d+)?\](?![^<]*<\/a>)/g,
+                  function(match, firstNum, rangepart) {
+                    // Use the first number for href, keep full match for link text
+                    console.log('Found pattern:', match, 'First num:', firstNum, 'Range part:', rangepart);
+                    return `<a href="#ref-${firstNum}">${match}</a>`;
+                  }
                 );
 
                 if (newHtml !== currentHtml) {
@@ -111,9 +116,14 @@ function TextEditor({ name, setInForm, initialContent, editorRef }) {
           editor.on("paste", function (e) {
             setTimeout(() => {
               const content = editor.getContent();
+              // Updated regex and replacement for paste functionality
               const newContent = content.replace(
-                /\[(\d+)\]/g,
-                '<a href="#ref-$1">[$1]</a>'
+                /\[(\d+)(-\d+)?\](?![^<]*<\/a>)/g,
+                function(match, firstNum, rangepart) {
+                  // Use the first number for href, keep full match for link text
+                  console.log('Paste - Found pattern:', match, 'First num:', firstNum, 'Range part:', rangepart);
+                  return `<a href="#ref-${firstNum}">${match}</a>`;
+                }
               );
 
               if (newContent !== content) {

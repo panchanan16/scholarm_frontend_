@@ -43,7 +43,7 @@ const routes = [
     path: "/",
     element: <App />,
     children: [
-      { index: true, element: <AdminLoginPage /> },
+      { index: true, element: <JournalFinder /> },
       { path: "journal/:jcode", element: <AdminLoginPage /> },
       {
         path: "/find-journal",

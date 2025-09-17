@@ -55,6 +55,15 @@ export const submissionApi = baseApi.injectEndpoints({
             }),
         }),
 
+        // update article main details
+        updateArticleMainDetails: builder.mutation({
+            query: (data) => ({
+                url: '/articleDetail/update',
+                method: 'PUT',
+                body: data,
+            }),
+        }),
+
         // Create article section ---
         createArticleSection: builder.mutation({
             query: (data) => ({
@@ -264,6 +273,7 @@ export const {
     useGetArticleSummaryQuery,
     useCreateArticleSectionMutation,
     useCreateArticleMainDetailsMutation,
+    useUpdateArticleMainDetailsMutation,
     useLazyGetArticleDetailsByIdQuery,
     useConfirmAndSubmitManuscriptMutation,
     useCreateAuthorContributionMutation

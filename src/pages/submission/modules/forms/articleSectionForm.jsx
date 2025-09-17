@@ -67,12 +67,19 @@ function ArticleSectionForm() {
 
     const atag = doc.querySelectorAll('a[href^="#ref-"]');
 
+    const refNumbers = [];
+    atag.forEach((el) => {
+      const numbers = el.textContent.match(/\d+/g);
+      refNumbers.push(numbers);
+      return numbers;
+    });
+
     const createResult = await createArticleSection({
       article_id: Number(queryParams.get("article_id")),
       section_title: section_name.split("-")[0].toLowerCase().trim(),
       Section_description:
         values[section_name.split("-")[0].toLowerCase().trim()],
-      refCount: atag.length,
+      refCount: [...new Set(refNumbers.flat())],
     });
 
     if (createResult && createResult.status) {
@@ -82,7 +89,7 @@ function ArticleSectionForm() {
         articlePreSections.data.findIndex(
           (sec) => sec.section_title === section[0].section_title
         );
-      console.log(ind, articlePreSections.data.length);
+
       const nextRedirectURl =
         ind !== articlePreSections.data.length - 1
           ? `/submission/article-sections/${
@@ -91,6 +98,7 @@ function ArticleSectionForm() {
           : `/submission/reviewers?article_id=${article_id}`;
       updateSaveSteps(nextRedirectURl);
     }
+    refNumbers = []
     setSubmitting(false);
   }
 

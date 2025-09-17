@@ -14,83 +14,27 @@ import {
   Layers,
 } from "lucide-react";
 import { Link } from "react-router-dom";
+import { useCreateEmailFieldMutation, useCreateFieldTypeMutation, useGetAllFieldTypeQuery } from "@/services/features/template/templateApi";
+import { useToastMutation } from "@/hooks/useNotification";
 
-const FieldsPageForm = ({ onSubmit, onEdit, onDelete }) => {
-  // Mock field types
-  const fieldTypes = [
-    { id: 1, name: "Email Template", color: "bg-blue-100 text-blue-800" },
-    { id: 2, name: "User Data", color: "bg-green-100 text-green-800" },
-    { id: 3, name: "System Config", color: "bg-purple-100 text-purple-800" },
-    { id: 4, name: "Notification", color: "bg-orange-100 text-orange-800" },
-    { id: 5, name: "Authentication", color: "bg-red-100 text-red-800" },
-  ];
-
-  // Mock existing fields organized by category
-  const existingFields = {
-    "Email Template": [
-      {
-        id: 1,
-        field_name: "user_email",
-        field_value: "{user_email}",
-        field_type: 1,
-      },
-      {
-        id: 2,
-        field_name: "welcome_subject",
-        field_value: "Welcome to our platform",
-        field_type: 1,
-      },
-      {
-        id: 3,
-        field_name: "email_footer",
-        field_value: "{company_name} © 2024",
-        field_type: 1,
-      },
-    ],
-    "User Data": [
-      {
-        id: 4,
-        field_name: "user_name",
-        field_value: "{user_name}",
-        field_type: 2,
-      },
-      {
-        id: 5,
-        field_name: "user_role",
-        field_value: "{user_role}",
-        field_type: 2,
-      },
-      {
-        id: 6,
-        field_name: "user_avatar",
-        field_value: "{user_avatar_url}",
-        field_type: 2,
-      },
-    ],
-    "System Config": [
-      { id: 7, field_name: "app_version", field_value: "1.0.0", field_type: 3 },
-      {
-        id: 8,
-        field_name: "api_endpoint",
-        field_value: "https://api.example.com",
-        field_type: 3,
-      },
-    ],
-    Notification: [
-      { id: 9, field_name: "push_enabled", field_value: "true", field_type: 4 },
-      {
-        id: 10,
-        field_name: "email_notifications",
-        field_value: "true",
-        field_type: 4,
-      },
-    ],
-  };
-
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+const FieldsPageForm = ({onEdit, onDelete }) => {
+  const { data: templateFields } = useGetAllFieldTypeQuery();
+  const [createEmailField] = useToastMutation(useCreateEmailFieldMutation(), {showLoading: true})
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [selectedCategory, setSelectedCategory] = useState("Email Template");
-  const [fields, setFields] = useState(existingFields);
+  const [selectedCategory, setSelectedCategory] = useState("");
+  const [fields, setFields] = useState([]);
+
+  // Helper function to assign colors based on field type
+  function getColorForFieldType(fieldType) {
+    const colorMap = {
+      User: "bg-blue-100 text-blue-800",
+      Email: "bg-green-100 text-green-800",
+      System: "bg-purple-100 text-purple-800",
+      Notification: "bg-orange-100 text-orange-800",
+      Authentication: "bg-red-100 text-red-800",
+    };
+    return colorMap[fieldType] || "bg-gray-100 text-gray-800";
+  }
 
   // Initial values for Formik
   const initialValues = {
@@ -108,29 +52,7 @@ const FieldsPageForm = ({ onSubmit, onEdit, onDelete }) => {
 
   // Handle form submission
   const handleFieldSubmit = async (values, { setSubmitting, resetForm }) => {
-    await new Promise((resolve) => setTimeout(resolve, 500));
-
-    const selectedType = fieldTypes.find(
-      (type) => type.id === parseInt(values.field_type)
-    );
-    const newField = {
-      id: Date.now(),
-      ...values,
-      field_type: parseInt(values.field_type),
-    };
-
-    if (selectedType) {
-      setFields((prev) => ({
-        ...prev,
-        [selectedType.name]: [...(prev[selectedType.name] || []), newField],
-      }));
-    }
-
-    if (onSubmit) {
-      onSubmit(values);
-    }
-
-    console.log("Field added:", values);
+    await createEmailField(values)
     resetForm();
     setSubmitting(false);
   };
@@ -142,19 +64,20 @@ const FieldsPageForm = ({ onSubmit, onEdit, onDelete }) => {
   };
 
   const handleDelete = (field) => {
-    const typeName = fieldTypes.find(
-      (type) => type.id === field.field_type
-    )?.name;
-    if (typeName) {
-      setFields((prev) => ({
-        ...prev,
-        [typeName]: prev[typeName].filter((f) => f.id !== field.id),
-      }));
-    }
+    // Remove from local state
+    setFields((prev) => prev.filter((f) => f.field_id !== field.field_id));
+    
     if (onDelete) {
       onDelete(field);
     }
   };
+
+  // Set initial selected category when data loads
+  React.useEffect(() => {
+    if (templateFields?.data?.length > 0 && !selectedCategory) {
+      setSelectedCategory(templateFields.data[0].field_type);
+    }
+  }, [templateFields, selectedCategory]);
 
   return (
     <div className="max-w-7xl mx-auto p-6 bg-white relative">
@@ -219,10 +142,6 @@ const FieldsPageForm = ({ onSubmit, onEdit, onDelete }) => {
               onSubmit={handleFieldSubmit}
             >
               {({ isSubmitting, values, setFieldValue }) => {
-                const selectedTypeName =
-                  fieldTypes.find((type) => type.id === parseInt(values.field_type))
-                    ?.name || "Select field type";
-
                 return (
                   <Form>
                     <div className="space-y-6">
@@ -231,47 +150,13 @@ const FieldsPageForm = ({ onSubmit, onEdit, onDelete }) => {
                         <label className="block text-sm font-medium text-gray-700 mb-2">
                           Field Type
                         </label>
-                        <div className="relative">
-                          <button
-                            type="button"
-                            onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                            className={`
-                              w-full px-4 py-3 border-2 rounded-lg transition-colors text-left flex items-center justify-between
-                              focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50
-                              border-gray-300 focus:border-blue-500
-                              ${!values.field_type ? "text-gray-500" : "text-gray-900"}
-                            `}
-                          >
-                            <span>{selectedTypeName}</span>
-                            <ChevronDown
-                              className={`w-4 h-4 transition-transform ${
-                                isDropdownOpen ? "rotate-180" : ""
-                              }`}
-                            />
-                          </button>
-
-                          {isDropdownOpen && (
-                            <div className="absolute z-10 w-full mt-1 bg-white border-2 border-gray-200 rounded-lg shadow-lg">
-                              {fieldTypes.map((type) => (
-                                <button
-                                  key={type.id}
-                                  type="button"
-                                  onClick={() => {
-                                    setFieldValue("field_type", type.id);
-                                    setIsDropdownOpen(false);
-                                  }}
-                                  className="w-full px-4 py-3 text-left hover:bg-gray-50 first:rounded-t-lg last:rounded-b-lg transition-colors flex items-center justify-between"
-                                >
-                                  <span className="text-gray-900">{type.name}</span>
-                                  <span
-                                    className={`px-2 py-1 text-xs font-medium rounded-full ${type.color}`}
-                                  >
-                                    Type {type.id}
-                                  </span>
-                                </button>
+                        <div className="relative">                           
+                          <Field as='select' name="field_type" className='w-full px-4 py-3 border-2 rounded-lg transition-colors focus:outline-none border-gray-300 focus:border-blue-500'>
+                            <option value="">Select Category</option>
+                            {templateFields && templateFields.data?.map((type) => (
+                                <option value={type.type_id}>{type.field_type}</option>
                               ))}
-                            </div>
-                          )}
+                          </Field>
                         </div>
                         <ErrorMessage
                           name="field_type"
@@ -368,47 +253,47 @@ const FieldsPageForm = ({ onSubmit, onEdit, onDelete }) => {
 
             {/* Category Tabs */}
             <div className="space-y-4">
-              {Object.entries(fields).map(([category, categoryFields]) => {
-                if (categoryFields.length === 0) return null;
+              {templateFields?.data?.map((fieldTypeGroup) => {
+                if (fieldTypeGroup.EmailTemplateField.length === 0) return null;
+
+                const isExpanded = selectedCategory === fieldTypeGroup.field_type;
+                const fieldColor = getColorForFieldType(fieldTypeGroup.field_type);
 
                 return (
-                  <div key={category}>
+                  <div key={fieldTypeGroup.type_id}>
                     <button
                       onClick={() =>
                         setSelectedCategory(
-                          selectedCategory === category ? "" : category
+                          isExpanded ? "" : fieldTypeGroup.field_type
                         )
                       }
                       className="flex items-center justify-between w-full p-3 bg-gray-50 hover:bg-gray-100 rounded-lg transition-colors"
                     >
                       <div className="flex items-center gap-2">
                         <div
-                          className={`w-3 h-3 rounded-full ${
-                            fieldTypes
-                              .find((t) => t.name === category)
-                              ?.color.replace("text-", "bg-")
-                              .replace("-800", "-500") || "bg-gray-500"
-                          }`}
+                          className={`w-3 h-3 rounded-full ${fieldColor
+                            .replace("text-", "bg-")
+                            .replace("-800", "-500")}`}
                         />
                         <span className="font-medium text-gray-900">
-                          {category}
+                          {fieldTypeGroup.field_type}
                         </span>
                         <span className="text-xs bg-gray-200 text-gray-600 px-2 py-1 rounded-full">
-                          {categoryFields.length}
+                          {fieldTypeGroup.EmailTemplateField.length}
                         </span>
                       </div>
                       <ChevronDown
                         className={`w-4 h-4 transition-transform ${
-                          selectedCategory === category ? "rotate-180" : ""
+                          isExpanded ? "rotate-180" : ""
                         }`}
                       />
                     </button>
 
-                    {selectedCategory === category && (
+                    {isExpanded && (
                       <div className="mt-2 space-y-2">
-                        {categoryFields.map((field) => (
+                        {fieldTypeGroup.EmailTemplateField.map((field) => (
                           <div
-                            key={field.id}
+                            key={field.field_id}
                             className="p-3 border border-gray-200 rounded-lg"
                           >
                             <div className="flex items-start justify-between">
@@ -444,6 +329,20 @@ const FieldsPageForm = ({ onSubmit, onEdit, onDelete }) => {
                   </div>
                 );
               })}
+
+              {/* Show loading state if data is not available */}
+              {!templateFields?.data && (
+                <div className="text-center text-gray-500 py-8">
+                  Loading field types...
+                </div>
+              )}
+
+              {/* Show empty state if no field types exist */}
+              {templateFields?.data?.length === 0 && (
+                <div className="text-center text-gray-500 py-8">
+                  No field types available. Create a new field type first.
+                </div>
+              )}
             </div>
           </div>
         </div>

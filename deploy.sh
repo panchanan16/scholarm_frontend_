@@ -7,7 +7,7 @@ npm run build
 sudo rm -rf /var/www/apps/scholarm/*
 
 # Copy build files to web server directory
-sudo cp -r build/* /var/www/apps/scholarm/
+sudo cp -r dist/* /var/www/apps/scholarm/
 
 # Set proper permissions
 sudo chown -R www-data:www-data /var/www/apps/scholarm

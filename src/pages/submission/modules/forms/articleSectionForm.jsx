@@ -67,7 +67,7 @@ function ArticleSectionForm() {
 
     const atag = doc.querySelectorAll('a[href^="#ref-"]');
 
-    const refNumbers = [];
+    let refNumbers = [];
     atag.forEach((el) => {
       const numbers = el.textContent.match(/\d+/g);
       refNumbers.push(numbers);

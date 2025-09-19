@@ -157,7 +157,7 @@ const SystemAdminLoginPage = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-   const from = '/admin/dashboard' || "/";
+   const from = '/dashboard/journals' || "/";
 
   useEffect(() => {
     if (isAuthenticated) {
@@ -177,7 +177,7 @@ const SystemAdminLoginPage = () => {
         })
       );
       setLoginSuccess(true);
-      navigate("/admin/dashboard", { replace: true });
+      navigate("/dashboard/journals", { replace: true });
       console.log("Login successful:", result);
     } catch (err) {
       console.error("Login failed:", err);

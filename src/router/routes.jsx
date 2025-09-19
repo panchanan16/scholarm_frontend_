@@ -135,9 +135,9 @@ const routes = [
           },
           { path: "reffrences", element: <ReferenceManagerForm /> },
           { path: "summary", element: <SummaryForm /> },
-          { path: "preview", element: <PreviewArticlePage /> },
         ],
       },
+      { path: "/submission/preview", element: <PreviewArticlePage /> },
       {
         path: "/settings",
         element: <SettingsPage />,

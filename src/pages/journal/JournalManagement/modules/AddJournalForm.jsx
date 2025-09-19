@@ -4,7 +4,7 @@ import { useCreateJournalMutation } from "@/services/features/journal/journalApi
 
 export default function AddJournalModal({ isOpen, onClose }) {
   const initialValues = {
-    journal_type: [], 
+    journal_type: [],
     journal_code: "",
     journal_issn: "",
     journal_eissn: "",
@@ -13,13 +13,26 @@ export default function AddJournalModal({ isOpen, onClose }) {
     is_active: true,
   };
 
+  const specialization = [
+    "Nurology",
+    "Community Medicine",
+    "yoga",
+    "Laboratory Physicians",
+    "Clinical Practice",
+    "Pathology",
+    "Cardiology",
+    "Dermatology",
+    "Orthopedics",
+    "Pediatrics",
+  ];
+
   const [createJournal] = useToastMutation(useCreateJournalMutation(), {
     showLoading: true,
   });
 
-  const handleJournalSubmit = async (values, setSubmitting) => {    
+  const handleJournalSubmit = async (values, setSubmitting) => {
     await createJournal(values);
-    console.log(values)
+    console.log(values);
     setSubmitting(false);
     onClose();
   };
@@ -32,15 +45,18 @@ export default function AddJournalModal({ isOpen, onClose }) {
   const handleJournalTypeChange = (event, setFieldValue, currentValues) => {
     const value = event.target.value;
     const isChecked = event.target.checked;
-    
+
     if (isChecked) {
       // Add the value if it's not already in the array
       if (!currentValues.includes(value)) {
-        setFieldValue('journal_type', [...currentValues, value]);
+        setFieldValue("journal_type", [...currentValues, value]);
       }
     } else {
       // Remove the value from the array
-      setFieldValue('journal_type', currentValues.filter(item => item !== value));
+      setFieldValue(
+        "journal_type",
+        currentValues.filter((item) => item !== value)
+      );
     }
   };
 
@@ -96,7 +112,7 @@ export default function AddJournalModal({ isOpen, onClose }) {
                     <div className="space-y-6">
                       {/* Journal Name */}
                       <div>
-                        <div className="flex items-center mb-3">                          
+                        <div className="flex items-center mb-3">
                           <label className="text-lg font-medium text-gray-900">
                             Journal Name *
                           </label>
@@ -111,9 +127,9 @@ export default function AddJournalModal({ isOpen, onClose }) {
                         />
                       </div>
 
-                       {/* Journal Code */}
+                      {/* Journal Code */}
                       <div>
-                        <div className="flex items-center mb-3">                          
+                        <div className="flex items-center mb-3">
                           <label className="text-lg font-medium text-gray-900">
                             Journal Code *
                           </label>
@@ -130,31 +146,42 @@ export default function AddJournalModal({ isOpen, onClose }) {
 
                       {/* Journal Type - Multiple Selection */}
                       <div>
-                        <div className="flex items-center mb-3">                         
+                        <div className="flex items-center mb-3">
                           <label className="text-lg font-medium text-gray-900">
                             Journal Type * (Select Multiple)
                           </label>
                         </div>
                         <div className="border border-gray-300 rounded-md p-3 space-y-2 bg-white">
-                          {['Nurology', 'Yoga', 'Pathology', 'Chemistry'].map((type) => (
-                            <label key={type} className="flex items-center cursor-pointer group">
-                              <input
-                                type="checkbox"
-                                value={type}
-                                checked={values.journal_type.includes(type)}
-                                onChange={(e) => handleJournalTypeChange(e, setFieldValue, values.journal_type)}
-                                className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
-                              />
-                              <span className="ml-3 text-sm text-gray-700 group-hover:text-gray-900">
-                                {type}
-                              </span>
-                            </label>
-                          ))}
+                          {specialization?.map(
+                            (type) => (
+                              <label
+                                key={type}
+                                className="flex items-center cursor-pointer group"
+                              >
+                                <input
+                                  type="checkbox"
+                                  value={type}
+                                  checked={values.journal_type.includes(type)}
+                                  onChange={(e) =>
+                                    handleJournalTypeChange(
+                                      e,
+                                      setFieldValue,
+                                      values.journal_type
+                                    )
+                                  }
+                                  className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                                />
+                                <span className="ml-3 text-sm text-gray-700 group-hover:text-gray-900">
+                                  {type}
+                                </span>
+                              </label>
+                            )
+                          )}
                         </div>
                         {values.journal_type.length > 0 && (
                           <div className="mt-2">
                             <p className="text-xs text-gray-500">
-                              Selected: {values.journal_type.join(', ')}
+                              Selected: {values.journal_type.join(", ")}
                             </p>
                           </div>
                         )}
@@ -162,7 +189,7 @@ export default function AddJournalModal({ isOpen, onClose }) {
 
                       {/* Publication Type */}
                       <div>
-                        <div className="flex items-center mb-3">                          
+                        <div className="flex items-center mb-3">
                           <label className="text-lg font-medium text-gray-900">
                             Publication Type *
                           </label>
@@ -191,7 +218,7 @@ export default function AddJournalModal({ isOpen, onClose }) {
                     <div className="space-y-6">
                       {/* Journal ISSN */}
                       <div>
-                        <div className="flex items-center mb-3">                          
+                        <div className="flex items-center mb-3">
                           <label className="text-lg font-medium text-gray-900">
                             ISSN
                           </label>
@@ -207,7 +234,7 @@ export default function AddJournalModal({ isOpen, onClose }) {
 
                       {/* Journal eISSN */}
                       <div>
-                        <div className="flex items-center mb-3">                          
+                        <div className="flex items-center mb-3">
                           <label className="text-lg font-medium text-gray-900">
                             eISSN
                           </label>
@@ -223,7 +250,7 @@ export default function AddJournalModal({ isOpen, onClose }) {
 
                       {/* Is Active */}
                       <div>
-                        <div className="flex items-center mb-3">                         
+                        <div className="flex items-center mb-3">
                           <label className="text-lg font-medium text-gray-900">
                             Status
                           </label>

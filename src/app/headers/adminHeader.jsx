@@ -13,15 +13,21 @@ import {
 import { useState } from "react";
 
 export function AdminHeader() {
-  const [showProfileDropdown, setShowProfileDropdown] = useState(false)
+  const [showProfileDropdown, setShowProfileDropdown] = useState(false);
 
   // Page meta data ---
   const { user: userInfo, logout, journal } = useAuth();
   const user = userInfo
-    ? { role: userInfo?.["role"], userId: userInfo?.[`${userInfo.role}_id`], name: userInfo?.[`${userInfo.role}_name`] }
+    ? {
+        role: userInfo?.["role"],
+        userId: userInfo?.[`${userInfo.role}_id`],
+        name: userInfo?.[`${userInfo.role}_name`],
+      }
     : null;
 
-    console.log(journal)
+
+
+  console.log(journal);
   return (
     <>
       <header className="bg-white border-b border-gray-200 px-6 py-4 shadow-sm">
@@ -32,9 +38,7 @@ export function AdminHeader() {
                 <FileText className="w-6 h-6 text-white" />
               </div>
               <div>
-                <h1 className="text-xl font-bold text-gray-900">
-                  ScholarM
-                </h1>
+                <h1 className="text-xl font-bold text-gray-900">ScholarM</h1>
                 <p className="text-sm text-blue-600">
                   {journal && journal.journal_name}
                 </p>
@@ -58,7 +62,7 @@ export function AdminHeader() {
               <button className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors">
                 <Settings className="w-5 h-5" />
               </button>
-              <div className="flex items-center space-x-4">               
+              <div className="flex items-center space-x-4">
                 {/* User Profile Dropdown */}
                 <div className="relative">
                   <button
@@ -67,20 +71,12 @@ export function AdminHeader() {
                   >
                     {/* Avatar */}
                     <div className="flex items-center justify-center w-8 h-8 bg-blue-600 rounded-full">
-                      {user.avatar ? (
-                        <img
-                          src={user.avatar}
-                          alt={user.name}
-                          className="w-8 h-8 rounded-full object-cover"
-                        />
-                      ) : (
-                        <span className="text-sm font-medium text-white">
-                          {user.name
-                            .split(" ")
-                            .map((n) => n[0])
-                            .join("")}
-                        </span>
-                      )}
+                      <span className="text-sm font-medium text-white">
+                        {user.name
+                          .split(" ")
+                          .map((n) => n[0])
+                          .join("")}
+                      </span>
                     </div>
 
                     {/* User Info */}
@@ -145,7 +141,15 @@ export function AdminHeader() {
                         </button>
 
                         <button
-                          onClick={() => logout(`${user && user.role === "system_admin" ? "/admin" : `/journal/${journal?.journal_code}`}`)}
+                          onClick={() =>
+                            logout(
+                              `${
+                                user && user.role === "system_admin"
+                                  ? "/admin"
+                                  : `/journal/${journal?.journal_code}`
+                              }`
+                            )
+                          }
                           className="flex items-center w-full px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors duration-200"
                         >
                           <LogOut className="w-4 h-4 mr-3 text-red-500" />

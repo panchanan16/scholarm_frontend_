@@ -14,12 +14,13 @@ import {
   Layers,
 } from "lucide-react";
 import { Link } from "react-router-dom";
-import { useCreateEmailFieldMutation, useCreateFieldTypeMutation, useGetAllFieldTypeQuery } from "@/services/features/template/templateApi";
+import { useCreateEmailFieldMutation, useDeleteEmailFieldMutation, useGetAllFieldTypeQuery } from "@/services/features/template/templateApi";
 import { useToastMutation } from "@/hooks/useNotification";
 
 const FieldsPageForm = ({onEdit, onDelete }) => {
   const { data: templateFields } = useGetAllFieldTypeQuery();
   const [createEmailField] = useToastMutation(useCreateEmailFieldMutation(), {showLoading: true})
+  const [deleteEmailField] = useToastMutation(useDeleteEmailFieldMutation(), {showLoading: true})
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState("");
   const [fields, setFields] = useState([]);
@@ -57,18 +58,9 @@ const FieldsPageForm = ({onEdit, onDelete }) => {
     setSubmitting(false);
   };
 
-  const handleEdit = (field) => {
-    if (onEdit) {
-      onEdit(field);
-    }
-  };
-
-  const handleDelete = (field) => {
-    // Remove from local state
-    setFields((prev) => prev.filter((f) => f.field_id !== field.field_id));
-    
-    if (onDelete) {
-      onDelete(field);
+  const handleDelete = async (field) => {
+    if (window.confirm("Are you sure to delete ??")) {
+      await deleteEmailField({field_id: field})
     }
   };
 
@@ -305,16 +297,9 @@ const FieldsPageForm = ({onEdit, onDelete }) => {
                                   {field.field_value}
                                 </p>
                               </div>
-                              <div className="flex items-center space-x-1 ml-2">
+                              <div className="flex items-center space-x-1 ml-2">                                
                                 <button
-                                  onClick={() => handleEdit(field)}
-                                  className="p-1 text-blue-600 hover:bg-blue-50 rounded transition-colors"
-                                  title="Edit field"
-                                >
-                                  <Edit2 className="w-3 h-3" />
-                                </button>
-                                <button
-                                  onClick={() => handleDelete(field)}
+                                  onClick={() => handleDelete(field.field_id)}
                                   className="p-1 text-red-600 hover:bg-red-50 rounded transition-colors"
                                   title="Delete field"
                                 >

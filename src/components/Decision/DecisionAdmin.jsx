@@ -3,6 +3,7 @@ import {
   useAddPublisherDescisionMutation,
   useGetReviewsAuthorsQuery,
 } from "@/services/features/manuscript/slice";
+import { getDecisionColor } from "@/utils/getDecisionColor";
 import { Field, Form, Formik } from "formik";
 import { useState } from "react";
 
@@ -183,7 +184,7 @@ export default function DescisionAdmin({
                           </div>
                         </td>
                         <td className="px-4 py-4 whitespace-nowrap">
-                          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                          <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getDecisionColor(reviewer.is_accepted)}`}>
                             {reviewer.is_accepted}
                           </span>
                         </td>

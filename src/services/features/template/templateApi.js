@@ -18,6 +18,8 @@ export const templateApi = baseApi.injectEndpoints({
             query: () => ({
                 url: '/fieldType/readAll',
             }),
+
+            providesTags: ['EmailFieldWithType']
         }),
 
 
@@ -28,6 +30,7 @@ export const templateApi = baseApi.injectEndpoints({
                 method: 'POST',
                 body: data,
             }),
+            invalidatesTags: ['EmailFieldWithType'],
         }),
 
         //getAll email field---
@@ -35,6 +38,18 @@ export const templateApi = baseApi.injectEndpoints({
             query: () => ({
                 url: '/emailField/readAll',
             }),
+        }),
+
+        // Delete a email Field ---
+        deleteEmailField: builder.mutation({
+            query: (params) => ({
+                url: `/emailField/remove`,
+                params: {
+                    field_id: params.field_id,
+                },
+                method: 'DELETE',
+            }),
+            invalidatesTags: ['EmailFieldWithType'],
         }),
 
 
@@ -45,6 +60,7 @@ export const templateApi = baseApi.injectEndpoints({
                 method: 'POST',
                 body: data,
             }),
+            invalidatesTags: ['EmailTemplates']
         }),
 
         //getAll email template---
@@ -52,10 +68,12 @@ export const templateApi = baseApi.injectEndpoints({
             query: () => ({
                 url: '/emailTemplate/readAll',
             }),
+
+            providesTags: ['EmailTemplates']
         }),
 
 
-        //getOne email template---
+        //getOne email template ---
         getOneEmailTemplate: builder.query({
             query: (params) => ({
                 url: '/emailTemplate/readOne',
@@ -63,6 +81,31 @@ export const templateApi = baseApi.injectEndpoints({
                     template_id: params.template_id
                 }
             }),
+        }),
+
+
+        // Update Email template ---
+        updateEmailTemplate: builder.mutation({
+            query: (data) => ({
+                url: '/emailTemplate/update',
+                method: 'PUT',
+                body: data,
+            }),
+            invalidatesTags: ['EmailTemplates'],
+        }),
+
+
+
+        // Delete Email template ---
+        deleteEmailTemplate: builder.mutation({
+            query: (params) => ({
+                url: `/emailTemplate/remove`,
+                params: {
+                    template_id: params.template_id,
+                },
+                method: 'DELETE',
+            }),
+            invalidatesTags: ['EmailTemplates'],
         }),
 
 
@@ -77,5 +120,8 @@ export const {
     useGetAllEmailFieldQuery,
     useCreateEmailTemplateMutation,
     useGetAllEmailTemplateQuery,
-    useLazyGetOneEmailTemplateQuery
+    useLazyGetOneEmailTemplateQuery,
+    useUpdateEmailTemplateMutation,
+    useDeleteEmailFieldMutation,
+    useDeleteEmailTemplateMutation
 } = templateApi

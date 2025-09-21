@@ -360,7 +360,7 @@ const AssignReviewerPage = () => {
                 <thead className="bg-gray-50 border-b border-gray-100">
                   <tr>
                     <th className="px-4 py-4 text-left text-sm font-semibold text-gray-700 w-[60px]">
-                      <div className="flex items-center">
+                      {/* <div className="flex items-center">
                         <button
                           onClick={handleSelectAllReviewers}
                           className="flex items-center justify-center w-5 h-5 border-2 border-gray-300 rounded hover:border-gray-400 transition-colors"
@@ -369,7 +369,7 @@ const AssignReviewerPage = () => {
                             <Check className="w-3 h-3 text-gray-600" />
                           ) : null}
                         </button>
-                      </div>
+                      </div> */}
                     </th>
                     <th className="px-4 py-4 text-left text-sm font-semibold text-gray-700 w-[120px]">
                       Action
@@ -656,6 +656,7 @@ const AssignReviewerPage = () => {
         editor_id={editorId}
         onClose={setIsAssignOpen}
         selectedReviewers={selectedEditors}
+        removeSelection={setSelectedEditors}
       />
     </div>
   );

@@ -1,41 +1,36 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { X, Minus } from "lucide-react";
 import { useToastMutation } from "@/hooks/useNotification";
 import { useAssignReviewerToManuscriptMutation } from "@/services/features/manuscript/slice";
 import { useSearchParams } from "react-router-dom";
+import TextEditor from "@/components/TextEditor";
+import { useGetAllEmailTemplateQuery } from "@/services/features/template/templateApi";
 
 const FinalAssignReviewerPopup = ({ isOpen, onClose, AssignedReviewers }) => {
-  const [selectedTemplate, setSelectedTemplate] = useState("");
   const [numberOfDays, setNumberOfDays] = useState(10);
   const [searchParams] = useSearchParams();
+  const { data: emailTemplates } = useGetAllEmailTemplateQuery();
 
   const article_id = searchParams.get("article_id") || 0;
-   const round = searchParams.get("round")
+  const round = searchParams.get("round");
 
-  const [subject, setSubject] = useState(
-    "Assignment as Editor for Manuscript ID: JPMS148833"
-  );
-  const [emailContent, setEmailContent] =
-    useState(`Dear Professor Iftikhar Ahmed,
+  const [subject, setSubject] = useState("");
+  const [intialEmail, setInitialEmail] = useState("")
+  const emailContent = useRef(null);
+  const [selectedTemplate, setSelectedTemplate] = useState(null);
 
-You are invited to serve as Editor for:
-
-Manuscript ID: JPMS148833
-Title: Self-care Behaviors and Associated Factors among Patients with Hypertension in the Kurdistan Region of Iraq: A cross-sectional analysis
-Authors: Hero Ali; Muhammad Amen
-Journal: Journal of Pioneering Medical Sciences
-
-Log in at https://scholarmanuscript.com/journals/JPMS (User ID: editor@jpmsonline.com) to view details and the PDF at https://scholarmanuscript.com/File/Download/Gfc62dc2-ca3c-40ba-b5e8-444c01038002?source=manuscriptFile, then accept or decline the assignment. Reset your password at https://scholarmanuscript.com/Account/ForgotPassword/JPMS if needed.
-
-Best regards,
-Iftikhar Ahmed (PhD)
-Publication Office
-Journal of Pioneering Medical Sciences
-www.jpmsonline.com
-
-This email and any attached information is only intended for individual/s or entities mentioned and is confidential and privileged. Be aware that any disclosure, copying, distribution, or use of the contents`);
-
-  const [isMinimized, setIsMinimized] = useState(false);
+  function setSubjectAndEmail(temp_id) {
+    if (temp_id) {
+      const template =
+        emailTemplates &&
+        emailTemplates.data.filter((temp) => temp.template_id == temp_id);
+      if (template?.length > 0) {
+        setSelectedTemplate(temp_id);
+        setSubject(template[0].subject);
+        setInitialEmail(template[0].body);
+      }
+    }
+  }
 
   const [assignReviewersToArticle] = useToastMutation(
     useAssignReviewerToManuscriptMutation(),
@@ -53,30 +48,26 @@ This email and any attached information is only intended for individual/s or ent
         article_id: Number(article_id),
         round: Number(round) + 1,
         reviewer_id: reviewer.reviewer_id,
-        no_days: numberOfDays,        
+        no_days: numberOfDays,
       });
     });
 
-    await assignReviewersToArticle({ reviewers: sendData, emailInfo: {subject, emailContent}, round: Number(round) + 1 });
+    await assignReviewersToArticle({
+      reviewers: sendData,
+      emailInfo: { subject, body: emailContent.current.getContent() },
+      round: Number(round) + 1,
+    });
   };
 
   return (
     <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4">
       <div
-        className={`bg-white rounded-lg shadow-2xl w-full max-w-4xl transition-all duration-300 ${
-          isMinimized ? "h-16" : "max-h-[90vh]"
-        } flex flex-col`}
+        className={`bg-white rounded-lg shadow-2xl w-full max-w-4xl transition-all duration-300 max-h-[90vh] flex flex-col`}
       >
         {/* Header */}
         <div className="flex items-center justify-between bg-gray-800 text-white px-4 py-3 rounded-t-lg">
           <h2 className="text-lg font-semibold">Assign Reviewer</h2>
-          <div className="flex items-center space-x-2">
-            <button
-              onClick={() => setIsMinimized(!isMinimized)}
-              className="p-1 hover:bg-gray-700 rounded transition-colors"
-            >
-              <Minus size={16} />
-            </button>
+          <div className="flex items-center space-x-2">            
             <button
               onClick={() => onClose(false)}
               className="p-1 hover:bg-gray-700 rounded transition-colors"
@@ -87,7 +78,6 @@ This email and any attached information is only intended for individual/s or ent
         </div>
 
         {/* Content */}
-        {!isMinimized && (
           <div className="flex-1 flex flex-col overflow-hidden">
             <div className="p-6 space-y-6 flex-1 overflow-y-auto">
               {/* Form Fields */}
@@ -98,17 +88,16 @@ This email and any attached information is only intended for individual/s or ent
                   </label>
                   <select
                     value={selectedTemplate}
-                    onChange={(e) => setSelectedTemplate(e.target.value)}
+                    onChange={(e) => setSubjectAndEmail(e.target.value)}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-500 focus:border-transparent"
                   >
                     <option value="">Select Email Template</option>
-                    <option value="editor-invitation">Editor Invitation</option>
-                    <option value="reviewer-invitation">
-                      Reviewer Invitation
-                    </option>
-                    <option value="author-notification">
-                      Author Notification
-                    </option>
+                    {emailTemplates &&
+                      emailTemplates?.data.map((temp) => (
+                        <option value={temp.template_id}>
+                          {temp.template_name}
+                        </option>
+                      ))}
                   </select>
                 </div>
 
@@ -148,11 +137,9 @@ This email and any attached information is only intended for individual/s or ent
                 <label className="text-sm font-medium text-gray-700">
                   Email Content
                 </label>
-                <textarea
-                  value={emailContent}
-                  onChange={(e) => setEmailContent(e.target.value)}
-                  className="w-full h-64 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-500 focus:border-transparent resize-none text-sm"
-                  placeholder="Enter your email content here..."
+                <TextEditor
+                  editorRef={emailContent}
+                  initialContent={intialEmail ? intialEmail : ""}
                 />
               </div>
             </div>
@@ -175,7 +162,6 @@ This email and any attached information is only intended for individual/s or ent
               </div>
             </div>
           </div>
-        )}
       </div>
     </div>
   );

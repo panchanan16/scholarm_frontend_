@@ -19,6 +19,7 @@ import {
 import SubmissionError from "@/components/error/submissionError";
 import { Link, useSearchParams } from "react-router-dom";
 import { useToastMutation } from "@/hooks/useNotification";
+import { useAuth } from "@/hooks/useAuth";
 
 const SummaryForm = ({
   submissionData = {
@@ -107,6 +108,7 @@ const SummaryForm = ({
   const { data: articleSummary } = useGetArticleSummaryQuery({
     article_id: articleId,
   });
+  const {journal} = useAuth()
 
   const [finalSubmission] = useToastMutation(
     useConfirmAndSubmitManuscriptMutation(),
@@ -123,8 +125,6 @@ const SummaryForm = ({
 
     const uniqueSectionReff = new Set(sectionReffs);
     const isReffOk = reffs.every(num => uniqueSectionReff.has(num));
-
-    console.log(isReffOk)
 
     setIsReferenceError(!isReffOk)
     return !isReffOk
@@ -313,10 +313,10 @@ const SummaryForm = ({
               </div>
               <div>
                 <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">
-                  Subject
+                  Sub Category
                 </label>
                 <p className="text-gray-900 mt-1 text-sm">
-                  {submissionData.subject}
+                  {articleSummary && articleSummary.data.sub_class}
                 </p>
               </div>
             </div>
@@ -326,7 +326,7 @@ const SummaryForm = ({
                 Journal
               </label>
               <p className="text-base font-semibold text-blue-600 mt-1">
-                {submissionData.journalName}
+                {journal?.journal_name}
               </p>
             </div>
           </div>
